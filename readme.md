@@ -32,13 +32,16 @@
 
 ## 页面索引
 
-项目目前提供了几个不同风格的首页 demo，方便你挑选喜欢的方向：
+首页已经合并为一个文件，内置三种可切换的皮肤：
 
-- **[index.html](./index.html)** — 现代 Bento / 玻璃质感风格（默认）
-- **[index-demo-terminal.html](./index-demo-terminal.html)** — 深色终端 / 开发者仪表盘风格
-- **[index-demo-editorial.html](./index-demo-editorial.html)** — 杂志 / 编辑排版风格
+- **[index.html](./index.html)**
+  - **原版** — 现代 Bento / 玻璃质感风格（默认）
+  - **仙侠** — 水墨修真 / 万法玉简风格
+  - **杂志** — 杂志 / 编辑排版风格
 
-每个首页都支持：
+切换按钮固定在页面顶部，选择后会自动保存到本地（`localStorage`），下次打开仍是该皮肤。
+
+每个皮肤都支持：
 
 - 按分类浏览所有工具
 - 点击打开对应工具页面
@@ -50,9 +53,7 @@
 
 ```
 HTML_合集/
-├── index.html                          # 默认首页（Bento 风格）
-├── index-demo-terminal.html            # 终端风格首页 demo
-├── index-demo-editorial.html           # 杂志风格首页 demo
+├── index.html                          # 统一首页，支持原版 / 仙侠 / 杂志三种皮肤
 ├── file-converter.html                 # 文件格式转换工具
 ├── pdf-to-ppt-converter.html           # PDF 转 PPT 工具
 ├── 番茄时钟.html                        # 番茄工作法计时器
