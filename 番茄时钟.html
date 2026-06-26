@@ -3770,6 +3770,7 @@ let timeLeft = state.settings.focusTime * 60;
 let timerMode = 'focus'; // focus, shortBreak, longBreak
 let isRunning = false;
 let isCompleting = false; // 完成过渡期标志，防止过渡期内重复启动导致双倍计数
+let completingTimer = null; // 完成过渡期 setTimeout 句柄，便于停止时清理
 let endTime = 0; // 墙钟到期时间戳，消除 setInterval 后台节流漂移
 let sessionElapsedMs = 0; // 当前逻辑会话累计实际运行毫秒（统计真实经过时长）
 let runStartMs = 0; // 当前连续运行段起始时间戳（0 表示已暂停）
@@ -3937,6 +3938,14 @@ function pauseTimer() {
 }
 
 function stopTimer() {
+    // 完成过渡期内停止：清理挂起的 setTimeout，避免回调推翻停止操作（不记录统计）
+    if (isCompleting) {
+        isCompleting = false;
+        if (completingTimer) {
+            clearTimeout(completingTimer);
+            completingTimer = null;
+        }
+    }
     pauseTimer();
     resetTimer();
 }
@@ -3960,8 +3969,9 @@ function handleTimerComplete() {
     playEndSound();
 
     // 给UI留一点时间展示00:00，然后再重置
-    setTimeout(() => {
+    completingTimer = setTimeout(() => {
         // 过渡期结束，恢复可启动状态（须在 autoStart 前清除，避免拦截自动开始）
+        completingTimer = null;
         isCompleting = false;
         if (timerMode === 'focus') {
             // 用墙钟累计计算实际经过分钟数，避免写设置值
@@ -3970,7 +3980,9 @@ function handleTimerComplete() {
                 elapsedMs += Date.now() - runStartMs;
                 runStartMs = 0;
             }
-            const elapsedMinutes = Math.max(1, Math.round(elapsedMs / 60000));
+            // 按本会话配置时长封顶，避免后台节流导致 sessionElapsedMs 超时长虚增
+            const sessionCapMs = (timerMode === 'focus' ? state.settings.focusTime : (timerMode === 'shortBreak' ? state.settings.shortBreak : state.settings.longBreak)) * 60000;
+            const elapsedMinutes = Math.min(Math.round(sessionCapMs / 60000), Math.max(1, Math.round(elapsedMs / 60000)));
 
             // Record stats & gamification（使用实际经过时长；pomodoroCount 纳入 state 持久化）
             state.pomodoroCount = (state.pomodoroCount || 0) + 1;
@@ -4284,7 +4296,7 @@ function dragStart(e) {
     const rect = el('capsule').getBoundingClientRect();
     initialX = rect.left;
     initialY = rect.top;
-    if (e.cancelable) e.preventDefault(); // 防止拖拽时选中文本/触发滚动
+    // touchstart 不 preventDefault，避免抑制触屏长按 contextmenu；滚动由 drag(touchmove) 阻止
 }
 
 function drag(e) {

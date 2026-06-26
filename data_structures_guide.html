@@ -289,7 +289,7 @@ pre.code-block::-webkit-scrollbar-thumb { background: var(--border); border-radi
 <!-- ═══════════════════════ PAGE 01: ARRAY ═══════════════════════ -->
 <div class="page active" id="page-0">
   <div class="page-header">
-    <div class="breadcrumb">DATA STRUCTURES <span>▸ 01 / 18</span></div>
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 01 / 24</span></div>
     <div class="page-title"><span class="zh">数组</span><span class="en">Dynamic Array</span></div>
     <div class="page-desc">数组是最基础的线性数据结构，将相同类型的元素存储在<strong>连续内存空间</strong>中。动态数组在固定数组之上实现了自动扩容，是 Python list 的底层实现基础。</div>
     <div class="tags"><span class="tag tag-blue">随机访问</span><span class="tag tag-green">缓存友好</span><span class="tag tag-orange">扩容摊还</span></div>
@@ -409,7 +409,7 @@ def max_subarray_sum(nums, k):
 <!-- ═══════════════════════ PAGE 02: LINKED LIST ═══════════════════════ -->
 <div class="page" id="page-1">
   <div class="page-header">
-    <div class="breadcrumb">DATA STRUCTURES <span>▸ 02 / 18</span></div>
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 02 / 24</span></div>
     <div class="page-title"><span class="zh">链表</span><span class="en">Linked List</span></div>
     <div class="page-desc">链表通过<strong>指针</strong>将节点串联，无需连续内存。插入/删除（已知位置）为 O(1)，但随机访问需 O(n)。分为单向、双向、循环三种形式。</div>
     <div class="tags"><span class="tag tag-blue">单链表</span><span class="tag tag-blue">双链表</span><span class="tag tag-orange">O(1)插删</span><span class="tag tag-purple">哨兵节点</span></div>
@@ -548,7 +548,7 @@ def merge_sorted(l1, l2):
 <!-- ═══════════════════════ PAGE 03: STACK ═══════════════════════ -->
 <div class="page" id="page-2">
   <div class="page-header">
-    <div class="breadcrumb">DATA STRUCTURES <span>▸ 03 / 18</span></div>
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 03 / 24</span></div>
     <div class="page-title"><span class="zh">栈</span><span class="en">Stack</span></div>
     <div class="page-desc"><strong>后进先出（LIFO）</strong>数据结构。Python 的 list 天然支持栈操作。单调栈是栈的经典变形，用于解决"下一个更大/小元素"类问题。</div>
     <div class="tags"><span class="tag tag-blue">LIFO</span><span class="tag tag-green">O(1)全操作</span><span class="tag tag-orange">单调栈</span><span class="tag tag-purple">括号匹配</span></div>
@@ -666,7 +666,7 @@ class MyQueue:
 <!-- ═══════════════════════ PAGE 04: QUEUE ═══════════════════════ -->
 <div class="page" id="page-3">
   <div class="page-header">
-    <div class="breadcrumb">DATA STRUCTURES <span>▸ 04 / 18</span></div>
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 04 / 24</span></div>
     <div class="page-title"><span class="zh">队列 / 双端队列</span><span class="en">Queue / Deque</span></div>
     <div class="page-desc"><strong>先进先出（FIFO）</strong>数据结构。Python 的 <code>collections.deque</code> 是基于双向链表的双端队列，两端操作均为 O(1)。单调队列用于滑动窗口最值问题。</div>
     <div class="tags"><span class="tag tag-blue">FIFO</span><span class="tag tag-green">deque O(1)</span><span class="tag tag-orange">单调队列</span><span class="tag tag-purple">BFS</span></div>
@@ -805,7 +805,7 @@ class PriorityQueue:
 <!-- ═══════════════════════ PAGE 05: HASH TABLE ═══════════════════════ -->
 <div class="page" id="page-4">
   <div class="page-header">
-    <div class="breadcrumb">DATA STRUCTURES <span>▸ 05 / 18</span></div>
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 05 / 24</span></div>
     <div class="page-title"><span class="zh">哈希表</span><span class="en">Hash Table</span></div>
     <div class="page-desc">通过<strong>哈希函数</strong>将键映射到数组下标，实现平均 O(1) 的增删查。冲突解决有<strong>链地址法（拉链）</strong>和<strong>开放寻址法</strong>两大类。Python 的 dict 基于开放寻址（探测哈希）实现。</div>
     <div class="tags"><span class="tag tag-blue">哈希函数</span><span class="tag tag-green">O(1)均摊</span><span class="tag tag-orange">拉链法</span><span class="tag tag-purple">负载因子</span></div>
@@ -965,7 +965,7 @@ def group_anagrams(words):
 <!-- ═══════════════════════ PAGE 06: BINARY TREE ═══════════════════════ -->
 <div class="page" id="page-5">
   <div class="page-header">
-    <div class="breadcrumb">DATA STRUCTURES <span>▸ 06 / 18</span></div>
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 06 / 24</span></div>
     <div class="page-title"><span class="zh">二叉树</span><span class="en">Binary Tree</span></div>
     <div class="page-desc">每个节点最多有<strong>两个子节点</strong>（左 / 右）。深度优先遍历（前序/中序/后序）和广度优先遍历（层序）是解题核心工具。</div>
     <div class="tags"><span class="tag tag-blue">前序 Pre</span><span class="tag tag-blue">中序 In</span><span class="tag tag-blue">后序 Post</span><span class="tag tag-orange">层序 BFS</span></div>
@@ -1105,7 +1105,7 @@ class BinaryTree:
 <!-- ═══════════════════════ PAGE 07: BST ═══════════════════════ -->
 <div class="page" id="page-6">
   <div class="page-header">
-    <div class="breadcrumb">DATA STRUCTURES <span>▸ 07 / 18</span></div>
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 07 / 24</span></div>
     <div class="page-title"><span class="zh">二叉搜索树</span><span class="en">Binary Search Tree</span></div>
     <div class="page-desc">BST 满足：<strong>左子树所有节点 < 根 < 右子树所有节点</strong>。BST 的中序遍历恰好为升序序列。最坏情况（退化为链表）时所有操作退化为 O(n)，这是 AVL / 红黑树存在的原因。</div>
     <div class="tags"><span class="tag tag-blue">BST 性质</span><span class="tag tag-green">中序升序</span><span class="tag tag-orange">删除后继</span><span class="tag tag-purple">退化 O(n)</span></div>
@@ -1243,7 +1243,7 @@ class BST:
 <!-- ═══════════════════════ PAGE 08: AVL ═══════════════════════ -->
 <div class="page" id="page-7">
   <div class="page-header">
-    <div class="breadcrumb">DATA STRUCTURES <span>▸ 08 / 18</span></div>
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 08 / 24</span></div>
     <div class="page-title"><span class="zh">AVL 树</span><span class="en">AVL Tree</span></div>
     <div class="page-desc">AVL 树是<strong>严格自平衡</strong>的 BST。每个节点维护<strong>平衡因子 BF = 左高 - 右高</strong>，要求 BF ∈ {-1,0,1}。插入/删除后通过<strong>四种旋转</strong>恢复平衡，保证 O(log n) 的严格上界。</div>
     <div class="tags"><span class="tag tag-blue">平衡因子 BF</span><span class="tag tag-green">四种旋转</span><span class="tag tag-orange">O(logn)严格</span></div>
@@ -1379,7 +1379,7 @@ class AVLTree:
 <!-- ═══════════════════════ PAGE 09: RED-BLACK TREE ═══════════════════════ -->
 <div class="page" id="page-8">
   <div class="page-header">
-    <div class="breadcrumb">DATA STRUCTURES <span>▸ 09 / 18</span></div>
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 09 / 24</span></div>
     <div class="page-title"><span class="zh">红黑树</span><span class="en">Red-Black Tree</span></div>
     <div class="page-desc">红黑树是一种<strong>近似平衡</strong>的 BST，通过节点着色和旋转维护 5 条不变量。相比 AVL 树，写操作旋转次数更少（插入 O(1) 次旋转），是 Java TreeMap、Linux epoll 等的底层实现。</div>
     <div class="tags"><span class="tag tag-blue">5 条性质</span><span class="tag tag-orange">2-3-4树等价</span><span class="tag tag-green">插入O(1)旋转</span></div>
@@ -1518,7 +1518,7 @@ class RedBlackTree:
 <!-- ═══════════════════════ PAGE 10: HEAP ═══════════════════════ -->
 <div class="page" id="page-9">
   <div class="page-header">
-    <div class="breadcrumb">DATA STRUCTURES <span>▸ 10 / 18</span></div>
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 10 / 24</span></div>
     <div class="page-title"><span class="zh">堆</span><span class="en">Heap / Priority Queue</span></div>
     <div class="page-desc"><strong>完全二叉树</strong>用<strong>数组</strong>存储（节省指针空间），满足堆性质：父节点 ≤ 子节点（最小堆）。索引关系：父(i) = (i-1)//2，左孩子 = 2i+1，右孩子 = 2i+2。</div>
     <div class="tags"><span class="tag tag-blue">完全二叉树</span><span class="tag tag-green">O(1)查最值</span><span class="tag tag-orange">O(logn)插删</span><span class="tag tag-purple">O(n)建堆</span></div>
@@ -1652,7 +1652,7 @@ def heap_sort(arr):
 <!-- ═══════════════════════ PAGE 11: TRIE ═══════════════════════ -->
 <div class="page" id="page-10">
   <div class="page-header">
-    <div class="breadcrumb">DATA STRUCTURES <span>▸ 11 / 18</span></div>
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 11 / 24</span></div>
     <div class="page-title"><span class="zh">字典树</span><span class="en">Trie (Prefix Tree)</span></div>
     <div class="page-desc">Trie 是<strong>多叉树</strong>，每条从根到标记节点的路径代表一个字符串。时间复杂度与<strong>字符串长度 m</strong> 相关，与字符串数量无关。常用于<strong>自动补全、IP 路由、单词搜索</strong>等场景。</div>
     <div class="tags"><span class="tag tag-blue">前缀共享</span><span class="tag tag-green">O(m)操作</span><span class="tag tag-orange">自动补全</span></div>
@@ -1808,7 +1808,7 @@ def find_words(board, words):
 <!-- ═══════════════════════ PAGE 12: GRAPH ═══════════════════════ -->
 <div class="page" id="page-11">
   <div class="page-header">
-    <div class="breadcrumb">DATA STRUCTURES <span>▸ 12 / 18</span></div>
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 12 / 24</span></div>
     <div class="page-title"><span class="zh">图</span><span class="en">Graph</span></div>
     <div class="page-desc">图 G = (V, E) 由<strong>顶点集 V</strong> 和<strong>边集 E</strong> 组成。存储方式有<strong>邻接矩阵</strong>（空间 O(V²)，稠密图）和<strong>邻接表</strong>（空间 O(V+E)，稀疏图）。核心算法：BFS / DFS / Dijkstra / 拓扑排序。</div>
     <div class="tags"><span class="tag tag-blue">有向/无向</span><span class="tag tag-green">BFS/DFS</span><span class="tag tag-orange">Dijkstra</span><span class="tag tag-purple">拓扑排序</span></div>
@@ -1959,7 +1959,7 @@ class Graph:
 <!-- ═══════════════════════ PAGE 13: SKIP LIST ═══════════════════════ -->
 <div class="page" id="page-12">
   <div class="page-header">
-    <div class="breadcrumb">DATA STRUCTURES <span>▸ 13 / 18</span></div>
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 13 / 24</span></div>
     <div class="page-title"><span class="zh">跳表</span><span class="en">Skip List</span></div>
     <div class="page-desc">跳表通过<strong>多层有序链表</strong>实现 O(log n) 的期望查询，是<strong>有序集合</strong>的替代实现（Redis ZSet 的底层结构）。通过<strong>随机化层数</strong>（概率 p）避免最坏情况，实现简单、支持范围查询。</div>
     <div class="tags"><span class="tag tag-blue">多层链表</span><span class="tag tag-green">O(logn)期望</span><span class="tag tag-orange">随机层数</span><span class="tag tag-purple">Redis ZSet</span></div>
@@ -2098,7 +2098,7 @@ class SkipList:
 <!-- ═══════════════════════ PAGE 14: B+ TREE ═══════════════════════ -->
 <div class="page" id="page-13">
   <div class="page-header">
-    <div class="breadcrumb">DATA STRUCTURES <span>▸ 14 / 18</span></div>
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 14 / 24</span></div>
     <div class="page-title"><span class="zh">B+ 树</span><span class="en">B+ Tree</span></div>
     <div class="page-desc">B+ 树是<strong>多路平衡搜索树</strong>，专为<strong>磁盘存储优化</strong>。内部节点只存键（导航），<strong>所有数据存在叶子节点</strong>，叶子节点通过链表相连，支持高效范围查询。是<strong>MySQL InnoDB</strong> 的核心索引结构。</div>
     <div class="tags"><span class="tag tag-blue">多路搜索</span><span class="tag tag-green">叶节点链表</span><span class="tag tag-orange">磁盘友好</span><span class="tag tag-purple">MySQL索引</span></div>
@@ -2245,7 +2245,7 @@ class BPlusTree:
 <!-- ═══════════════════════ PAGE 15: LRU ═══════════════════════ -->
 <div class="page" id="page-14">
   <div class="page-header">
-    <div class="breadcrumb">DATA STRUCTURES <span>▸ 15 / 18</span></div>
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 15 / 24</span></div>
     <div class="page-title"><span class="zh">LRU 缓存</span><span class="en">LRU Cache</span></div>
     <div class="page-desc"><strong>最近最少使用（Least Recently Used）</strong>缓存淘汰策略。用<strong>双向链表 + 哈希表</strong>实现所有操作 O(1)。链表维护使用顺序，哈希表实现 O(1) 定位。是高频面试题（LeetCode 146）。</div>
     <div class="tags"><span class="tag tag-blue">双链表+哈希</span><span class="tag tag-green">O(1)全操作</span><span class="tag tag-orange">缓存淘汰</span><span class="tag tag-purple">LeetCode 146</span></div>
@@ -2398,7 +2398,7 @@ class LFUCache:
 <!-- ═══════════════════════ PAGE 16: SEGMENT TREE ═══════════════════════ -->
 <div class="page" id="page-15">
   <div class="page-header">
-    <div class="breadcrumb">DATA STRUCTURES <span>▸ 16 / 18</span></div>
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 16 / 24</span></div>
     <div class="page-title"><span class="zh">线段树</span><span class="en">Segment Tree</span></div>
     <div class="page-desc">线段树将区间递归二分，每个节点存储一个区间的聚合值（和/最值等），支持 O(log n) 的<strong>单点更新</strong>和<strong>区间查询</strong>。加入<strong>懒标记（Lazy Propagation）</strong>后可支持 O(log n) 的区间更新。</div>
     <div class="tags"><span class="tag tag-blue">区间查询</span><span class="tag tag-green">O(logn)更新</span><span class="tag tag-orange">懒标记</span><span class="tag tag-purple">区间修改</span></div>
@@ -2561,7 +2561,7 @@ class DynamicSegTree:
 <!-- ═══════════════════════ PAGE 17: FENWICK TREE ═══════════════════════ -->
 <div class="page" id="page-16">
   <div class="page-header">
-    <div class="breadcrumb">DATA STRUCTURES <span>▸ 17 / 18</span></div>
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 17 / 24</span></div>
     <div class="page-title"><span class="zh">树状数组</span><span class="en">Fenwick Tree / BIT</span></div>
     <div class="page-desc">树状数组（Binary Indexed Tree）是比线段树更简洁的数据结构，利用<strong>二进制 lowbit 技巧</strong>，以 O(n) 空间支持 O(log n) 的单点更新和前缀和查询。常数更小，实现极简。</div>
     <div class="tags"><span class="tag tag-blue">lowbit 技巧</span><span class="tag tag-green">O(logn)操作</span><span class="tag tag-orange">前缀和</span><span class="tag tag-purple">逆序对</span></div>
@@ -2709,7 +2709,7 @@ def count_inversions(arr):
 <!-- ═══════════════════════ PAGE 18: UNION-FIND ═══════════════════════ -->
 <div class="page" id="page-17">
   <div class="page-header">
-    <div class="breadcrumb">DATA STRUCTURES <span>▸ 18 / 18</span></div>
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 18 / 24</span></div>
     <div class="page-title"><span class="zh">并查集</span><span class="en">Union-Find (Disjoint Set)</span></div>
     <div class="page-desc">并查集维护<strong>不相交集合（连通分量）</strong>，支持合并和查找操作。通过<strong>路径压缩 + 按秩合并</strong>，操作时间复杂度趋近 O(1)（严格为反阿克曼函数 O(α(n))）。是 Kruskal MST、检测环的核心工具。</div>
     <div class="tags"><span class="tag tag-blue">路径压缩</span><span class="tag tag-green">O(α)≈O(1)</span><span class="tag tag-orange">连通分量</span><span class="tag tag-purple">Kruskal MST</span></div>

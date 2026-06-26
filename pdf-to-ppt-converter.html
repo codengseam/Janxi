@@ -260,6 +260,9 @@
             // 设置 pdfjs worker
             if (typeof pdfjsLib !== 'undefined') {
                 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/build/pdf.worker.min.js';
+            } else {
+                showMessage('error', 'PDF 引擎加载失败，PDF 解析不可用');
+                parsePdfBtn.disabled = true;
             }
 
             // 校验依赖库加载
@@ -308,6 +311,9 @@
                     pdfFileInput.click();
                 }
             });
+
+            // 点击上传区域（含 padding 区）触发文件选择
+            fileUploadArea.addEventListener('click', () => pdfFileInput.click());
 
             // 按钮点击事件
             parsePdfBtn.addEventListener('click', parsePDF);
@@ -380,10 +386,20 @@
             }
         }
         
+        // HTML 转义，防止 message 内容触发 XSS
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         // 显示消息
         function showMessage(type, message) {
             statusMessage.className = `status-message ${type}-message`;
-            statusMessage.innerHTML = `<i class="fa fa-${type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle'} mr-2"></i>${message}`;
+            statusMessage.innerHTML = `<i class="fa fa-${type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle'} mr-2"></i>${escapeHtml(message)}`;
             statusMessage.classList.remove('hidden');
             
             // 3秒后自动隐藏
@@ -406,6 +422,7 @@
             if (!pdfFile) return;
             if (isProcessing) return;
 
+            let pdf = null;
             try {
                 isProcessing = true;
                 setProcessingUI(true);
@@ -421,7 +438,7 @@
                 });
 
                 // 解析PDF
-                const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+                pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
                 const numPages = pdf.numPages;
                 pdfPages = [];
 
@@ -482,6 +499,14 @@
                 showMessage('error', '解析PDF失败：' + (error && error.message ? error.message : '请检查文件是否损坏'));
                 progressContainer.classList.add('hidden');
             } finally {
+                // 释放 PDFDocumentProxy，避免大文件内存残留；destroy 失败不影响主流程
+                if (pdf) {
+                    try {
+                        await pdf.destroy();
+                    } catch (e) {
+                        console.warn('pdf.destroy 失败:', e);
+                    }
+                }
                 isProcessing = false;
                 setProcessingUI(false);
             }
@@ -608,6 +633,7 @@
             try {
                 isProcessing = true;
                 setProcessingUI(true);
+                shouldAbort = false;
                 updateProgress('生成PPT文件...', 0);
 
                 // 创建PPT
@@ -647,6 +673,14 @@
                     }
 
                     updateProgress(`生成幻灯片 ${i + 1}/${pdfPages.length}`, Math.round((i + 1) / pdfPages.length * 100));
+                }
+
+                // 中途取消则不写出不完整的 PPT
+                if (shouldAbort) {
+                    showMessage('info', '已取消导出');
+                    setProcessingUI(false);
+                    progressContainer.classList.add('hidden');
+                    return;
                 }
 
                 // 导出PPT

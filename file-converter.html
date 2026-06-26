@@ -372,7 +372,6 @@
             if (format === 'pdf') return 'application/pdf';
             if (format === 'docx') return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
             if (format === 'epub') return 'application/epub+zip';
-            if (format === 'mobi') return 'application/x-mobipocket-ebook';
             return 'application/octet-stream';
         }
 
@@ -518,10 +517,6 @@
                     onProgress(Math.min(60, 25 + Math.round(((i + 1) / spineIds.length) * 35)));
                 }
                 return htmlToMarkdown(mergedHtml);
-            }
-            if (format === 'mobi') {
-                const sourceText = await readFileAsTextStream(fileItem.file, onProgress);
-                return sourceText;
             }
             throw new Error('不支持的源格式');
         }
@@ -684,7 +679,6 @@
             if (targetFormat === 'docx') return createDocxBlob(markdown);
             if (targetFormat === 'pdf') return createPdfBlob(markdownToText(markdown));
             if (targetFormat === 'epub') return createEpubBlob(markdownToHtml(markdown), getBaseName(fileName));
-            if (targetFormat === 'mobi') return createMobiLikeBlob(markdownToText(markdown));
             throw new Error('不支持的目标格式');
         }
 
@@ -842,10 +836,6 @@
             const parser = new DOMParser();
             const doc = parser.parseFromString(fullHtml, 'text/html');
             return doc.body ? doc.body.innerHTML : fullHtml;
-        }
-
-        function createMobiLikeBlob(text) {
-            return new Blob([text], { type: getMimeTypeByFormat('mobi') });
         }
 
         function upsertResult(resultItem) {
