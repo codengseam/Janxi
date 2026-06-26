@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件格式转换工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.9.0/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#64748b',
+                        accent: '#10b981',
+                        danger: '#ef4444',
+                        dark: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .drag-over {
+                @apply border-primary bg-blue-50;
+            }
+            .file-item {
+                @apply flex items-center justify-between p-3 mb-2 border rounded-lg;
+            }
+            .format-select {
+                @apply px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary;
+            }
+            .btn {
+                @apply px-4 py-2 rounded-md font-medium transition-colors;
+            }
+            .btn-primary {
+                @apply bg-primary text-white hover:bg-blue-600;
+            }
+            .btn-accent {
+                @apply bg-accent text-white hover:bg-green-600;
+            }
+            .btn-danger {
+                @apply bg-danger text-white hover:bg-red-600;
+            }
+            .progress-bar {
+                @apply h-2 bg-gray-200 rounded-full overflow-hidden;
+            }
+            .progress-fill {
+                @apply h-full bg-primary transition-all duration-300;
+            }
+            .error-message {
+                @apply p-3 mb-4 bg-red-50 text-danger rounded-md;
+            }
+            .success-message {
+                @apply p-3 mb-4 bg-green-50 text-accent rounded-md;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-dark mb-2">文件格式转换工具</h1>
+            <p class="text-secondary">本地离线转换：文本格式真实互转，超大文件流式处理，结果直接下载到本地</p>
+        </header>
+
+        <main>
+            <section class="mb-8">
+                <div id="drop-area" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer transition-all duration-300">
+                    <i class="fa fa-cloud-upload text-4xl text-secondary mb-4"></i>
+                    <h2 class="text-xl font-semibold mb-2">拖拽文件到此处或点击上传</h2>
+                    <p class="text-secondary mb-4">支持多文件上传</p>
+                    <input type="file" id="file-input" class="hidden" multiple>
+                    <button id="upload-btn" class="btn btn-primary">选择文件</button>
+                </div>
+            </section>
+
+            <div id="error-container" class="mb-8 hidden"></div>
+            <div id="success-container" class="mb-8 hidden"></div>
+
+            <section class="mb-8">
+                <h2 class="text-xl font-semibold mb-4">文件列表</h2>
+                <div id="file-list" class="space-y-4"></div>
+            </section>
+
+            <section class="mb-8">
+                <div class="flex flex-wrap gap-4">
+                    <button id="convert-all-btn" class="btn btn-primary">
+                        <i class="fa fa-exchange mr-2"></i>批量转换
+                    </button>
+                    <button id="download-all-btn" class="btn btn-accent">
+                        <i class="fa fa-download mr-2"></i>批量下载
+                    </button>
+                    <button id="clear-all-btn" class="btn btn-danger">
+                        <i class="fa fa-trash mr-2"></i>清空列表
+                    </button>
+                </div>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-xl font-semibold mb-4">转换结果</h2>
+                <div id="result-list" class="space-y-4"></div>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-xl font-semibold mb-4">使用说明</h2>
+                <div class="bg-white p-4 rounded-lg border">
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>拖拽文件到上传区域或点击"选择文件"按钮上传文件</li>
+                        <li>为每个文件选择源格式和目标格式</li>
+                        <li>点击"转换"按钮转换单个文件，或点击"批量转换"按钮转换所有文件</li>
+                        <li>转换完成后，点击"下载"按钮下载转换后的文件</li>
+                        <li>支持的格式：Word (.docx)、Markdown (.md)、HTML (.html)、EPUB (.epub)、PDF (.pdf)、TXT (.txt)、MOBI (.mobi)</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <footer class="text-center text-secondary mt-12">
+            <p>© 2026 文件格式转换工具 | 参考 Pandoc 和 Calibre</p>
+        </footer>
+    </div>
+
+    <script>
+        let files = [];
+        let results = [];
+        let pdfjsLib = null;
+        const formats = [
+            { value: 'docx', label: 'Word (.docx)' },
+            { value: 'md', label: 'Markdown (.md)' },
+            { value: 'html', label: 'HTML (.html)' },
+            { value: 'epub', label: 'EPUB (.epub)' },
+            { value: 'pdf', label: 'PDF (.pdf)' },
+            { value: 'txt', label: 'TXT (.txt)' },
+            { value: 'mobi', label: 'MOBI (.mobi)' }
+        ];
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            await initPdfJs();
+            initDropArea();
+            initUploadButton();
+            initBatchButtons();
+            renderFileList();
+            renderResultList();
+        });
+
+        async function initPdfJs() {
+            try {
+                pdfjsLib = pdfjsLib || window.pdfjsLib;
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            } catch (error) {
+                pdfjsLib = null;
+            }
+        }
+
+        function initDropArea() {
+            const dropArea = document.getElementById('drop-area');
+            const fileInput = document.getElementById('file-input');
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, false);
+            });
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, function() {
+                    dropArea.classList.add('drag-over');
+                }, false);
+            });
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, function() {
+                    dropArea.classList.remove('drag-over');
+                }, false);
+            });
+            dropArea.addEventListener('drop', function(e) {
+                handleFiles(e.dataTransfer.files);
+            }, false);
+            dropArea.addEventListener('click', function(e) {
+                if (e.target.closest('#upload-btn') !== null) return;
+                fileInput.click();
+            });
+            fileInput.addEventListener('change', function() {
+                if (this.files.length > 0) handleFiles(this.files);
+                this.value = '';
+            });
+        }
+
+        function initUploadButton() {
+            const uploadBtn = document.getElementById('upload-btn');
+            const fileInput = document.getElementById('file-input');
+            uploadBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                fileInput.click();
+            });
+        }
+
+        function initBatchButtons() {
+            document.getElementById('convert-all-btn').addEventListener('click', convertAllFiles);
+            document.getElementById('download-all-btn').addEventListener('click', downloadAllFiles);
+            document.getElementById('clear-all-btn').addEventListener('click', clearAllFiles);
+        }
+
+        function handleFiles(fileList) {
+            for (let i = 0; i < fileList.length; i++) addFile(fileList[i]);
+        }
+
+        function addFile(file) {
+            const fileId = crypto.randomUUID();
+            const fileSizeMB = file.size / (1024 * 1024);
+            if (fileSizeMB > 100) showErrorMessage(`文件 "${file.name}" 较大 (${formatFileSize(file.size)})，已启用流式读取`);
+            const sourceFormat = getFormatFromExtension(file.name);
+            const fileItem = {
+                id: fileId,
+                name: file.name,
+                size: file.size,
+                file,
+                sourceFormat,
+                targetFormat: sourceFormat === 'unknown' ? 'txt' : 'md',
+                isLargeFile: fileSizeMB > 100,
+                status: 'idle',
+                progress: 0,
+                message: ''
+            };
+            files.push(fileItem);
+            renderFileList();
+            showSuccessMessage(`文件 "${file.name}" 已添加 (${formatFileSize(file.size)})`);
+        }
+
+        function getFormatFromExtension(filename) {
+            const extension = filename.split('.').pop().toLowerCase();
+            return formats.some(f => f.value === extension) ? extension : 'unknown';
+        }
+
+        function renderFileList() {
+            const fileListContainer = document.getElementById('file-list');
+            fileListContainer.innerHTML = '';
+            if (files.length === 0) {
+                fileListContainer.innerHTML = '<p class="text-secondary text-center py-4">暂无文件，请上传文件</p>';
+                return;
+            }
+            files.forEach(fileItem => {
+                const fileElement = document.createElement('div');
+                fileElement.className = 'file-item bg-white';
+                const largeFileBadge = fileItem.isLargeFile ? '<span class="inline-block px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded ml-2">大文件</span>' : '';
+                const statusLabel = fileItem.status === 'converting'
+                    ? `转换中 ${fileItem.progress}%`
+                    : fileItem.status === 'done'
+                        ? '转换完成'
+                        : fileItem.status === 'error'
+                            ? `转换失败：${fileItem.message}`
+                            : '等待转换';
+
+                fileElement.innerHTML = `
+                    <div class="flex items-center flex-1">
+                        <i class="fa fa-file text-secondary mr-3"></i>
+                        <div class="w-full">
+                            <p class="font-medium">${fileItem.name}${largeFileBadge}</p>
+                            <p class="text-sm text-secondary">${formatFileSize(fileItem.size)}</p>
+                            <p class="text-xs mt-1 ${fileItem.status === 'error' ? 'text-danger' : 'text-secondary'}">${statusLabel}</p>
+                            <div class="progress-bar mt-2">
+                                <div class="progress-fill" style="width:${fileItem.progress}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div>
+                            <label class="text-sm text-secondary block mb-1">源格式</label>
+                            <select class="format-select source-format" data-file-id="${fileItem.id}" ${fileItem.status === 'converting' ? 'disabled' : ''}>
+                                ${renderFormatOptions(fileItem.sourceFormat)}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-sm text-secondary block mb-1">目标格式</label>
+                            <select class="format-select target-format" data-file-id="${fileItem.id}" ${fileItem.status === 'converting' ? 'disabled' : ''}>
+                                ${renderFormatOptions(fileItem.targetFormat)}
+                            </select>
+                        </div>
+                        <button class="btn btn-primary convert-btn" data-file-id="${fileItem.id}" ${fileItem.status === 'converting' ? 'disabled' : ''}>
+                            <i class="fa fa-exchange mr-1"></i>转换
+                        </button>
+                        <button class="btn btn-danger delete-btn" data-file-id="${fileItem.id}" ${fileItem.status === 'converting' ? 'disabled' : ''}>
+                            <i class="fa fa-trash mr-1"></i>删除
+                        </button>
+                    </div>
+                `;
+                fileListContainer.appendChild(fileElement);
+            });
+            addFileListEventListeners();
+        }
+
+        function renderFormatOptions(selectedFormat) {
+            const list = [...formats];
+            if (selectedFormat === 'unknown') list.unshift({ value: 'unknown', label: '未知格式' });
+            return list.map(format => `<option value="${format.value}" ${format.value === selectedFormat ? 'selected' : ''}>${format.label}</option>`).join('');
+        }
+
+        function addFileListEventListeners() {
+            document.querySelectorAll('.source-format').forEach(select => {
+                select.addEventListener('change', function() {
+                    const fileItem = files.find(f => f.id === this.dataset.fileId);
+                    if (!fileItem) return;
+                    fileItem.sourceFormat = this.value;
+                });
+            });
+            document.querySelectorAll('.target-format').forEach(select => {
+                select.addEventListener('change', function() {
+                    const fileItem = files.find(f => f.id === this.dataset.fileId);
+                    if (!fileItem) return;
+                    fileItem.targetFormat = this.value;
+                });
+            });
+            document.querySelectorAll('.convert-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    convertFile(this.dataset.fileId);
+                });
+            });
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    deleteFile(this.dataset.fileId);
+                });
+            });
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function getBaseName(name) {
+            return name.replace(/\.[^/.]+$/, '');
+        }
+
+        function getMimeTypeByFormat(format) {
+            if (format === 'txt') return 'text/plain;charset=utf-8';
+            if (format === 'md') return 'text/markdown;charset=utf-8';
+            if (format === 'html') return 'text/html;charset=utf-8';
+            if (format === 'pdf') return 'application/pdf';
+            if (format === 'docx') return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+            if (format === 'epub') return 'application/epub+zip';
+            if (format === 'mobi') return 'application/x-mobipocket-ebook';
+            return 'application/octet-stream';
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function markdownToHtml(md) {
+            const escaped = escapeHtml(md);
+            const lines = escaped.split(/\r?\n/);
+            const out = [];
+            for (const line of lines) {
+                if (!line.trim()) {
+                    out.push('');
+                    continue;
+                }
+                if (/^######\s+/.test(line)) out.push(`<h6>${line.replace(/^######\s+/, '')}</h6>`);
+                else if (/^#####\s+/.test(line)) out.push(`<h5>${line.replace(/^#####\s+/, '')}</h5>`);
+                else if (/^####\s+/.test(line)) out.push(`<h4>${line.replace(/^####\s+/, '')}</h4>`);
+                else if (/^###\s+/.test(line)) out.push(`<h3>${line.replace(/^###\s+/, '')}</h3>`);
+                else if (/^##\s+/.test(line)) out.push(`<h2>${line.replace(/^##\s+/, '')}</h2>`);
+                else if (/^#\s+/.test(line)) out.push(`<h1>${line.replace(/^#\s+/, '')}</h1>`);
+                else out.push(`<p>${line}</p>`);
+            }
+            const joined = out.join('\n').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>').replace(/`(.+?)`/g, '<code>$1</code>').replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>');
+            return `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>${joined}</body></html>`;
+        }
+
+        function markdownToText(md) {
+            return md.replace(/```[\s\S]*?```/g, '').replace(/`(.+?)`/g, '$1').replace(/\*\*(.+?)\*\*/g, '$1').replace(/\*(.+?)\*/g, '$1').replace(/!\[(.*?)\]\((.*?)\)/g, '$1').replace(/\[(.+?)\]\((.+?)\)/g, '$1').replace(/^#{1,6}\s+/gm, '').replace(/^>\s?/gm, '').replace(/^\s*[-*+]\s+/gm, '').replace(/^\s*\d+\.\s+/gm, '').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+        }
+
+        function htmlToMarkdown(html) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const body = doc.body;
+            if (!body) return '';
+            function nodeToMarkdown(node) {
+                if (node.nodeType === Node.TEXT_NODE) return node.textContent || '';
+                if (node.nodeType !== Node.ELEMENT_NODE) return '';
+                const tag = node.tagName.toLowerCase();
+                const content = Array.from(node.childNodes).map(nodeToMarkdown).join('');
+                if (tag === 'h1') return `# ${content}\n\n`;
+                if (tag === 'h2') return `## ${content}\n\n`;
+                if (tag === 'h3') return `### ${content}\n\n`;
+                if (tag === 'h4') return `#### ${content}\n\n`;
+                if (tag === 'h5') return `##### ${content}\n\n`;
+                if (tag === 'h6') return `###### ${content}\n\n`;
+                if (tag === 'strong' || tag === 'b') return `**${content}**`;
+                if (tag === 'em' || tag === 'i') return `*${content}*`;
+                if (tag === 'code') return `\`${content}\``;
+                if (tag === 'a') return `[${content}](${node.getAttribute('href') || '#'})`;
+                if (tag === 'br') return '\n';
+                if (tag === 'p') return `${content}\n\n`;
+                if (tag === 'li') return `- ${content.trim()}\n`;
+                if (tag === 'ul' || tag === 'ol') return `${content}\n`;
+                return content;
+            }
+            return Array.from(body.childNodes).map(nodeToMarkdown).join('').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+        }
+
+        function readFileAsArrayBuffer(file) {
+            return file.arrayBuffer();
+        }
+
+        async function readFileAsTextStream(file, onProgress) {
+            const decoder = new TextDecoder('utf-8');
+            const reader = file.stream().getReader();
+            let received = 0;
+            let text = '';
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                received += value.byteLength;
+                text += decoder.decode(value, { stream: true });
+                onProgress(Math.min(55, Math.max(1, Math.round((received / file.size) * 55))));
+            }
+            text += decoder.decode();
+            return text;
+        }
+
+        async function toIntermediateMarkdown(fileItem, onProgress) {
+            const format = fileItem.sourceFormat;
+            if (format === 'txt' || format === 'md' || format === 'html') {
+                const sourceText = await readFileAsTextStream(fileItem.file, onProgress);
+                if (format === 'txt') return sourceText;
+                if (format === 'md') return sourceText;
+                return htmlToMarkdown(sourceText);
+            }
+            if (format === 'docx') {
+                const arrayBuffer = await readFileAsArrayBuffer(fileItem.file);
+                onProgress(30);
+                const res = await window.mammoth.convertToHtml({ arrayBuffer });
+                onProgress(55);
+                return htmlToMarkdown(res.value || '');
+            }
+            if (format === 'pdf') {
+                if (!pdfjsLib) throw new Error('PDF 引擎未加载成功');
+                const arrayBuffer = await readFileAsArrayBuffer(fileItem.file);
+                onProgress(20);
+                const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+                const pdf = await loadingTask.promise;
+                const structuredContent = await extractStructuredContentFromPdf(pdf, onProgress);
+                return convertStructuredContentToMarkdown(structuredContent);
+            }
+            if (format === 'epub') {
+                const arrayBuffer = await readFileAsArrayBuffer(fileItem.file);
+                const zip = await JSZip.loadAsync(arrayBuffer);
+                onProgress(25);
+                let opfPath = '';
+                const containerFile = zip.file('META-INF/container.xml');
+                if (containerFile) {
+                    const containerXml = await containerFile.async('string');
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(containerXml, 'application/xml');
+                    const rootfile = doc.querySelector('rootfile');
+                    if (rootfile) opfPath = rootfile.getAttribute('full-path') || '';
+                }
+                if (!opfPath) {
+                    const opfCandidate = Object.keys(zip.files).find(name => name.endsWith('.opf'));
+                    opfPath = opfCandidate || '';
+                }
+                if (!opfPath) throw new Error('无法读取 EPUB 结构');
+                const opfXml = await zip.file(opfPath).async('string');
+                const parser = new DOMParser();
+                const opfDoc = parser.parseFromString(opfXml, 'application/xml');
+                const baseDir = opfPath.includes('/') ? opfPath.slice(0, opfPath.lastIndexOf('/') + 1) : '';
+                const manifest = {};
+                opfDoc.querySelectorAll('manifest > item').forEach(item => {
+                    manifest[item.getAttribute('id')] = item.getAttribute('href');
+                });
+                const spineIds = Array.from(opfDoc.querySelectorAll('spine > itemref')).map(x => x.getAttribute('idref')).filter(Boolean);
+                let mergedHtml = '';
+                for (let i = 0; i < spineIds.length; i++) {
+                    const href = manifest[spineIds[i]];
+                    if (!href) continue;
+                    const fullPath = normalizeZipPath(baseDir + href);
+                    const htmlPart = zip.file(fullPath);
+                    if (!htmlPart) continue;
+                    mergedHtml += '\n' + await htmlPart.async('string');
+                    onProgress(Math.min(60, 25 + Math.round(((i + 1) / spineIds.length) * 35)));
+                }
+                return htmlToMarkdown(mergedHtml);
+            }
+            if (format === 'mobi') {
+                const sourceText = await readFileAsTextStream(fileItem.file, onProgress);
+                return sourceText;
+            }
+            throw new Error('不支持的源格式');
+        }
+
+        async function extractStructuredContentFromPdf(pdf, onProgress) {
+            const pages = [];
+            const fontSizes = [];
+            
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                
+                // Collect all font sizes to determine heading levels
+                content.items.forEach(item => {
+                    if (item.height) {
+                        fontSizes.push(item.height);
+                    }
+                });
+                
+                pages.push(content);
+                onProgress(Math.min(60, 20 + Math.round((i / pdf.numPages) * 40)));
+            }
+            
+            // Analyze font sizes to determine heading levels
+            const uniqueFontSizes = [...new Set(fontSizes)].sort((a, b) => b - a);
+            const headingLevels = {};
+            uniqueFontSizes.forEach((size, index) => {
+                if (index < 6) {
+                    headingLevels[size.toFixed(2)] = index + 1;
+                }
+            });
+            
+            // Process each page and build structured content
+            const structuredContent = [];
+            let currentParagraph = '';
+            let currentFontSize = null;
+            
+            pages.forEach((content, pageIndex) => {
+                content.items.forEach((item, itemIndex) => {
+                    const text = item.str;
+                    const fontSize = item.height ? item.height.toFixed(2) : null;
+                    
+                    // Check if this is a new paragraph/heading
+                    if (fontSize !== currentFontSize || text.trim() === '') {
+                        if (currentParagraph.trim()) {
+                            const isHeading = headingLevels[currentFontSize];
+                            structuredContent.push({
+                                type: isHeading ? 'heading' : 'paragraph',
+                                level: isHeading,
+                                text: currentParagraph.trim()
+                            });
+                            currentParagraph = '';
+                        }
+                        currentFontSize = fontSize;
+                    }
+                    
+                    // Check for list items
+                    if (text.trim().match(/^[•●◦]\s/)) {
+                        if (currentParagraph.trim()) {
+                            structuredContent.push({
+                                type: 'paragraph',
+                                text: currentParagraph.trim()
+                            });
+                            currentParagraph = '';
+                        }
+                        structuredContent.push({
+                            type: 'listItem',
+                            text: text.trim().replace(/^[•●◦]\s/, '')
+                        });
+                    } else if (text.trim().match(/^\d+\.\s/)) {
+                        if (currentParagraph.trim()) {
+                            structuredContent.push({
+                                type: 'paragraph',
+                                text: currentParagraph.trim()
+                            });
+                            currentParagraph = '';
+                        }
+                        structuredContent.push({
+                            type: 'numberedListItem',
+                            text: text.trim().replace(/^\d+\.\s/, '')
+                        });
+                    } else {
+                        currentParagraph += text + ' ';
+                    }
+                });
+            });
+            
+            // Add the last paragraph
+            if (currentParagraph.trim()) {
+                const isHeading = headingLevels[currentFontSize];
+                structuredContent.push({
+                    type: isHeading ? 'heading' : 'paragraph',
+                    level: isHeading,
+                    text: currentParagraph.trim()
+                });
+            }
+            
+            return structuredContent;
+        }
+
+        function convertStructuredContentToMarkdown(structuredContent) {
+            let markdown = '';
+            let inList = false;
+            let inNumberedList = false;
+            
+            structuredContent.forEach((item, index) => {
+                switch (item.type) {
+                    case 'heading':
+                        if (inList) {
+                            markdown += '\n';
+                            inList = false;
+                            inNumberedList = false;
+                        }
+                        markdown += '#'.repeat(item.level) + ' ' + item.text + '\n\n';
+                        break;
+                        
+                    case 'paragraph':
+                        if (inList) {
+                            markdown += '\n';
+                            inList = false;
+                            inNumberedList = false;
+                        }
+                        markdown += item.text + '\n\n';
+                        break;
+                        
+                    case 'listItem':
+                        if (!inList) {
+                            inList = true;
+                            inNumberedList = false;
+                        }
+                        markdown += '- ' + item.text + '\n';
+                        break;
+                        
+                    case 'numberedListItem':
+                        if (!inNumberedList) {
+                            inList = true;
+                            inNumberedList = true;
+                        }
+                        markdown += '1. ' + item.text + '\n';
+                        break;
+                }
+            });
+            
+            // Add final newline if needed
+            if (markdown) {
+                markdown = markdown.trim() + '\n';
+            }
+            
+            return markdown;
+        }
+
+        function normalizeZipPath(path) {
+            return path.replace(/\/+/g, '/').replace(/^\.\//, '');
+        }
+
+        async function markdownToTargetBlob(markdown, targetFormat, fileName) {
+            if (targetFormat === 'md') return new Blob([markdown], { type: getMimeTypeByFormat('md') });
+            if (targetFormat === 'txt') return new Blob([markdownToText(markdown)], { type: getMimeTypeByFormat('txt') });
+            if (targetFormat === 'html') return new Blob([markdownToHtml(markdown)], { type: getMimeTypeByFormat('html') });
+            if (targetFormat === 'docx') return createDocxBlob(markdown);
+            if (targetFormat === 'pdf') return createPdfBlob(markdownToText(markdown));
+            if (targetFormat === 'epub') return createEpubBlob(markdownToHtml(markdown), getBaseName(fileName));
+            if (targetFormat === 'mobi') return createMobiLikeBlob(markdownToText(markdown));
+            throw new Error('不支持的目标格式');
+        }
+
+        async function createDocxBlob(markdown) {
+            const text = markdownToText(markdown);
+            const lines = text.split(/\r?\n/).filter(Boolean);
+            const paragraphs = lines.map(line => new window.docx.Paragraph({ children: [new window.docx.TextRun(line)] }));
+            const doc = new window.docx.Document({ sections: [{ properties: {}, children: paragraphs }] });
+            const blob = await window.docx.Packer.toBlob(doc);
+            return blob;
+        }
+
+        async function createPdfBlob(text) {
+            // 使用 jsPDF 创建 PDF，对中文支持更好
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+            
+            // 设置字体大小
+            doc.setFontSize(11);
+            
+            // 尝试加载中文字体
+            let fontLoaded = false;
+            const fontUrls = [
+                'https://cdn.jsdelivr.net/npm/@aspect-ratio/core@1.0.0/fonts/NotoSansSC-Regular.ttf',
+                'https://cdn.jsdelivr.net/gh/nicubarbaros/awesome-fonts@master/NotoSansSC-Regular.ttf'
+            ];
+            
+            for (const fontUrl of fontUrls) {
+                try {
+                    console.log('尝试加载字体:', fontUrl);
+                    const response = await fetch(fontUrl);
+                    if (response.ok) {
+                        const fontBytes = await response.arrayBuffer();
+                        const fontBase64 = arrayBufferToBase64(fontBytes);
+                        doc.addFileToVFS('NotoSansSC-Regular.ttf', fontBase64);
+                        doc.addFont('NotoSansSC-Regular.ttf', 'NotoSansSC', 'normal');
+                        doc.setFont('NotoSansSC');
+                        fontLoaded = true;
+                        console.log('字体加载成功');
+                        break;
+                    }
+                } catch (error) {
+                    console.log('字体加载失败:', error.message);
+                }
+            }
+            
+            // 如果字体加载失败，使用默认字体
+            if (!fontLoaded) {
+                console.log('使用默认字体');
+                doc.setFont('helvetica');
+            }
+            
+            // 设置页边距
+            const marginLeft = 15;
+            const marginTop = 15;
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const maxWidth = pageWidth - 2 * marginLeft;
+            const lineHeight = 6;
+            
+            let y = marginTop;
+            const lines = text.split(/\r?\n/);
+            
+            for (const line of lines) {
+                // 分割长行
+                const splitLines = doc.splitTextToSize(line, maxWidth);
+                
+                for (const splitLine of splitLines) {
+                    if (y > pageHeight - marginTop) {
+                        doc.addPage();
+                        y = marginTop;
+                    }
+                    
+                    doc.text(splitLine, marginLeft, y);
+                    y += lineHeight;
+                }
+            }
+            
+            // 生成 Blob
+            const pdfOutput = doc.output('blob');
+            return pdfOutput;
+        }
+        
+        // 辅助函数：ArrayBuffer 转 Base64
+        function arrayBufferToBase64(buffer) {
+            let binary = '';
+            const bytes = new Uint8Array(buffer);
+            const len = bytes.byteLength;
+            for (let i = 0; i < len; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return window.btoa(binary);
+        }
+
+        function wrapTextByWidth(text, font, fontSize, maxWidth) {
+            if (!text) return [''];
+            const lines = [];
+            let current = '';
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                const candidate = current + char;
+                const width = font.widthOfTextAtSize(candidate, fontSize);
+                if (width <= maxWidth) {
+                    current = candidate;
+                } else {
+                    if (current) lines.push(current);
+                    current = char;
+                }
+            }
+            if (current) lines.push(current);
+            return lines;
+        }
+
+        async function createEpubBlob(html, title) {
+            const zip = new JSZip();
+            zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
+            zip.folder('META-INF').file('container.xml', `<?xml version="1.0" encoding="UTF-8"?>
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+  <rootfiles>
+    <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+  </rootfiles>
+</container>`);
+            const oebps = zip.folder('OEBPS');
+            oebps.file('chapter1.xhtml', `<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN">
+<head><title>${escapeHtml(title)}</title></head>
+<body>${htmlToBody(html)}</body>
+</html>`);
+            oebps.file('toc.ncx', `<?xml version="1.0" encoding="UTF-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+<head><meta name="dtb:uid" content="${crypto.randomUUID()}"/></head>
+<docTitle><text>${escapeHtml(title)}</text></docTitle>
+<navMap><navPoint id="navPoint-1" playOrder="1"><navLabel><text>开始</text></navLabel><content src="chapter1.xhtml"/></navPoint></navMap>
+</ncx>`);
+            oebps.file('content.opf', `<?xml version="1.0" encoding="UTF-8"?>
+<package version="2.0" xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId">
+<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>${escapeHtml(title)}</dc:title>
+<dc:language>zh-CN</dc:language>
+<dc:identifier id="BookId">${crypto.randomUUID()}</dc:identifier>
+</metadata>
+<manifest>
+<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+<item id="chapter1" href="chapter1.xhtml" media-type="application/xhtml+xml"/>
+</manifest>
+<spine toc="ncx"><itemref idref="chapter1"/></spine>
+</package>`);
+            return zip.generateAsync({ type: 'blob' });
+        }
+
+        function htmlToBody(fullHtml) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(fullHtml, 'text/html');
+            return doc.body ? doc.body.innerHTML : fullHtml;
+        }
+
+        function createMobiLikeBlob(text) {
+            return new Blob([text], { type: getMimeTypeByFormat('mobi') });
+        }
+
+        function upsertResult(resultItem) {
+            const index = results.findIndex(r => r.sourceFileId === resultItem.sourceFileId);
+            if (index >= 0) results[index] = resultItem;
+            else results.push(resultItem);
+        }
+
+        async function convertFile(fileId) {
+            const fileItem = files.find(f => f.id === fileId);
+            if (!fileItem) return;
+            if (fileItem.sourceFormat === 'unknown' || fileItem.targetFormat === 'unknown') {
+                fileItem.status = 'error';
+                fileItem.progress = 0;
+                fileItem.message = '请选择有效格式';
+                renderFileList();
+                return;
+            }
+            fileItem.status = 'converting';
+            fileItem.progress = 1;
+            fileItem.message = '';
+            renderFileList();
+            try {
+                let blob;
+                const convertedName = `${getBaseName(fileItem.name)}.${fileItem.targetFormat}`;
+                if (fileItem.sourceFormat === fileItem.targetFormat) {
+                    blob = fileItem.file.slice(0, fileItem.file.size, getMimeTypeByFormat(fileItem.targetFormat));
+                    fileItem.progress = 100;
+                } else {
+                    const markdown = await toIntermediateMarkdown(fileItem, progress => {
+                        fileItem.progress = progress;
+                        renderFileList();
+                    });
+                    fileItem.progress = 75;
+                    renderFileList();
+                    blob = await markdownToTargetBlob(markdown, fileItem.targetFormat, fileItem.name);
+                    fileItem.progress = 100;
+                }
+                const resultItem = {
+                    id: crypto.randomUUID(),
+                    sourceFileId: fileItem.id,
+                    originalName: fileItem.name,
+                    convertedName,
+                    format: fileItem.targetFormat,
+                    size: blob.size,
+                    status: 'completed',
+                    blob
+                };
+                upsertResult(resultItem);
+                fileItem.status = 'done';
+                renderFileList();
+                renderResultList();
+                showSuccessMessage(`"${fileItem.name}" 已转换为 "${resultItem.convertedName}"`);
+            } catch (error) {
+                fileItem.status = 'error';
+                fileItem.progress = 0;
+                fileItem.message = error && error.message ? error.message : '转换失败';
+                renderFileList();
+                showErrorMessage(`"${fileItem.name}" 转换失败：${fileItem.message}`);
+            }
+        }
+
+        async function convertAllFiles() {
+            if (files.length === 0) {
+                showErrorMessage('请先上传文件');
+                return;
+            }
+            let completed = 0;
+            for (const fileItem of files) {
+                await convertFile(fileItem.id);
+                if (fileItem.status === 'done') completed++;
+            }
+            showSuccessMessage(`批量转换完成，成功 ${completed}/${files.length}`);
+        }
+
+        function renderResultList() {
+            const resultListContainer = document.getElementById('result-list');
+            resultListContainer.innerHTML = '';
+            if (results.length === 0) {
+                resultListContainer.innerHTML = '<p class="text-secondary text-center py-4">暂无转换结果</p>';
+                return;
+            }
+            results.forEach(resultItem => {
+                const resultElement = document.createElement('div');
+                resultElement.className = 'file-item bg-white';
+                resultElement.innerHTML = `
+                    <div class="flex items-center flex-1">
+                        <i class="fa fa-file text-accent mr-3"></i>
+                        <div>
+                            <p class="font-medium">${resultItem.convertedName}</p>
+                            <p class="text-sm text-secondary">源文件：${resultItem.originalName}</p>
+                            <p class="text-sm text-secondary">${formatFileSize(resultItem.size)}</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-accent download-btn" data-result-id="${resultItem.id}">
+                        <i class="fa fa-download mr-1"></i>下载
+                    </button>
+                `;
+                resultListContainer.appendChild(resultElement);
+            });
+            addResultListEventListeners();
+        }
+
+        function addResultListEventListeners() {
+            document.querySelectorAll('.download-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    downloadResult(this.dataset.resultId);
+                });
+            });
+        }
+
+        async function writeBlobWithPicker(blob, fileName) {
+            if (!window.showSaveFilePicker) return false;
+            try {
+                const handle = await window.showSaveFilePicker({ suggestedName: fileName });
+                const writable = await handle.createWritable();
+                await writable.write(blob);
+                await writable.close();
+                return true;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        function downloadByLink(blob, fileName) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        async function downloadResult(resultId) {
+            const resultItem = results.find(r => r.id === resultId);
+            if (!resultItem || !resultItem.blob) {
+                showErrorMessage('未找到可下载内容');
+                return;
+            }
+            const saved = await writeBlobWithPicker(resultItem.blob, resultItem.convertedName);
+            if (!saved) downloadByLink(resultItem.blob, resultItem.convertedName);
+            showSuccessMessage(`文件 "${resultItem.convertedName}" 下载成功`);
+        }
+
+        async function downloadAllToDirectory() {
+            if (!window.showDirectoryPicker) return false;
+            try {
+                const dirHandle = await window.showDirectoryPicker();
+                for (const resultItem of results) {
+                    const fileHandle = await dirHandle.getFileHandle(resultItem.convertedName, { create: true });
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(resultItem.blob);
+                    await writable.close();
+                }
+                return true;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        async function downloadAllFiles() {
+            if (results.length === 0) {
+                showErrorMessage('暂无转换结果');
+                return;
+            }
+            const savedToDir = await downloadAllToDirectory();
+            if (savedToDir) {
+                showSuccessMessage(`已写入本地目录，共 ${results.length} 个文件`);
+                return;
+            }
+            for (let i = 0; i < results.length; i++) {
+                const resultItem = results[i];
+                downloadByLink(resultItem.blob, resultItem.convertedName);
+                await new Promise(resolve => setTimeout(resolve, 400));
+            }
+            showSuccessMessage(`批量下载完成，共 ${results.length} 个文件`);
+        }
+
+        function deleteFile(fileId) {
+            files = files.filter(f => f.id !== fileId);
+            results = results.filter(r => r.sourceFileId !== fileId);
+            renderFileList();
+            renderResultList();
+            showSuccessMessage('文件已删除');
+        }
+
+        function clearAllFiles() {
+            files = [];
+            results = [];
+            renderFileList();
+            renderResultList();
+            showSuccessMessage('所有文件已清空');
+        }
+
+        function showErrorMessage(message) {
+            const errorContainer = document.getElementById('error-container');
+            errorContainer.innerHTML = `<div class="error-message">${message}</div>`;
+            errorContainer.classList.remove('hidden');
+            setTimeout(() => {
+                errorContainer.classList.add('hidden');
+            }, 3000);
+        }
+
+        function showSuccessMessage(message) {
+            const successContainer = document.getElementById('success-container');
+            successContainer.innerHTML = `<div class="success-message">${message}</div>`;
+            successContainer.classList.remove('hidden');
+            setTimeout(() => {
+                successContainer.classList.add('hidden');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

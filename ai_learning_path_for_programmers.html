@@ -1,0 +1,328 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.container { padding: 16px 0; }
+.stage-nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.stage-btn {
+  padding: 6px 14px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary);
+  background: var(--color-background-secondary); color: var(--color-text-secondary);
+  font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: inherit;
+}
+.stage-btn:hover { background: var(--color-background-tertiary); }
+.stage-btn.active { background: var(--color-background-primary); border-color: var(--color-border-primary); color: var(--color-text-primary); font-weight: 500; }
+.stage-panel { display: none; }
+.stage-panel.active { display: block; }
+.stage-header { margin-bottom: 16px; }
+.stage-title { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.stage-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; }
+.topics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.topic-card {
+  background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg); padding: 14px 16px; cursor: pointer; transition: border-color 0.2s;
+}
+.topic-card:hover { border-color: var(--color-border-secondary); }
+.topic-card.expanded { border-color: var(--color-border-primary); }
+.topic-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.topic-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+.topic-tag {
+  font-size: 11px; padding: 2px 8px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; margin-top: 1px;
+}
+.tag-must { background: var(--color-background-danger); color: var(--color-text-danger); }
+.tag-important { background: var(--color-background-warning); color: var(--color-text-warning); }
+.tag-optional { background: var(--color-background-success); color: var(--color-text-success); }
+.topic-summary { font-size: 12px; color: var(--color-text-secondary); margin-top: 6px; line-height: 1.5; }
+.topic-detail { display: none; margin-top: 12px; border-top: 0.5px solid var(--color-border-tertiary); padding-top: 12px; }
+.topic-detail.open { display: block; }
+.detail-section { margin-bottom: 10px; }
+.detail-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+.detail-content { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+.detail-content li { margin-left: 14px; margin-bottom: 2px; }
+.tips-box {
+  background: var(--color-background-secondary); border-radius: var(--border-radius-md);
+  padding: 12px 14px; margin-top: 4px;
+}
+.progress-bar-wrap { margin: 16px 0 4px; }
+.progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.progress-track { height: 4px; background: var(--color-background-tertiary); border-radius: 2px; }
+.progress-fill { height: 4px; border-radius: 2px; transition: width 0.5s ease; }
+</style>
+
+<div class="container">
+  <h2 class="sr-only">普通程序员学习 AI 的路径导览</h2>
+
+  <div class="stage-nav" id="stageNav"></div>
+
+  <div id="stagePanels"></div>
+</div>
+
+<script>
+const stages = [
+  {
+    id: "foundation",
+    label: "第一阶段 · 数学基础",
+    title: "数学基础（1-3个月）",
+    desc: "AI 的一切建立在线性代数、概率与微积分之上。不需要从零学，只需补齐核心概念。程序员转 AI 最大的坑是跳过这一层，后来读不懂论文和框架源码。",
+    color: "#9F99EC",
+    progress: 25,
+    topics: [
+      {
+        name: "线性代数",
+        tag: "must",
+        tagLabel: "必须",
+        summary: "神经网络的本质就是矩阵乘法的堆叠",
+        principle: "神经网络的前向传播：y = Wx + b，其中 W 是权重矩阵，x 是输入向量。整个深度网络 = 一系列线性变换 + 非线性激活。GPU 之所以快，正是因为擅长并行矩阵运算（GEMM）。",
+        mustKnow: ["矩阵乘法、转置、逆矩阵", "向量点积与余弦相似度", "特征值与特征向量（PCA 的基础）", "张量（Tensor）的理解与操作"],
+        tips: ["用 NumPy 动手验证每一个概念，公式看 10 遍不如代码跑 1 次", "3Blue1Brown 的《线性代数的本质》系列，动画极好", "重点理解「矩阵乘法 = 线性变换」这个几何直觉"]
+      },
+      {
+        name: "概率与统计",
+        tag: "must",
+        tagLabel: "必须",
+        summary: "理解模型输出的本质是概率分布",
+        principle: "语言模型每次输出的不是一个词，而是词表上的概率分布（softmax）。贝叶斯定理贯穿整个 ML：P(模型|数据) ∝ P(数据|模型) × P(模型)。损失函数（如交叉熵）衡量预测分布与真实分布的差距。",
+        mustKnow: ["条件概率与贝叶斯定理", "常见分布（高斯、伯努利、多项式）", "最大似然估计（MLE）", "信息熵与 KL 散度"],
+        tips: ["从「模型输出为什么是概率」这个问题出发，往回推导", "交叉熵损失函数是负对数似然，理解这一点豁然开朗", "统计部分优先于高等概率论，工程导向"]
+      },
+      {
+        name: "微积分与优化",
+        tag: "must",
+        tagLabel: "必须",
+        summary: "反向传播 = 链式法则的大规模应用",
+        principle: "训练神经网络 = 用梯度下降最小化损失函数。梯度告诉你损失对每个参数的敏感度。反向传播（Backprop）= 用链式法则从输出层到输入层依次计算梯度，时间复杂度与前向传播相同。",
+        mustKnow: ["偏导数与梯度的几何含义", "链式法则（反向传播的核心）", "梯度下降、SGD、Adam 等优化器", "凸函数与局部极小值"],
+        tips: ["手动推导一次一层神经网络的反向传播，这是最重要的练习", "理解 Adam = 带动量的 + 自适应学习率，不需要深究数学细节", "可以先用 PyTorch autograd 观察梯度，再回来理解原理"]
+      }
+    ]
+  },
+  {
+    id: "ml_core",
+    label: "第二阶段 · ML 核心",
+    title: "机器学习核心概念（1-2个月）",
+    desc: "深度学习是 ML 的子集。先理解经典 ML 的思维框架（泛化、过拟合、评估），再进入神经网络，你会发现概念全部复用，只是规模更大。",
+    color: "#1D9E75",
+    progress: 45,
+    topics: [
+      {
+        name: "监督学习框架",
+        tag: "must",
+        tagLabel: "必须",
+        summary: "所有 ML 问题的通用思维模型",
+        principle: "ML 的本质：从数据 (x, y) 中学到一个函数 f，使得 f(x) ≈ y。训练误差 vs 泛化误差的权衡，偏差-方差 tradeoff，正则化（L1/L2/Dropout）防止过拟合。这套框架在深度学习中完全适用。",
+        mustKnow: ["训练集/验证集/测试集的正确切分", "过拟合与欠拟合的判断", "交叉验证", "常用评估指标（Accuracy、F1、AUC）"],
+        tips: ["Scikit-learn 快速上手，做一个完整的 Pipeline 体验 ML 全流程", "Kaggle 入门竞赛（Titanic）是感受「特征工程」的最好方式", "不要跳过评估指标，F1 与 Accuracy 的区别在实际项目中至关重要"]
+      },
+      {
+        name: "神经网络基础",
+        tag: "must",
+        tagLabel: "必须",
+        summary: "现代 AI 的基础计算单元",
+        principle: "神经元：y = σ(Wx + b)，σ 是激活函数（ReLU、Sigmoid）引入非线性。多层堆叠 = 通用函数近似器（Universal Approximation Theorem）。深度 > 宽度：深层网络学到的是层次化特征（边缘→纹理→物体）。",
+        mustKnow: ["前向传播的计算过程", "常用激活函数及其意义（ReLU 为何优于 Sigmoid）", "损失函数选择（分类用交叉熵，回归用 MSE）", "批归一化（BatchNorm）的作用"],
+        tips: ["用 NumPy 实现一个两层神经网络（不用框架），包括反向传播", "然后用 PyTorch 实现同样的网络，对比 autograd 帮你做了什么", "重点理解 ReLU 为何解决梯度消失问题"]
+      },
+      {
+        name: "CNN 与 RNN",
+        tag: "important",
+        tagLabel: "重要",
+        summary: "图像和序列的专用架构，Transformer 的前身",
+        principle: "CNN 核心：卷积核 = 局部特征检测器，参数共享大幅降低参数量，池化操作引入平移不变性。RNN 核心：隐藏状态 h_t = f(h_{t-1}, x_t)，梯度消失导致长距依赖困难，LSTM 用门机制解决。理解这两者的局限是理解 Transformer 为何出现的关键。",
+        mustKnow: ["卷积操作的计算（步长、填充、感受野）", "LSTM 的门机制（遗忘门、输入门、输出门）", "Encoder-Decoder 结构", "Seq2Seq 模型"],
+        tips: ["CNN 重点理解感受野和特征图，不需要精通 ResNet 细节", "LSTM 是理解 Attention 诞生原因的钥匙，要搞清楚它的瓶颈在哪里", "可以快速浏览，不必深究，重心放在 Transformer"]
+      }
+    ]
+  },
+  {
+    id: "transformer",
+    label: "第三阶段 · Transformer",
+    title: "Transformer 深度理解（2-4周）",
+    desc: "这是现代 AI 最核心的架构，ChatGPT、Gemini、Claude 全部建立于此。这一层必须真正理解，不是调包，而是能推导、能解释。这是区分「AI 用户」和「AI 开发者」的分水岭。",
+    color: "#D85A30",
+    progress: 65,
+    topics: [
+      {
+        name: "Self-Attention 机制",
+        tag: "must",
+        tagLabel: "必须",
+        summary: "理解这个，就理解了 Transformer 的灵魂",
+        principle: "Attention(Q,K,V) = softmax(QK^T / √d_k) V。每个 token 生成 Query（我在找什么）、Key（我有什么）、Value（我提供的信息）三个向量。注意力权重 = token 之间的相关性矩阵。Scaled dot-product 除以 √d_k 防止点积过大导致梯度消失。",
+        mustKnow: ["Q、K、V 的物理含义", "注意力分数的计算与 softmax 归一化", "Multi-Head Attention：多头 = 从多个子空间捕捉不同关系", "Self-Attention 的时间复杂度 O(n²) 及其瓶颈"],
+        tips: ["动手实现一个最小 Transformer（Andrej Karpathy 的 minGPT/nanoGPT 必看）", "用可视化工具（Attention Viz）直观看权重分布", "理解为什么 RNN 需要顺序计算，而 Attention 可以并行"]
+      },
+      {
+        name: "位置编码与 FFN",
+        tag: "must",
+        tagLabel: "必须",
+        summary: "Transformer 如何感知顺序，FFN 做什么",
+        principle: "Transformer 本身无序列感知，位置编码（PE）注入位置信息：sin/cos 固定编码 or 可学习编码（BERT）or RoPE（LLaMA）。FFN（前馈网络）= 两层 MLP，扩张再压缩（4x 维度），是知识的「存储器」。研究表明 FFN 存储事实性知识，Attention 负责信息路由。",
+        mustKnow: ["正弦位置编码的数学形式及直觉", "RoPE（旋转位置编码）为何成为主流", "LayerNorm 在每个子层前的作用", "残差连接（Residual Connection）防止梯度消失"],
+        tips: ["RoPE 现在是 LLM 主流，重点理解「相对位置」比「绝对位置」更有用的直觉", "残差连接让深层网络可训练，这是 Transformer 能堆 100+ 层的关键", "FFN 存储知识这个发现来自 2020 年论文，有助于理解 MoE 架构"]
+      },
+      {
+        name: "预训练与微调范式",
+        tag: "must",
+        tagLabel: "必须",
+        summary: "现代 LLM 的训练三阶段",
+        principle: "阶段1 预训练：在海量文本上做下一个 token 预测（自回归语言模型），学到世界知识和语言能力。阶段2 SFT（指令微调）：在人工标注的指令-回复对上微调，学会「听话」。阶段3 RLHF/DPO：用人类偏好强化学习，让模型更符合人类价值观（更有用、更安全）。",
+        mustKnow: ["Causal LM vs Masked LM（GPT vs BERT 的区别）", "SFT 数据格式与训练目标", "RLHF 的 Reward Model 和 PPO 流程", "DPO 为什么能替代 RLHF（更简单）"],
+        tips: ["用 Hugging Face Trainer 做一次完整 SFT 微调（用 LoRA 降低成本）", "理解 RLHF 的直觉：不直接优化「好」的定义，而是学人类的比较判断", "DPO 是最新趋势，面试必考，理解「直接偏好优化」的推导"]
+      }
+    ]
+  },
+  {
+    id: "llm_engineering",
+    label: "第四阶段 · LLM 工程",
+    title: "LLM 应用工程（持续进行）",
+    desc: "理论之后是落地。这一层是大多数程序员实际工作的核心。Prompt 工程、RAG、Fine-tuning、Agent——每一项都有深度技巧，不是「调调参数」这么简单。",
+    color: "#185FA5",
+    progress: 80,
+    topics: [
+      {
+        name: "Prompt 工程",
+        tag: "must",
+        tagLabel: "必须",
+        summary: "用好现有模型的核心技能",
+        principle: "LLM 是概率语言模型，Prompt 改变了条件分布 P(输出|输入)。Chain-of-Thought 让模型「思考」：强迫生成中间步骤，相当于在上下文中运行一个推理程序。Few-shot 是 in-context learning：模型从示例中更新「隐式权重」（注意力上）而非真实权重。",
+        mustKnow: ["Zero-shot / Few-shot / Chain-of-Thought 的原理与用法", "System prompt 的设计（角色、约束、格式）", "结构化输出（JSON mode）与函数调用（Function Calling）", "Temperature、Top-p、Top-k 参数含义"],
+        tips: ["写 Prompt 的黄金法则：正面说「做什么」比负面说「不要做什么」更有效", "对复杂任务用 XML 标签分隔上下文，大模型对结构敏感", "评估 Prompt 要建 Eval 集，不能靠肉眼看几个例子判断好坏"]
+      },
+      {
+        name: "RAG（检索增强生成）",
+        tag: "must",
+        tagLabel: "必须",
+        summary: "解决 LLM 知识更新和幻觉问题的主流方案",
+        principle: "核心：把外部知识库转化为向量（Embedding），用户提问时先检索相关段落，再拼入 Prompt 让 LLM 回答。Embedding 本质：语义相似 = 向量空间距离近。向量数据库（FAISS/Milvus）用 HNSW 等 ANN 算法实现高效近似搜索。",
+        mustKnow: ["文档切片策略（Chunking）对检索质量的影响", "Embedding 模型的选择（OpenAI ada vs BGE vs E5）", "向量检索 + BM25 混合检索", "Reranker（重排序）提升精度"],
+        tips: ["Chunking 是最容易被忽视的，段落语义完整性比固定长度切分重要", "评估 RAG 用 RAGAS 框架：忠实度、答案相关性、上下文精度三个维度", "高级 RAG：Query Rewriting、HyDE（假设文档嵌入）大幅提升召回率"]
+      },
+      {
+        name: "Fine-tuning 与 PEFT",
+        tag: "important",
+        tagLabel: "重要",
+        summary: "让模型学会特定风格/领域知识",
+        principle: "全量微调成本极高。PEFT（参数高效微调）的代表 LoRA：在原始权重矩阵旁注入低秩分解矩阵 ΔW = AB（A∈R^{d×r}, B∈R^{r×k}，r << d），只训练 A 和 B（参数量降低 100-10000 倍）。本质：假设权重更新是低秩的（真实场景验证有效）。",
+        mustKnow: ["LoRA 的数学原理与超参（rank r, alpha）", "QLoRA：在量化模型上做 LoRA（4bit 量化 + LoRA）", "微调数据集格式（Instruction Tuning 数据构建）", "何时微调 vs 何时用 RAG"],
+        tips: ["微调不是「让模型知道新知识」的最好方式（RAG 更合适），而是「改变行为模式/风格」", "用 Unsloth 库做 LoRA 微调，速度提升 2x+，显存降低 70%", "评估微调效果必须用 Held-out 集，不要在训练集上看效果"]
+      },
+      {
+        name: "Agent 与工具调用",
+        tag: "important",
+        tagLabel: "重要",
+        summary: "让 LLM 能行动，不只是回答",
+        principle: "ReAct 框架：Reason + Act，模型交替生成思考（Thought）和行动（Action），观察结果（Observation）后继续推理。工具调用本质：LLM 生成结构化 JSON，宿主程序解析执行后把结果返回对话。Multi-Agent：复杂任务分解给专门 Agent，需要编排（Orchestrator）和通信协议。",
+        mustKnow: ["Function Calling / Tool Use 的实现机制", "ReAct 与 Plan-and-Execute 等 Agent 模式", "LangGraph / AutoGen 等框架的设计思想", "Agent 的可靠性问题：幻觉、工具失败、无限循环"],
+        tips: ["Agent 开发最大的教训：先做最简单的单步 Agent，再考虑 Multi-Agent", "给 Agent 的工具要设计幂等性和错误处理，LLM 会调用失败", "用 LangSmith 或 Langfuse 追踪 Agent 执行链路，调试必备"]
+      }
+    ]
+  },
+  {
+    id: "mlops",
+    label: "第五阶段 · MLOps",
+    title: "生产化与 MLOps（按需深入）",
+    desc: "模型跑起来只是开始，生产环境的挑战在于成本、延迟、稳定性和可观测性。这一层对要做 AI 基础设施的工程师尤其重要。",
+    color: "#534AB7",
+    progress: 90,
+    topics: [
+      {
+        name: "模型推理优化",
+        tag: "important",
+        tagLabel: "重要",
+        summary: "让模型更快更省钱",
+        principle: "KV Cache：Transformer 在自回归生成时，之前 token 的 K/V 向量可以缓存，避免重复计算（O(n²) → O(n)）。量化：FP32→INT8→INT4，精度换速度和显存。Continuous Batching：与静态批处理不同，动态合并请求，GPU 利用率从 20% 提升到 80%+。",
+        mustKnow: ["KV Cache 的原理与显存占用计算", "量化（GPTQ/AWQ/bitsandbytes）的精度-速度权衡", "vLLM/TensorRT-LLM 等推理框架的核心设计", "Speculative Decoding（投机解码）原理"],
+        tips: ["先用 vLLM 部署，它的 PagedAttention 是目前最高效的开源推理方案", "推理成本 ≈ 显存带宽瓶颈，理解「计算密集」vs「内存密集」", "Speculative Decoding 用小模型生成草稿，大模型验证，延迟降低 2-3x"]
+      },
+      {
+        name: "评估与监控",
+        tag: "must",
+        tagLabel: "必须",
+        summary: "你不能优化你无法测量的东西",
+        principle: "LLM 评估分三层：自动评估（BLEU/ROUGE/Perplexity，快但相关性低）→ 模型评估（用 GPT-4 打分，LLM-as-Judge）→ 人工评估（最准但贵）。线上监控：追踪延迟（TTFT、TPOT）、成本、幻觉率、用户满意度。",
+        mustKnow: ["TTFT（首 Token 时间）和 TPOT（每 Token 时间）指标", "LLM-as-Judge 评估的偏差与校正方法", "幻觉检测（基于 NLI 的 Faithfulness 评估）", "A/B 测试 Prompt 和模型版本"],
+        tips: ["每个 LLM 应用上线前必须建 Eval Suite，推荐 Promptfoo 或 Braintrust", "LLM-as-Judge 要注意位置偏差（先看到的回答评分更高）", "监控要追踪「拒绝率」，太高说明 Prompt 过于保守，太低有风险"]
+      },
+      {
+        name: "数据飞轮",
+        tag: "optional",
+        tagLabel: "进阶",
+        summary: "构建持续改进的 AI 产品",
+        principle: "数据飞轮：用户使用 → 产生日志 → 标注/筛选 → 微调/改进 Prompt → 更好的产品 → 更多用户。这是 AI 产品的核心竞争壁垒。主动学习：选择模型最不确定的样本标注，提高标注效率。合成数据：用强模型生成弱模型的训练数据（Self-Play、Constitutional AI）。",
+        mustKnow: ["日志收集与隐私合规的平衡", "用户反馈信号的设计（点赞/踩/修改）", "合成数据生成的质量控制", "Eval-Driven Development 开发模式"],
+        tips: ["数据标注质量 > 数据量，1000 条高质量标注 > 10000 条低质量的", "合成数据被验证有效，但要加多样性控制，否则会强化模型偏见", "把 Eval 集增长和产品迭代绑定，每次修复 Bug 就加一条测试用例"]
+      }
+    ]
+  }
+];
+
+function renderStages() {
+  const nav = document.getElementById('stageNav');
+  const panels = document.getElementById('stagePanels');
+  
+  stages.forEach((stage, si) => {
+    const btn = document.createElement('button');
+    btn.className = 'stage-btn' + (si === 0 ? ' active' : '');
+    btn.textContent = stage.label;
+    btn.onclick = () => switchStage(si);
+    nav.appendChild(btn);
+    
+    const panel = document.createElement('div');
+    panel.className = 'stage-panel' + (si === 0 ? ' active' : '');
+    panel.id = 'panel-' + si;
+    
+    panel.innerHTML = `
+      <div class="stage-header">
+        <div class="stage-title">${stage.title}</div>
+        <div class="stage-desc">${stage.desc}</div>
+        <div class="progress-bar-wrap">
+          <div class="progress-label"><span>学习进度参考</span><span>${stage.progress}% 完成后可进入下一阶段</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:${stage.progress}%; background:${stage.color}"></div></div>
+        </div>
+      </div>
+      <div class="topics-grid">${stage.topics.map((t, ti) => renderTopic(t, si, ti)).join('')}</div>
+    `;
+    panels.appendChild(panel);
+  });
+}
+
+function renderTopic(t, si, ti) {
+  const tagClass = { must: 'tag-must', important: 'tag-important', optional: 'tag-optional' }[t.tag];
+  return `
+    <div class="topic-card" id="card-${si}-${ti}" onclick="toggleTopic(${si}, ${ti})">
+      <div class="topic-header">
+        <div class="topic-name">${t.name}</div>
+        <span class="topic-tag ${tagClass}">${t.tagLabel}</span>
+      </div>
+      <div class="topic-summary">${t.summary}</div>
+      <div class="topic-detail" id="detail-${si}-${ti}">
+        <div class="detail-section">
+          <div class="detail-label">底层原理</div>
+          <div class="detail-content">${t.principle}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">必须掌握</div>
+          <div class="detail-content"><ul>${t.mustKnow.map(m => `<li>${m}</li>`).join('')}</ul></div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">实践技巧</div>
+          <div class="tips-box detail-content"><ul>${t.tips.map(tip => `<li>${tip}</li>`).join('')}</ul></div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function switchStage(idx) {
+  document.querySelectorAll('.stage-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  document.querySelectorAll('.stage-panel').forEach((p, i) => p.classList.toggle('active', i === idx));
+}
+
+function toggleTopic(si, ti) {
+  const detail = document.getElementById(`detail-${si}-${ti}`);
+  const card = document.getElementById(`card-${si}-${ti}`);
+  const isOpen = detail.classList.contains('open');
+  detail.classList.toggle('open', !isOpen);
+  card.classList.toggle('expanded', !isOpen);
+}
+
+renderStages();
+</script>

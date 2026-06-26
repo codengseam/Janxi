@@ -1,0 +1,3909 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>算法数据结构完全指南 · Python · 24节</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/tomorrow-night.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root {
+  --bg: #080d18;
+  --sidebar-bg: #0d1425;
+  --card: #111827;
+  --card2: #162035;
+  --border: #1e2d47;
+  --accent: #38bdf8;
+  --accent2: #818cf8;
+  --green: #34d399;
+  --orange: #fb923c;
+  --red: #f87171;
+  --yellow: #fbbf24;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --code-bg: #0f172a;
+  --tag-bg: #1e3a5f;
+}
+
+html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'Noto Sans SC', sans-serif; }
+
+/* ─── LAYOUT ─── */
+#app { display: flex; height: 100vh; }
+
+/* ─── SIDEBAR ─── */
+#sidebar {
+  width: 270px;
+  min-width: 270px;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#sidebar-header {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+#sidebar-header .logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#sidebar-header .logo .dot { width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent); }
+#sidebar-header p { font-size: 11px; color: var(--text3); margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
+
+#nav-list { overflow-y: auto; flex: 1; padding: 10px 0; }
+#nav-list::-webkit-scrollbar { width: 4px; }
+#nav-list::-webkit-scrollbar-track { background: transparent; }
+#nav-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.nav-section { padding: 12px 14px 4px; font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--text3); text-transform: uppercase; letter-spacing: 0.12em; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 18px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text2);
+  transition: all 0.15s;
+  border-left: 2px solid transparent;
+  user-select: none;
+}
+.nav-item:hover { background: rgba(56,189,248,0.06); color: var(--text); }
+.nav-item.active { background: rgba(56,189,248,0.1); color: var(--accent); border-left-color: var(--accent); }
+.nav-item .nav-num { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); min-width: 20px; }
+.nav-item .nav-tag { margin-left: auto; font-size: 10px; font-family: 'JetBrains Mono', monospace; background: var(--tag-bg); color: var(--accent); padding: 1px 5px; border-radius: 3px; opacity: 0.8; }
+.nav-item.active .nav-tag { opacity: 1; }
+
+/* ─── MAIN CONTENT ─── */
+#main { flex: 1; overflow: hidden; position: relative; }
+
+.page { display: none; height: 100vh; overflow-y: auto; padding: 36px 48px 60px; }
+.page.active { display: block; }
+.page::-webkit-scrollbar { width: 6px; }
+.page::-webkit-scrollbar-track { background: transparent; }
+.page::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ─── PAGE HEADER ─── */
+.page-header { margin-bottom: 32px; }
+.page-header .breadcrumb { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.page-header .breadcrumb span { color: var(--accent); }
+.page-title { font-family: 'Syne', sans-serif; font-size: 34px; font-weight: 800; color: var(--text); line-height: 1.1; }
+.page-title .zh { color: var(--accent); }
+.page-title .en { font-size: 18px; color: var(--text3); font-weight: 600; margin-left: 10px; }
+.page-desc { margin-top: 12px; font-size: 14px; color: var(--text2); line-height: 1.7; max-width: 820px; }
+
+/* ─── TAGS ─── */
+.tags { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0; }
+.tag { font-size: 11px; font-family: 'JetBrains Mono', monospace; padding: 3px 10px; border-radius: 4px; }
+.tag-blue { background: rgba(56,189,248,0.12); color: var(--accent); border: 1px solid rgba(56,189,248,0.2); }
+.tag-green { background: rgba(52,211,153,0.12); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
+.tag-orange { background: rgba(251,146,60,0.12); color: var(--orange); border: 1px solid rgba(251,146,60,0.2); }
+.tag-purple { background: rgba(129,140,248,0.12); color: var(--accent2); border: 1px solid rgba(129,140,248,0.2); }
+
+/* ─── GRID ─── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+/* ─── CARDS ─── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 22px;
+}
+.card-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.card-title::before { content: ''; width: 3px; height: 14px; background: var(--accent); border-radius: 2px; }
+
+/* ─── COMPLEXITY TABLE ─── */
+.complexity-table { width: 100%; border-collapse: collapse; font-size: 13px; font-family: 'JetBrains Mono', monospace; }
+.complexity-table th { text-align: left; padding: 8px 12px; color: var(--text3); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid var(--border); font-weight: 500; }
+.complexity-table td { padding: 9px 12px; border-bottom: 1px solid rgba(30,45,71,0.5); color: var(--text2); }
+.complexity-table tr:last-child td { border-bottom: none; }
+.complexity-table .op { color: var(--text); }
+.o1 { color: var(--green) !important; }
+.ologn { color: var(--accent) !important; }
+.on { color: var(--orange) !important; }
+.on2 { color: var(--red) !important; }
+
+/* ─── CODE BLOCK ─── */
+.code-wrap { margin: 16px 0; }
+.code-header { background: var(--card2); border: 1px solid var(--border); border-bottom: none; border-radius: 8px 8px 0 0; padding: 9px 16px; display: flex; align-items: center; justify-content: space-between; }
+.code-header .lang { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); display: flex; align-items: center; gap: 6px; }
+.code-header .dots { display: flex; gap: 5px; }
+.code-header .dots span { width: 10px; height: 10px; border-radius: 50%; }
+.code-header .dots .d1 { background: #f87171; }
+.code-header .dots .d2 { background: #fbbf24; }
+.code-header .dots .d3 { background: #34d399; }
+.code-header .fname { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3); }
+
+pre.code-block {
+  background: var(--code-bg) !important;
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  padding: 18px 20px !important;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 12.5px !important;
+  line-height: 1.7 !important;
+  margin: 0 !important;
+}
+pre.code-block code { font-family: 'JetBrains Mono', monospace !important; font-size: 12.5px !important; background: none !important; }
+pre.code-block::-webkit-scrollbar { height: 4px; }
+pre.code-block::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* ─── KEY POINTS ─── */
+.kp-list { list-style: none; }
+.kp-list li { padding: 6px 0; font-size: 13px; color: var(--text2); line-height: 1.6; display: flex; gap: 8px; align-items: flex-start; }
+.kp-list li::before { content: '▸'; color: var(--accent); flex-shrink: 0; margin-top: 1px; }
+.kp-list li strong { color: var(--text); }
+
+/* ─── INFO BOX ─── */
+.info-box { background: rgba(56,189,248,0.06); border: 1px solid rgba(56,189,248,0.2); border-left: 3px solid var(--accent); border-radius: 6px; padding: 12px 16px; font-size: 13px; color: var(--text2); line-height: 1.6; margin: 12px 0; }
+.warn-box { background: rgba(251,146,60,0.06); border: 1px solid rgba(251,146,60,0.2); border-left: 3px solid var(--orange); border-radius: 6px; padding: 12px 16px; font-size: 13px; color: var(--text2); line-height: 1.6; margin: 12px 0; }
+.info-box strong, .warn-box strong { color: var(--text); }
+
+/* ─── STRUCTURE DIAGRAM ─── */
+.diagram { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text2); line-height: 1.8; overflow-x: auto; white-space: pre; }
+
+/* ─── SECTION SEPARATOR ─── */
+.sec { margin: 28px 0 16px; }
+.sec-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 10px; }
+.sec-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ─── NAV BUTTONS ─── */
+.page-nav { display: flex; gap: 12px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); }
+.btn { padding: 9px 20px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 12px; cursor: pointer; border: 1px solid var(--border); background: var(--card); color: var(--text2); transition: all 0.15s; }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn-primary { background: rgba(56,189,248,0.1); border-color: var(--accent); color: var(--accent); }
+
+/* ─── PROGRESS BAR ─── */
+#progress { position: fixed; bottom: 0; left: 270px; right: 0; height: 2px; background: var(--border); z-index: 100; }
+#progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); width: 0%; transition: width 0.3s; }
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); }
+
+/* ─── HLJS CUSTOM ─── */
+.hljs { background: transparent !important; }
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ─── SIDEBAR ─── -->
+<div id="sidebar">
+  <div id="sidebar-header">
+    <div class="logo"><span class="dot"></span>DATA STRUCTURES</div>
+    <p>// Python 完全指南 · 24 结构</p>
+  </div>
+  <div id="nav-list">
+    <div class="nav-section">基础线性结构</div>
+    <div class="nav-item active" onclick="showPage(0)"><span class="nav-num">01</span>数组 Array<span class="nav-tag">O(1)</span></div>
+    <div class="nav-item" onclick="showPage(1)"><span class="nav-num">02</span>链表 Linked List<span class="nav-tag">O(n)</span></div>
+    <div class="nav-item" onclick="showPage(2)"><span class="nav-num">03</span>栈 Stack<span class="nav-tag">O(1)</span></div>
+    <div class="nav-item" onclick="showPage(3)"><span class="nav-num">04</span>队列 Queue<span class="nav-tag">O(1)</span></div>
+    <div class="nav-item" onclick="showPage(4)"><span class="nav-num">05</span>哈希表 Hash Table<span class="nav-tag">O(1)*</span></div>
+    <div class="nav-section">树形结构</div>
+    <div class="nav-item" onclick="showPage(5)"><span class="nav-num">06</span>二叉树 Binary Tree<span class="nav-tag">O(n)</span></div>
+    <div class="nav-item" onclick="showPage(6)"><span class="nav-num">07</span>二叉搜索树 BST<span class="nav-tag">O(h)</span></div>
+    <div class="nav-item" onclick="showPage(7)"><span class="nav-num">08</span>AVL 树<span class="nav-tag">O(logn)</span></div>
+    <div class="nav-item" onclick="showPage(8)"><span class="nav-num">09</span>红黑树 Red-Black<span class="nav-tag">O(logn)</span></div>
+    <div class="nav-item" onclick="showPage(9)"><span class="nav-num">10</span>堆 Heap<span class="nav-tag">O(logn)</span></div>
+    <div class="nav-item" onclick="showPage(10)"><span class="nav-num">11</span>字典树 Trie<span class="nav-tag">O(m)</span></div>
+    <div class="nav-section">图结构</div>
+    <div class="nav-item" onclick="showPage(11)"><span class="nav-num">12</span>图 Graph<span class="nav-tag">O(V+E)</span></div>
+    <div class="nav-section">高级结构</div>
+    <div class="nav-item" onclick="showPage(12)"><span class="nav-num">13</span>跳表 Skip List<span class="nav-tag">O(logn)</span></div>
+    <div class="nav-item" onclick="showPage(13)"><span class="nav-num">14</span>B+ 树 B+ Tree<span class="nav-tag">O(logn)</span></div>
+    <div class="nav-item" onclick="showPage(14)"><span class="nav-num">15</span>LRU 缓存<span class="nav-tag">O(1)</span></div>
+    <div class="nav-item" onclick="showPage(15)"><span class="nav-num">16</span>线段树 Segment Tree<span class="nav-tag">O(logn)</span></div>
+    <div class="nav-item" onclick="showPage(16)"><span class="nav-num">17</span>树状数组 Fenwick<span class="nav-tag">O(logn)</span></div>
+    <div class="nav-item" onclick="showPage(17)"><span class="nav-num">18</span>并查集 Union-Find<span class="nav-tag">O(α)</span></div>
+    <div class="nav-section">字符串结构</div>
+    <div class="nav-item" onclick="showPage(18)"><span class="nav-num">19</span>稀疏表 Sparse Table<span class="nav-tag">O(1)</span></div>
+    <div class="nav-item" onclick="showPage(19)"><span class="nav-num">20</span>字符串哈希 Rolling Hash<span class="nav-tag">O(n)</span></div>
+    <div class="nav-item" onclick="showPage(20)"><span class="nav-num">21</span>KMP / Z 算法<span class="nav-tag">O(n+m)</span></div>
+    <div class="nav-section">概率 & 位运算</div>
+    <div class="nav-item" onclick="showPage(21)"><span class="nav-num">22</span>布隆过滤器 Bloom Filter<span class="nav-tag">O(k)</span></div>
+    <div class="nav-item" onclick="showPage(22)"><span class="nav-num">23</span>位运算技巧 Bit Tricks<span class="nav-tag">O(1)</span></div>
+    <div class="nav-item" onclick="showPage(23)"><span class="nav-num">24</span>单调栈队列进阶<span class="nav-tag">O(n)</span></div>
+  </div>
+</div>
+
+<!-- ─── MAIN CONTENT ─── -->
+<div id="main">
+
+<!-- ═══════════════════════ PAGE 01: ARRAY ═══════════════════════ -->
+<div class="page active" id="page-0">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 01 / 18</span></div>
+    <div class="page-title"><span class="zh">数组</span><span class="en">Dynamic Array</span></div>
+    <div class="page-desc">数组是最基础的线性数据结构，将相同类型的元素存储在<strong>连续内存空间</strong>中。动态数组在固定数组之上实现了自动扩容，是 Python list 的底层实现基础。</div>
+    <div class="tags"><span class="tag tag-blue">随机访问</span><span class="tag tag-green">缓存友好</span><span class="tag tag-orange">扩容摊还</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">时间复杂度</div>
+      <table class="complexity-table">
+        <tr><th>操作</th><th>平均</th><th>最坏</th></tr>
+        <tr><td class="op">随机访问 Access</td><td class="o1">O(1)</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">末尾追加 Append</td><td class="o1">O(1)*</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">中间插入 Insert</td><td class="on">O(n)</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">查找 Search</td><td class="on">O(n)</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">删除 Delete</td><td class="on">O(n)</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">空间 Space</td><td class="on">O(n)</td><td class="on">O(n)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">内存结构</div>
+      <div class="diagram">索引:  [ 0 ][ 1 ][ 2 ][ 3 ][ 4 ][ 5 ]
+数据:  [ 10][ 20][ 30][ 40][ 50][   ]
+地址:  1000 1004 1008 1012 1016 1020
+         ↑ 连续内存，间距 = sizeof(element)
+
+动态扩容策略：
+容量不足 → 申请 2x 空间 → 复制元素 → 释放旧空间
+[■■■■] → [■■■■□□□□] → 摊还 O(1)</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现 · 动态数组</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">dynamic_array.py</div></div>
+    <pre class="code-block"><code class="language-python">class DynamicArray:
+    """动态数组：自动扩容，摊还 O(1) append"""
+    def __init__(self):
+        self._capacity = 1
+        self._size = 0
+        self._data = [None] * self._capacity
+
+    def __len__(self):          return self._size
+    def __getitem__(self, i):
+        if not 0 <= i < self._size: raise IndexError("越界")
+        return self._data[i]
+    def __setitem__(self, i, v):
+        if not 0 <= i < self._size: raise IndexError("越界")
+        self._data[i] = v
+
+    def append(self, val):
+        if self._size == self._capacity:
+            self._resize(2 * self._capacity)   # 容量翻倍
+        self._data[self._size] = val
+        self._size += 1
+
+    def insert(self, idx, val):
+        """O(n)：idx 之后的元素全部右移一位"""
+        if self._size == self._capacity:
+            self._resize(2 * self._capacity)
+        for i in range(self._size, idx, -1):
+            self._data[i] = self._data[i - 1]
+        self._data[idx] = val
+        self._size += 1
+
+    def delete(self, idx):
+        """O(n)：idx 之后的元素左移一位"""
+        val = self._data[idx]
+        for i in range(idx, self._size - 1):
+            self._data[i] = self._data[i + 1]
+        self._size -= 1
+        # 缩容：空间利用率不足 25% 时减半
+        if self._size < self._capacity // 4 and self._capacity > 1:
+            self._resize(self._capacity // 2)
+        return val
+
+    def _resize(self, new_cap):
+        new_data = [None] * new_cap
+        for i in range(self._size):
+            new_data[i] = self._data[i]
+        self._data = new_data
+        self._capacity = new_cap
+
+# ─── 前缀和（Prefix Sum）─── 经典数组技巧
+class PrefixSum:
+    def __init__(self, nums):
+        n = len(nums)
+        self.pre = [0] * (n + 1)           # pre[0] = 0（哨兵）
+        for i in range(n):
+            self.pre[i + 1] = self.pre[i] + nums[i]
+
+    def range_sum(self, l, r):             # [l, r] 区间和，O(1)
+        return self.pre[r + 1] - self.pre[l]
+
+# ─── 双指针技巧 ───
+def two_sum_sorted(arr, target):
+    """有序数组双指针，O(n)"""
+    lo, hi = 0, len(arr) - 1
+    while lo < hi:
+        s = arr[lo] + arr[hi]
+        if s == target:   return (lo, hi)
+        elif s < target:  lo += 1
+        else:             hi -= 1
+    return None
+
+# ─── 滑动窗口 ───
+def max_subarray_sum(nums, k):
+    """长度为 k 的最大子数组和，O(n)"""
+    window = sum(nums[:k])
+    best = window
+    for i in range(k, len(nums)):
+        window += nums[i] - nums[i - k]
+        best = max(best, window)
+    return best</code></pre>
+  </div>
+  <div class="info-box"><strong>摊还分析：</strong>每次扩容将容量翻倍。对 n 次 append 操作，总复制次数 = 1+2+4+...+n/2 ≤ 2n。故每次 append 的<strong>摊还时间复杂度为 O(1)</strong>，即平均分摊后每次只付出常数代价。</div>
+  <div class="page-nav"><button class="btn btn-primary" onclick="showPage(1)">下一节：链表 →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 02: LINKED LIST ═══════════════════════ -->
+<div class="page" id="page-1">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 02 / 18</span></div>
+    <div class="page-title"><span class="zh">链表</span><span class="en">Linked List</span></div>
+    <div class="page-desc">链表通过<strong>指针</strong>将节点串联，无需连续内存。插入/删除（已知位置）为 O(1)，但随机访问需 O(n)。分为单向、双向、循环三种形式。</div>
+    <div class="tags"><span class="tag tag-blue">单链表</span><span class="tag tag-blue">双链表</span><span class="tag tag-orange">O(1)插删</span><span class="tag tag-purple">哨兵节点</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">时间复杂度</div>
+      <table class="complexity-table">
+        <tr><th>操作</th><th>单链表</th><th>双链表</th></tr>
+        <tr><td class="op">访问第 i 个</td><td class="on">O(n)</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">头部插入</td><td class="o1">O(1)</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">尾部插入</td><td class="o1">O(1)*</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">已知节点删除</td><td class="on">O(n)</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">按值搜索</td><td class="on">O(n)</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">空间</td><td class="on">O(n)</td><td class="on">O(n)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">内存结构</div>
+      <div class="diagram">单链表：
+head → [1|→] → [2|→] → [3|→] → None
+
+双链表（带哨兵）：
+        ←        ←        ←
+dummy ↔ [1] ↔ [2] ↔ [3] ↔ dummy
+        →        →        →
+         prev    val    next
+
+哨兵节点（Sentinel）避免边界判断
+头哨兵 + 尾哨兵 → 统一插删逻辑</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">linked_list.py</div></div>
+    <pre class="code-block"><code class="language-python">class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+# ─── 单链表 ───
+class SinglyLinkedList:
+    def __init__(self):
+        self.dummy = ListNode(0)   # 头哨兵，简化边界处理
+        self.size = 0
+
+    def append(self, val):         # 尾插 O(n)（若无 tail 指针）
+        cur = self.dummy
+        while cur.next: cur = cur.next
+        cur.next = ListNode(val)
+        self.size += 1
+
+    def prepend(self, val):        # 头插 O(1)
+        node = ListNode(val, self.dummy.next)
+        self.dummy.next = node
+        self.size += 1
+
+    def delete(self, val):         # 按值删除 O(n)
+        cur = self.dummy
+        while cur.next:
+            if cur.next.val == val:
+                cur.next = cur.next.next
+                self.size -= 1
+                return True
+            cur = cur.next
+        return False
+
+    def reverse(self):             # 原地反转 O(n)
+        prev, cur = None, self.dummy.next
+        while cur:
+            nxt = cur.next
+            cur.next = prev
+            prev = cur
+            cur = nxt
+        self.dummy.next = prev
+
+    def has_cycle(self):           # Floyd 判环
+        slow = fast = self.dummy.next
+        while fast and fast.next:
+            slow = slow.next
+            fast = fast.next.next
+            if slow is fast: return True
+        return False
+
+# ─── 双向链表（带双哨兵，LRU 标准实现基础）───
+class DNode:
+    def __init__(self, key=0, val=0):
+        self.key, self.val = key, val
+        self.prev = self.next = None
+
+class DoublyLinkedList:
+    def __init__(self):
+        self.head = DNode()          # 头哨兵（最久未使用端）
+        self.tail = DNode()          # 尾哨兵（最近使用端）
+        self.head.next = self.tail
+        self.tail.prev = self.head
+        self.size = 0
+
+    def add_to_tail(self, node):     # 插入到尾部 O(1)
+        node.prev = self.tail.prev
+        node.next = self.tail
+        self.tail.prev.next = node
+        self.tail.prev = node
+        self.size += 1
+
+    def remove(self, node):          # 移除任意节点 O(1)
+        node.prev.next = node.next
+        node.next.prev = node.prev
+        self.size -= 1
+
+    def pop_head(self):              # 移除头部第一个真实节点（最久）O(1)
+        if self.head.next is self.tail: return None
+        node = self.head.next
+        self.remove(node)
+        return node
+
+    def move_to_tail(self, node):    # 移到尾部（标记为最近使用）O(1)
+        self.remove(node)
+        self.add_to_tail(node)
+
+# ─── 经典算法：合并两个有序链表 ───
+def merge_sorted(l1, l2):
+    dummy = ListNode(0)
+    cur = dummy
+    while l1 and l2:
+        if l1.val <= l2.val: cur.next, l1 = l1, l1.next
+        else:                cur.next, l2 = l2, l2.next
+        cur = cur.next
+    cur.next = l1 or l2
+    return dummy.next</code></pre>
+  </div>
+  <div class="warn-box"><strong>双链表删除任意节点 O(1) 的前提：</strong>已持有节点指针。若只知道值，仍需 O(n) 搜索。双哨兵节点消除了所有 "前驱为空 / 后继为空" 的边界判断，是工程实践的标准写法。</div>
+  <div class="page-nav"><button class="btn" onclick="showPage(0)">← 上一节</button><button class="btn btn-primary" onclick="showPage(2)">下一节：栈 →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 03: STACK ═══════════════════════ -->
+<div class="page" id="page-2">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 03 / 18</span></div>
+    <div class="page-title"><span class="zh">栈</span><span class="en">Stack</span></div>
+    <div class="page-desc"><strong>后进先出（LIFO）</strong>数据结构。Python 的 list 天然支持栈操作。单调栈是栈的经典变形，用于解决"下一个更大/小元素"类问题。</div>
+    <div class="tags"><span class="tag tag-blue">LIFO</span><span class="tag tag-green">O(1)全操作</span><span class="tag tag-orange">单调栈</span><span class="tag tag-purple">括号匹配</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">时间复杂度</div>
+      <table class="complexity-table">
+        <tr><th>操作</th><th>复杂度</th></tr>
+        <tr><td class="op">压栈 Push</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">弹栈 Pop</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">查看栈顶 Peek</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">判空 isEmpty</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">空间 Space</td><td class="on">O(n)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">结构示意</div>
+      <div class="diagram">top →  [ 40 ]  ← push/pop 在此端
+       [ 30 ]
+       [ 20 ]
+       [ 10 ]  ← bottom
+
+单调递减栈示例（nums = [2,1,5,3,4]）：
+i=0: push 2    → [2]
+i=1: push 1    → [2,1]
+i=2: 5>1 pop1  → [2] ; 5>2 pop2 → [] ; push 5 → [5]
+i=3: push 3    → [5,3]
+i=4: 4>3 pop3  → [5] ; push 4  → [5,4]</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">stack.py</div></div>
+    <pre class="code-block"><code class="language-python">class Stack:
+    """基于 list 的栈，所有操作 O(1)"""
+    def __init__(self):
+        self._data = []
+
+    def push(self, val):    self._data.append(val)
+    def pop(self):
+        if self.is_empty(): raise IndexError("栈为空")
+        return self._data.pop()
+    def peek(self):
+        if self.is_empty(): raise IndexError("栈为空")
+        return self._data[-1]
+    def is_empty(self):     return len(self._data) == 0
+    def __len__(self):      return len(self._data)
+
+# ─── 经典应用 1：括号匹配 ───
+def is_valid_brackets(s: str) -> bool:
+    stack = []
+    mapping = {')': '(', ']': '[', '}': '{'}
+    for ch in s:
+        if ch in '([{':
+            stack.append(ch)
+        elif not stack or stack[-1] != mapping[ch]:
+            return False
+        else:
+            stack.pop()
+    return not stack
+
+# ─── 经典应用 2：单调栈——下一个更大元素 O(n) ───
+def next_greater_element(nums):
+    n = len(nums)
+    result = [-1] * n
+    stack = []                    # 存储下标
+    for i in range(n):
+        # 当前元素比栈顶大 → 栈顶找到了"下一个更大元素"
+        while stack and nums[stack[-1]] < nums[i]:
+            result[stack.pop()] = nums[i]
+        stack.append(i)
+    return result
+# [2,1,5,3,4] → [5,5,-1,4,-1]
+
+# ─── 经典应用 3：最大矩形面积（单调栈 O(n)）───
+def largest_rectangle(heights):
+    stack = [-1]                  # 哨兵
+    heights.append(0)
+    max_area = 0
+    for i, h in enumerate(heights):
+        while stack[-1] != -1 and heights[stack[-1]] >= h:
+            height = heights[stack.pop()]
+            width = i - stack[-1] - 1
+            max_area = max(max_area, height * width)
+        stack.append(i)
+    heights.pop()
+    return max_area
+
+# ─── 经典应用 4：用两个栈实现队列 ───
+class MyQueue:
+    def __init__(self):
+        self.in_stack = []        # 入队专用
+        self.out_stack = []       # 出队专用
+
+    def push(self, x):
+        self.in_stack.append(x)
+
+    def pop(self):
+        self._migrate()
+        return self.out_stack.pop()
+
+    def peek(self):
+        self._migrate()
+        return self.out_stack[-1]
+
+    def _migrate(self):
+        if not self.out_stack:    # 懒迁移：out 空时才将 in 全部倒入
+            while self.in_stack:
+                self.out_stack.append(self.in_stack.pop())</code></pre>
+  </div>
+  <div class="info-box"><strong>单调栈核心思想：</strong>维护一个单调递增/递减的栈。当新元素"破坏"单调性时，弹出栈顶并记录关系。所有元素最多入栈/出栈各一次，总时间复杂度 O(n)。</div>
+  <div class="page-nav"><button class="btn" onclick="showPage(1)">← 上一节</button><button class="btn btn-primary" onclick="showPage(3)">下一节：队列 →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 04: QUEUE ═══════════════════════ -->
+<div class="page" id="page-3">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 04 / 18</span></div>
+    <div class="page-title"><span class="zh">队列 / 双端队列</span><span class="en">Queue / Deque</span></div>
+    <div class="page-desc"><strong>先进先出（FIFO）</strong>数据结构。Python 的 <code>collections.deque</code> 是基于双向链表的双端队列，两端操作均为 O(1)。单调队列用于滑动窗口最值问题。</div>
+    <div class="tags"><span class="tag tag-blue">FIFO</span><span class="tag tag-green">deque O(1)</span><span class="tag tag-orange">单调队列</span><span class="tag tag-purple">BFS</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">时间复杂度</div>
+      <table class="complexity-table">
+        <tr><th>操作</th><th>复杂度</th></tr>
+        <tr><td class="op">入队 Enqueue</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">出队 Dequeue</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">查看队头 Peek</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">双端 appendleft</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">双端 popleft</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">空间 Space</td><td class="on">O(n)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">结构示意</div>
+      <div class="diagram">普通队列：
+front → [A][B][C][D] ← rear
+         ↑出队        ↑入队
+
+双端队列 deque：
+appendleft ←  [A][B][C][D]  → append
+  popleft  →                ← pop
+
+单调递减队列（滑动窗口 k=3）：
+nums = [1,3,-1,-3,5,3,6,7]
+window=[1,3,-1]: dq=[3,-1], max=3
+window=[3,-1,-3]: dq=[3,-1,-3], max=3
+window=[-1,-3,5]: dq=[5], max=5</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">queue_deque.py</div></div>
+    <pre class="code-block"><code class="language-python">from collections import deque
+
+# ─── 标准队列封装 ───
+class Queue:
+    def __init__(self):
+        self._dq = deque()
+
+    def enqueue(self, val):     self._dq.append(val)
+    def dequeue(self):
+        if not self._dq: raise IndexError("队列为空")
+        return self._dq.popleft()
+    def peek(self):             return self._dq[0]
+    def is_empty(self):         return not self._dq
+    def __len__(self):          return len(self._dq)
+
+# ─── 循环队列（数组实现，固定大小）───
+class CircularQueue:
+    def __init__(self, k):
+        self.buf = [None] * k
+        self.head = self.tail = 0
+        self.size = 0
+        self.k = k
+
+    def enqueue(self, val):
+        if self.size == self.k: raise OverflowError("队列满")
+        self.buf[self.tail] = val
+        self.tail = (self.tail + 1) % self.k
+        self.size += 1
+
+    def dequeue(self):
+        if self.size == 0: raise IndexError("队列空")
+        val = self.buf[self.head]
+        self.head = (self.head + 1) % self.k
+        self.size -= 1
+        return val
+
+# ─── 单调队列——滑动窗口最大值 O(n) ───
+def sliding_window_max(nums, k):
+    dq = deque()                # 存储下标，保持单调递减
+    result = []
+
+    for i, num in enumerate(nums):
+        # 移除超出窗口的元素
+        while dq and dq[0] < i - k + 1:
+            dq.popleft()
+        # 维护单调性：移除比当前值小的元素
+        while dq and nums[dq[-1]] < num:
+            dq.pop()
+        dq.append(i)
+        # 窗口形成后记录最大值
+        if i >= k - 1:
+            result.append(nums[dq[0]])
+    return result
+
+# ─── BFS 模板（最短路径）───
+def bfs_shortest_path(grid, start, end):
+    """网格最短路径，grid[i][j]=0 可走，1 障碍"""
+    rows, cols = len(grid), len(grid[0])
+    queue = deque([(start, 0)])   # (坐标, 步数)
+    visited = {start}
+    dirs = [(0,1),(0,-1),(1,0),(-1,0)]
+
+    while queue:
+        (r, c), dist = queue.popleft()
+        if (r, c) == end: return dist
+        for dr, dc in dirs:
+            nr, nc = r + dr, c + dc
+            if (0 <= nr < rows and 0 <= nc < cols
+                    and (nr, nc) not in visited
+                    and grid[nr][nc] == 0):
+                visited.add((nr, nc))
+                queue.append(((nr, nc), dist + 1))
+    return -1
+
+# ─── 优先队列 ── heapq（最小堆）───
+import heapq
+
+class PriorityQueue:
+    def __init__(self):
+        self._heap = []
+
+    def push(self, priority, item):
+        heapq.heappush(self._heap, (priority, item))
+
+    def pop(self):
+        return heapq.heappop(self._heap)   # 返回 (priority, item)
+
+    def peek(self):
+        return self._heap[0]</code></pre>
+  </div>
+  <div class="info-box"><strong>为何不用 list 做队列？</strong>list.pop(0) 的时间复杂度是 O(n)（需要移动所有元素），而 deque.popleft() 是 O(1)。高频出队场景下差距显著。</div>
+  <div class="page-nav"><button class="btn" onclick="showPage(2)">← 上一节</button><button class="btn btn-primary" onclick="showPage(4)">下一节：哈希表 →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 05: HASH TABLE ═══════════════════════ -->
+<div class="page" id="page-4">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 05 / 18</span></div>
+    <div class="page-title"><span class="zh">哈希表</span><span class="en">Hash Table</span></div>
+    <div class="page-desc">通过<strong>哈希函数</strong>将键映射到数组下标，实现平均 O(1) 的增删查。冲突解决有<strong>链地址法（拉链）</strong>和<strong>开放寻址法</strong>两大类。Python 的 dict 基于开放寻址（探测哈希）实现。</div>
+    <div class="tags"><span class="tag tag-blue">哈希函数</span><span class="tag tag-green">O(1)均摊</span><span class="tag tag-orange">拉链法</span><span class="tag tag-purple">负载因子</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">时间复杂度</div>
+      <table class="complexity-table">
+        <tr><th>操作</th><th>平均</th><th>最坏</th></tr>
+        <tr><td class="op">插入 Insert</td><td class="o1">O(1)</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">查找 Search</td><td class="o1">O(1)</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">删除 Delete</td><td class="o1">O(1)</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">空间 Space</td><td class="on">O(n)</td><td class="on">O(n)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">冲突解决对比</div>
+      <div class="diagram">拉链法（Chaining）：
+bucket[0] → [A] → [E]
+bucket[1] → [B]
+bucket[2] → [C] → [F] → [G]
+
+开放寻址（Linear Probing）：
+[A][B][_][C][_][E][F]  ← 冲突后探测下一个空位
+
+负载因子 α = n/m (元素数/槽数)
+拉链法：α > 0.75 时扩容
+开放寻址：α > 0.5 时扩容（聚集严重）</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">hash_table.py</div></div>
+    <pre class="code-block"><code class="language-python"># ─── 拉链法哈希表 ───
+class HashMap:
+    LOAD_FACTOR = 0.75
+
+    def __init__(self, capacity=16):
+        self.capacity = capacity
+        self.size = 0
+        self.buckets = [[] for _ in range(capacity)]   # 每个桶是链表（list of (k,v)）
+
+    def _hash(self, key):
+        return hash(key) % self.capacity
+
+    def put(self, key, val):
+        idx = self._hash(key)
+        for i, (k, v) in enumerate(self.buckets[idx]):
+            if k == key:
+                self.buckets[idx][i] = (key, val)     # 更新
+                return
+        self.buckets[idx].append((key, val))           # 新增
+        self.size += 1
+        if self.size / self.capacity > self.LOAD_FACTOR:
+            self._resize()
+
+    def get(self, key):
+        for k, v in self.buckets[self._hash(key)]:
+            if k == key: return v
+        raise KeyError(key)
+
+    def remove(self, key):
+        idx = self._hash(key)
+        bucket = self.buckets[idx]
+        for i, (k, v) in enumerate(bucket):
+            if k == key:
+                bucket.pop(i)
+                self.size -= 1
+                return
+        raise KeyError(key)
+
+    def _resize(self):
+        old = self.buckets
+        self.capacity *= 2
+        self.buckets = [[] for _ in range(self.capacity)]
+        self.size = 0
+        for bucket in old:
+            for k, v in bucket:
+                self.put(k, v)            # 重新哈希
+
+# ─── 开放寻址法（线性探测）───
+class OpenHashMap:
+    DELETED = object()              # 墓碑标记（防止搜索链断裂）
+
+    def __init__(self, capacity=16):
+        self.capacity = capacity
+        self.size = 0
+        self.keys = [None] * capacity
+        self.vals = [None] * capacity
+
+    def _probe(self, key):
+        """线性探测，找到 key 或空槽"""
+        h = hash(key) % self.capacity
+        while self.keys[h] is not None:
+            if self.keys[h] is not self.DELETED and self.keys[h] == key:
+                return h
+            h = (h + 1) % self.capacity
+        return h
+
+    def put(self, key, val):
+        if self.size / self.capacity > 0.5: self._resize()
+        h = hash(key) % self.capacity
+        while self.keys[h] is not None and self.keys[h] is not self.DELETED:
+            if self.keys[h] == key:
+                self.vals[h] = val; return
+            h = (h + 1) % self.capacity
+        self.keys[h] = key; self.vals[h] = val; self.size += 1
+
+    def get(self, key):
+        h = self._probe(key)
+        if self.keys[h] == key: return self.vals[h]
+        raise KeyError(key)
+
+    def remove(self, key):
+        h = self._probe(key)
+        if self.keys[h] == key:
+            self.keys[h] = self.DELETED   # 墓碑，不能直接置 None
+            self.size -= 1
+
+    def _resize(self):
+        old_keys, old_vals = self.keys, self.vals
+        self.capacity *= 2
+        self.keys = [None] * self.capacity
+        self.vals = [None] * self.capacity
+        self.size = 0
+        for k, v in zip(old_keys, old_vals):
+            if k is not None and k is not self.DELETED:
+                self.put(k, v)
+
+# ─── 常用哈希技巧 ───
+from collections import defaultdict, Counter
+
+def two_sum(nums, target):
+    """经典哈希 O(n)"""
+    seen = {}
+    for i, n in enumerate(nums):
+        if target - n in seen:
+            return [seen[target - n], i]
+        seen[n] = i
+
+def group_anagrams(words):
+    """分组字母异位词"""
+    groups = defaultdict(list)
+    for w in words:
+        groups[tuple(sorted(w))].append(w)
+    return list(groups.values())</code></pre>
+  </div>
+  <div class="warn-box"><strong>开放寻址删除陷阱：</strong>直接置 None 会截断探测链，导致后续元素查找失败。必须使用<strong>墓碑（Tombstone）标记</strong>来标记已删除位置，保证探测链完整性。</div>
+  <div class="page-nav"><button class="btn" onclick="showPage(3)">← 上一节</button><button class="btn btn-primary" onclick="showPage(5)">下一节：二叉树 →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 06: BINARY TREE ═══════════════════════ -->
+<div class="page" id="page-5">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 06 / 18</span></div>
+    <div class="page-title"><span class="zh">二叉树</span><span class="en">Binary Tree</span></div>
+    <div class="page-desc">每个节点最多有<strong>两个子节点</strong>（左 / 右）。深度优先遍历（前序/中序/后序）和广度优先遍历（层序）是解题核心工具。</div>
+    <div class="tags"><span class="tag tag-blue">前序 Pre</span><span class="tag tag-blue">中序 In</span><span class="tag tag-blue">后序 Post</span><span class="tag tag-orange">层序 BFS</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">遍历顺序</div>
+      <div class="diagram">        1
+       / \
+      2   3
+     / \   \
+    4   5   6
+
+前序 (根左右): 1 2 4 5 3 6
+中序 (左根右): 4 2 5 1 3 6
+后序 (左右根): 4 5 2 6 3 1
+层序 (BFS):   1 / 2 3 / 4 5 6</div>
+    </div>
+    <div class="card">
+      <div class="card-title">复杂度</div>
+      <table class="complexity-table">
+        <tr><th>操作</th><th>时间</th><th>空间</th></tr>
+        <tr><td class="op">各种遍历</td><td class="on">O(n)</td><td class="on">O(h)</td></tr>
+        <tr><td class="op">查找节点</td><td class="on">O(n)</td><td class="on">O(h)</td></tr>
+        <tr><td class="op">树的高度</td><td class="on">O(n)</td><td class="on">O(h)</td></tr>
+        <tr><td colspan="3" style="color:var(--text3);font-size:11px;padding-top:8px">h = 树高，平衡时 O(log n)，退化时 O(n)</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">binary_tree.py</div></div>
+    <pre class="code-block"><code class="language-python">from collections import deque
+
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+class BinaryTree:
+
+    # ── 递归版遍历（简洁）──
+    def inorder_recursive(self, root):
+        if not root: return []
+        return (self.inorder_recursive(root.left)
+                + [root.val]
+                + self.inorder_recursive(root.right))
+
+    # ── 迭代版中序（面试常考）──
+    def inorder(self, root):
+        result, stack = [], []
+        cur = root
+        while cur or stack:
+            while cur:                 # 一直向左
+                stack.append(cur)
+                cur = cur.left
+            cur = stack.pop()          # 处理节点
+            result.append(cur.val)
+            cur = cur.right            # 转向右子树
+        return result
+
+    # ── 迭代版前序 ──
+    def preorder(self, root):
+        if not root: return []
+        result, stack = [], [root]
+        while stack:
+            node = stack.pop()
+            result.append(node.val)
+            if node.right: stack.append(node.right)  # 右先入栈（后处理）
+            if node.left:  stack.append(node.left)
+        return result
+
+    # ── 迭代版后序（反转前序变体）──
+    def postorder(self, root):
+        if not root: return []
+        result, stack = [], [root]
+        while stack:
+            node = stack.pop()
+            result.append(node.val)
+            if node.left:  stack.append(node.left)   # 左先入栈
+            if node.right: stack.append(node.right)
+        return result[::-1]            # 翻转得后序
+
+    # ── 层序遍历（BFS，按层分组）──
+    def levelorder(self, root):
+        if not root: return []
+        result, q = [], deque([root])
+        while q:
+            level = []
+            for _ in range(len(q)):    # 当前层的节点数
+                node = q.popleft()
+                level.append(node.val)
+                if node.left:  q.append(node.left)
+                if node.right: q.append(node.right)
+            result.append(level)
+        return result
+
+    # ── 树的高度（后序递归）──
+    def height(self, root):
+        if not root: return 0
+        return 1 + max(self.height(root.left), self.height(root.right))
+
+    # ── 判断平衡二叉树 ──
+    def is_balanced(self, root):
+        def check(node):
+            if not node: return 0
+            l = check(node.left)
+            if l == -1: return -1
+            r = check(node.right)
+            if r == -1: return -1
+            if abs(l - r) > 1: return -1  # 不平衡
+            return max(l, r) + 1
+        return check(root) != -1
+
+    # ── 最低公共祖先（LCA）──
+    def lca(self, root, p, q):
+        if not root or root is p or root is q:
+            return root
+        left  = self.lca(root.left, p, q)
+        right = self.lca(root.right, p, q)
+        if left and right: return root   # p,q 分别在左右子树
+        return left or right
+
+    # ── 路径总和 ──
+    def has_path_sum(self, root, target):
+        if not root: return False
+        if not root.left and not root.right:
+            return root.val == target
+        return (self.has_path_sum(root.left,  target - root.val) or
+                self.has_path_sum(root.right, target - root.val))</code></pre>
+  </div>
+  <div class="info-box"><strong>递归 vs 迭代：</strong>递归写法简洁，但函数调用栈深度 O(h)，树退化时可能栈溢出。迭代用显式栈模拟，更安全。层序遍历天然为迭代（BFS 用队列）。</div>
+  <div class="page-nav"><button class="btn" onclick="showPage(4)">← 上一节</button><button class="btn btn-primary" onclick="showPage(6)">下一节：BST →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 07: BST ═══════════════════════ -->
+<div class="page" id="page-6">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 07 / 18</span></div>
+    <div class="page-title"><span class="zh">二叉搜索树</span><span class="en">Binary Search Tree</span></div>
+    <div class="page-desc">BST 满足：<strong>左子树所有节点 < 根 < 右子树所有节点</strong>。BST 的中序遍历恰好为升序序列。最坏情况（退化为链表）时所有操作退化为 O(n)，这是 AVL / 红黑树存在的原因。</div>
+    <div class="tags"><span class="tag tag-blue">BST 性质</span><span class="tag tag-green">中序升序</span><span class="tag tag-orange">删除后继</span><span class="tag tag-purple">退化 O(n)</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">时间复杂度</div>
+      <table class="complexity-table">
+        <tr><th>操作</th><th>平均</th><th>最坏（退化）</th></tr>
+        <tr><td class="op">查找 Search</td><td class="ologn">O(log n)</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">插入 Insert</td><td class="ologn">O(log n)</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">删除 Delete</td><td class="ologn">O(log n)</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">最小/最大值</td><td class="ologn">O(log n)</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">空间</td><td class="on">O(n)</td><td class="on">O(n)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">删除节点三种情况</div>
+      <div class="diagram">Case 1: 无子节点 → 直接删除
+
+Case 2: 一个子节点 → 子节点顶替
+   5                5
+  / \    del 3    /  \
+ 3   7   ────→   2    7
+  \
+   4  ← 不对，应是：
+Case 2: del 3 (只有右子4):
+   5 → 右子4顶替3的位置
+
+Case 3: 两个子节点 → 找中序后继
+（右子树最小值）替换后删后继</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">bst.py</div></div>
+    <pre class="code-block"><code class="language-python">class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val; self.left = left; self.right = right
+
+class BST:
+    def __init__(self): self.root = None
+
+    # ── 插入 ──
+    def insert(self, val):
+        self.root = self._insert(self.root, val)
+
+    def _insert(self, node, val):
+        if not node: return TreeNode(val)
+        if val < node.val:   node.left  = self._insert(node.left, val)
+        elif val > node.val: node.right = self._insert(node.right, val)
+        return node   # 相等时不重复插入
+
+    # ── 搜索 ──
+    def search(self, val):
+        node = self.root
+        while node:
+            if val == node.val:   return node
+            elif val < node.val:  node = node.left
+            else:                 node = node.right
+        return None
+
+    # ── 删除（递归，三种情况）──
+    def delete(self, val):
+        self.root = self._delete(self.root, val)
+
+    def _delete(self, node, val):
+        if not node: return None
+        if val < node.val:
+            node.left = self._delete(node.left, val)
+        elif val > node.val:
+            node.right = self._delete(node.right, val)
+        else:
+            # Case 1 & 2: 0 或 1 个子节点
+            if not node.left:  return node.right
+            if not node.right: return node.left
+            # Case 3: 两个子节点 → 找中序后继（右子树最小值）
+            successor = self._min_node(node.right)
+            node.val = successor.val                 # 覆盖
+            node.right = self._delete(node.right, successor.val)
+        return node
+
+    def _min_node(self, node):
+        while node.left: node = node.left
+        return node
+
+    def _max_node(self, node):
+        while node.right: node = node.right
+        return node
+
+    # ── 验证是否合法 BST ──
+    def is_valid_bst(self, root, lo=float('-inf'), hi=float('inf')):
+        if not root: return True
+        if not lo < root.val < hi: return False
+        return (self.is_valid_bst(root.left,  lo, root.val) and
+                self.is_valid_bst(root.right, root.val, hi))
+
+    # ── 第 k 小的元素（中序第 k 个）──
+    def kth_smallest(self, root, k):
+        stack = []
+        cur = root
+        while cur or stack:
+            while cur:
+                stack.append(cur)
+                cur = cur.left
+            cur = stack.pop()
+            k -= 1
+            if k == 0: return cur.val
+            cur = cur.right
+
+    # ── 前驱（inorder predecessor）和后继 ──
+    def inorder_successor(self, root, p):
+        successor = None
+        while root:
+            if p.val < root.val:
+                successor = root
+                root = root.left
+            else:
+                root = root.right
+        return successor
+
+    # ── 范围查询：[lo, hi] 内的所有值 ──
+    def range_search(self, root, lo, hi, result=None):
+        if result is None: result = []
+        if not root: return result
+        if lo < root.val:
+            self.range_search(root.left, lo, hi, result)
+        if lo <= root.val <= hi:
+            result.append(root.val)
+        if root.val < hi:
+            self.range_search(root.right, lo, hi, result)
+        return result</code></pre>
+  </div>
+  <div class="page-nav"><button class="btn" onclick="showPage(5)">← 上一节</button><button class="btn btn-primary" onclick="showPage(7)">下一节：AVL 树 →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 08: AVL ═══════════════════════ -->
+<div class="page" id="page-7">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 08 / 18</span></div>
+    <div class="page-title"><span class="zh">AVL 树</span><span class="en">AVL Tree</span></div>
+    <div class="page-desc">AVL 树是<strong>严格自平衡</strong>的 BST。每个节点维护<strong>平衡因子 BF = 左高 - 右高</strong>，要求 BF ∈ {-1,0,1}。插入/删除后通过<strong>四种旋转</strong>恢复平衡，保证 O(log n) 的严格上界。</div>
+    <div class="tags"><span class="tag tag-blue">平衡因子 BF</span><span class="tag tag-green">四种旋转</span><span class="tag tag-orange">O(logn)严格</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">四种旋转情况</div>
+      <div class="diagram">LL（右旋）: BF>1 且左孩子 BF≥0
+    z              y
+   / \           /   \
+  y   T4  →    x     z
+ / \          / \   / \
+x   T3       T1 T2 T3 T4
+
+RR（左旋）: LL 的镜像
+
+LR（先左旋左孩子，再右旋）:
+    z             z            x
+   /            /            / \
+  y    →       x     →      y   z
+   \          /
+    x        y
+
+RL（先右旋右孩子，再左旋）: LR镜像</div>
+    </div>
+    <div class="card">
+      <div class="card-title">时间复杂度</div>
+      <table class="complexity-table">
+        <tr><th>操作</th><th>时间</th></tr>
+        <tr><td class="op">查找 Search</td><td class="ologn">O(log n)</td></tr>
+        <tr><td class="op">插入 Insert</td><td class="ologn">O(log n)</td></tr>
+        <tr><td class="op">删除 Delete</td><td class="ologn">O(log n)</td></tr>
+        <tr><td class="op">旋转次数（插入）</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">旋转次数（删除）</td><td class="ologn">O(log n)</td></tr>
+        <tr><td class="op">空间</td><td class="on">O(n)</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">avl_tree.py</div></div>
+    <pre class="code-block"><code class="language-python">class AVLNode:
+    def __init__(self, val):
+        self.val = val
+        self.left = self.right = None
+        self.height = 1              # 新节点高度为 1
+
+class AVLTree:
+    def __init__(self): self.root = None
+
+    def _h(self, n): return n.height if n else 0
+    def _bf(self, n): return self._h(n.left) - self._h(n.right)  # 平衡因子
+    def _update(self, n): n.height = 1 + max(self._h(n.left), self._h(n.right))
+
+    # ── 左旋（RR 情况）──
+    def _rotate_left(self, x):
+        y, T2 = x.right, x.right.left
+        y.left = x; x.right = T2
+        self._update(x); self._update(y)
+        return y                     # y 成为新根
+
+    # ── 右旋（LL 情况）──
+    def _rotate_right(self, y):
+        x, T2 = y.left, y.left.right
+        x.right = y; y.left = T2
+        self._update(y); self._update(x)
+        return x
+
+    # ── 再平衡（四种情况）──
+    def _rebalance(self, node):
+        self._update(node)
+        bf = self._bf(node)
+
+        if bf > 1:                   # 左重
+            if self._bf(node.left) < 0:          # LR
+                node.left = self._rotate_left(node.left)
+            return self._rotate_right(node)      # LL（含 LR 处理后）
+
+        if bf < -1:                  # 右重
+            if self._bf(node.right) > 0:         # RL
+                node.right = self._rotate_right(node.right)
+            return self._rotate_left(node)       # RR（含 RL 处理后）
+
+        return node                  # 已平衡
+
+    # ── 插入 ──
+    def insert(self, val): self.root = self._insert(self.root, val)
+
+    def _insert(self, node, val):
+        if not node: return AVLNode(val)
+        if val < node.val:   node.left  = self._insert(node.left, val)
+        elif val > node.val: node.right = self._insert(node.right, val)
+        else: return node            # 重复值不插入
+        return self._rebalance(node)
+
+    # ── 删除 ──
+    def delete(self, val): self.root = self._delete(self.root, val)
+
+    def _delete(self, node, val):
+        if not node: return None
+        if val < node.val:
+            node.left = self._delete(node.left, val)
+        elif val > node.val:
+            node.right = self._delete(node.right, val)
+        else:
+            if not node.left: return node.right
+            if not node.right: return node.left
+            # 用中序后继替换
+            succ = node.right
+            while succ.left: succ = succ.left
+            node.val = succ.val
+            node.right = self._delete(node.right, succ.val)
+        return self._rebalance(node)
+
+    # ── 搜索（与 BST 相同）──
+    def search(self, val):
+        node = self.root
+        while node:
+            if val == node.val: return True
+            node = node.left if val < node.val else node.right
+        return False
+
+# ── 旋转演示 ──
+# 插入序列 1,2,3 触发 RR（左旋）:
+# 插入1: [1]  h=1
+# 插入2: [1→2]  BF(1)=-1 正常
+# 插入3: [1→2→3]  BF(1)=-2 触发左旋 → [2 左1 右3]</code></pre>
+  </div>
+  <div class="info-box"><strong>AVL vs 红黑树：</strong>AVL 树平衡更严格（|BF|≤1），查找更快；但插入/删除旋转次数更多。红黑树旋转更少，写操作更快，是大多数语言标准库（如 Java TreeMap、C++ std::map）的选择。</div>
+  <div class="page-nav"><button class="btn" onclick="showPage(6)">← 上一节</button><button class="btn btn-primary" onclick="showPage(8)">下一节：红黑树 →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 09: RED-BLACK TREE ═══════════════════════ -->
+<div class="page" id="page-8">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 09 / 18</span></div>
+    <div class="page-title"><span class="zh">红黑树</span><span class="en">Red-Black Tree</span></div>
+    <div class="page-desc">红黑树是一种<strong>近似平衡</strong>的 BST，通过节点着色和旋转维护 5 条不变量。相比 AVL 树，写操作旋转次数更少（插入 O(1) 次旋转），是 Java TreeMap、Linux epoll 等的底层实现。</div>
+    <div class="tags"><span class="tag tag-blue">5 条性质</span><span class="tag tag-orange">2-3-4树等价</span><span class="tag tag-green">插入O(1)旋转</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">红黑树 5 条性质</div>
+      <ul class="kp-list" style="padding:0">
+        <li><strong>性质1：</strong>每个节点是红色或黑色</li>
+        <li><strong>性质2：</strong>根节点是黑色</li>
+        <li><strong>性质3：</strong>所有叶子（NIL 哨兵）是黑色</li>
+        <li><strong>性质4：</strong>红色节点的两个子节点都是黑色（红不相邻）</li>
+        <li><strong>性质5：</strong>从任意节点到其叶子的所有路径，黑色节点数相同（黑高一致）</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">插入修复情况</div>
+      <div class="diagram">新节点（z）默认着红色，父节点红→冲突
+
+Case 1: 叔父节点为红 → 变色（父+叔黑，祖父红）
+Case 2: 叔父黑，z=父.right,父=祖.left
+        → 左旋父 → 转为 Case 3
+Case 3: 叔父黑，z=父.left,父=祖.left
+        → 父变黑，祖变红，右旋祖父
+
+（Case 的镜像情况同理）
+最多 2 次旋转即可修复！</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">rbtree.py</div></div>
+    <pre class="code-block"><code class="language-python">RED, BLACK = True, False
+
+class RBNode:
+    def __init__(self, val, color=RED):
+        self.val = val
+        self.color = color
+        self.left = self.right = self.parent = None
+
+class RedBlackTree:
+    def __init__(self):
+        # NIL 哨兵：所有叶子指向同一个黑色哨兵
+        self.NIL = RBNode(None, BLACK)
+        self.root = self.NIL
+
+    def _is_red(self, n): return n is not self.NIL and n.color == RED
+
+    def _rotate_left(self, x):
+        y = x.right
+        x.right = y.left
+        if y.left is not self.NIL: y.left.parent = x
+        y.parent = x.parent
+        if   x.parent is None:       self.root = y
+        elif x is x.parent.left:  x.parent.left  = y
+        else:                        x.parent.right = y
+        y.left = x; x.parent = y
+
+    def _rotate_right(self, y):
+        x = y.left
+        y.left = x.right
+        if x.right is not self.NIL: x.right.parent = y
+        x.parent = y.parent
+        if   y.parent is None:       self.root = x
+        elif y is y.parent.left:  y.parent.left  = x
+        else:                        y.parent.right = x
+        x.right = y; y.parent = x
+
+    def insert(self, val):
+        z = RBNode(val)
+        z.left = z.right = z.parent = self.NIL
+        # BST 插入
+        y, x = None, self.root
+        while x is not self.NIL:
+            y = x
+            x = x.left if z.val < x.val else x.right
+        z.parent = y
+        if y is None:         self.root = z
+        elif z.val < y.val:   y.left  = z
+        else:                 y.right = z
+        # 修复红黑性质
+        self._fix_insert(z)
+
+    def _fix_insert(self, z):
+        while self._is_red(z.parent):
+            if z.parent is z.parent.parent.left:
+                uncle = z.parent.parent.right
+                if self._is_red(uncle):            # Case 1: 叔父红
+                    z.parent.color = BLACK
+                    uncle.color    = BLACK
+                    z.parent.parent.color = RED
+                    z = z.parent.parent             # 上移
+                else:
+                    if z is z.parent.right:        # Case 2→Case 3
+                        z = z.parent
+                        self._rotate_left(z)
+                    z.parent.color = BLACK         # Case 3
+                    z.parent.parent.color = RED
+                    self._rotate_right(z.parent.parent)
+            else:                                  # 镜像情况
+                uncle = z.parent.parent.left
+                if self._is_red(uncle):
+                    z.parent.color = BLACK
+                    uncle.color    = BLACK
+                    z.parent.parent.color = RED
+                    z = z.parent.parent
+                else:
+                    if z is z.parent.left:
+                        z = z.parent
+                        self._rotate_right(z)
+                    z.parent.color = BLACK
+                    z.parent.parent.color = RED
+                    self._rotate_left(z.parent.parent)
+        self.root.color = BLACK                    # 根始终黑
+
+    def search(self, val):
+        x = self.root
+        while x is not self.NIL:
+            if   val == x.val: return True
+            elif val <  x.val: x = x.left
+            else:              x = x.right
+        return False
+
+    def inorder(self):
+        result = []
+        def _dfs(n):
+            if n is self.NIL: return
+            _dfs(n.left); result.append(n.val); _dfs(n.right)
+        _dfs(self.root)
+        return result</code></pre>
+  </div>
+  <div class="warn-box"><strong>红黑树 vs 2-3-4 树：</strong>红黑树是 2-3-4 树的二叉表示：红节点和其黑色父节点合并为一个 3 或 4 节点。这一等价关系揭示了红黑树性质的本质，有助于理解各种修复操作的含义。</div>
+  <div class="page-nav"><button class="btn" onclick="showPage(7)">← 上一节</button><button class="btn btn-primary" onclick="showPage(9)">下一节：堆 →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 10: HEAP ═══════════════════════ -->
+<div class="page" id="page-9">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 10 / 18</span></div>
+    <div class="page-title"><span class="zh">堆</span><span class="en">Heap / Priority Queue</span></div>
+    <div class="page-desc"><strong>完全二叉树</strong>用<strong>数组</strong>存储（节省指针空间），满足堆性质：父节点 ≤ 子节点（最小堆）。索引关系：父(i) = (i-1)//2，左孩子 = 2i+1，右孩子 = 2i+2。</div>
+    <div class="tags"><span class="tag tag-blue">完全二叉树</span><span class="tag tag-green">O(1)查最值</span><span class="tag tag-orange">O(logn)插删</span><span class="tag tag-purple">O(n)建堆</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">时间复杂度</div>
+      <table class="complexity-table">
+        <tr><th>操作</th><th>时间</th></tr>
+        <tr><td class="op">查看最值 Peek</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">插入 Push</td><td class="ologn">O(log n)</td></tr>
+        <tr><td class="op">弹出最值 Pop</td><td class="ologn">O(log n)</td></tr>
+        <tr><td class="op">建堆 Heapify</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">堆排序</td><td colspan="1" style="color:var(--orange)">O(n log n)</td></tr>
+        <tr><td class="op">空间</td><td class="on">O(n)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">数组存储</div>
+      <div class="diagram">        1          索引: 0
+       / \
+      3   5        索引: 1  2
+     / \ /
+    6  8 7         索引: 3  4  5
+
+数组: [1, 3, 5, 6, 8, 7]
+父节点(i):   (i-1) // 2
+左孩子(i):  2*i + 1
+右孩子(i):  2*i + 2
+
+O(n) 建堆：从最后一个非叶节点向上 sift_down</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">heap.py</div></div>
+    <pre class="code-block"><code class="language-python">class MinHeap:
+    """最小堆：手写实现，便于理解"""
+    def __init__(self): self.h = []
+
+    def __len__(self): return len(self.h)
+    def peek(self):    return self.h[0]
+
+    def push(self, val):
+        self.h.append(val)
+        self._sift_up(len(self.h) - 1)    # 上浮
+
+    def pop(self):
+        self._swap(0, len(self.h) - 1)    # 根与末尾交换
+        val = self.h.pop()                 # 移除末尾（原根）
+        if self.h: self._sift_down(0)     # 新根下沉
+        return val
+
+    def _sift_up(self, i):
+        while i > 0:
+            p = (i - 1) // 2
+            if self.h[i] < self.h[p]:     # 子 < 父 → 交换上浮
+                self._swap(i, p); i = p
+            else: break
+
+    def _sift_down(self, i):
+        n = len(self.h)
+        while True:
+            s = i                          # smallest
+            l, r = 2*i+1, 2*i+2
+            if l < n and self.h[l] < self.h[s]: s = l
+            if r < n and self.h[r] < self.h[s]: s = r
+            if s == i: break
+            self._swap(i, s); i = s
+
+    def _swap(self, i, j):
+        self.h[i], self.h[j] = self.h[j], self.h[i]
+
+    def heapify(self, arr):
+        """O(n) 建堆：从最后非叶节点向前 sift_down"""
+        self.h = arr[:]
+        for i in range(len(self.h) // 2 - 1, -1, -1):
+            self._sift_down(i)
+
+# ─── Python 内置 heapq（最小堆）───
+import heapq
+
+arr = [3,1,4,1,5,9,2,6]
+heapq.heapify(arr)                        # O(n) 原地建堆
+heapq.heappush(arr, 0)                    # O(log n)
+smallest = heapq.heappop(arr)             # O(log n)
+top3 = heapq.nsmallest(3, arr)           # O(n + k log n)
+
+# 最大堆：元素取反
+max_heap = [-x for x in [3,1,4,1,5]]
+heapq.heapify(max_heap)
+largest = -heapq.heappop(max_heap)       # 取反还原
+
+# ─── 经典应用：前 K 个最大元素 ───
+def top_k_largest(nums, k):
+    """维护大小为 k 的最小堆，O(n log k)"""
+    heap = nums[:k]
+    heapq.heapify(heap)                   # O(k) 建堆
+    for n in nums[k:]:
+        if n > heap[0]:                   # 比堆顶大才入堆
+            heapq.heapreplace(heap, n)    # O(log k)
+    return sorted(heap, reverse=True)
+
+# ─── 经典应用：合并 K 个有序链表 ───
+def merge_k_lists(lists):
+    heap = []
+    for i, node in enumerate(lists):
+        if node:
+            heapq.heappush(heap, (node.val, i, node))
+    dummy = cur = type('N', (), {'next': None})()
+    while heap:
+        val, i, node = heapq.heappop(heap)
+        cur.next = node; cur = cur.next
+        if node.next:
+            heapq.heappush(heap, (node.next.val, i, node.next))
+    return dummy.next
+
+# ─── 堆排序 ───
+def heap_sort(arr):
+    heapq.heapify(arr)
+    return [heapq.heappop(arr) for _ in range(len(arr))]</code></pre>
+  </div>
+  <div class="info-box"><strong>O(n) 建堆证明：</strong>从最后一个非叶节点 (n/2-1) 向前调用 sift_down，第 h 层节点最多下沉 h 步，节点数 ≤ n/2^(h+1)，总操作数 = Σ h·n/2^(h+1) ≤ 2n，故为 O(n)。</div>
+  <div class="page-nav"><button class="btn" onclick="showPage(8)">← 上一节</button><button class="btn btn-primary" onclick="showPage(10)">下一节：字典树 →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 11: TRIE ═══════════════════════ -->
+<div class="page" id="page-10">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 11 / 18</span></div>
+    <div class="page-title"><span class="zh">字典树</span><span class="en">Trie (Prefix Tree)</span></div>
+    <div class="page-desc">Trie 是<strong>多叉树</strong>，每条从根到标记节点的路径代表一个字符串。时间复杂度与<strong>字符串长度 m</strong> 相关，与字符串数量无关。常用于<strong>自动补全、IP 路由、单词搜索</strong>等场景。</div>
+    <div class="tags"><span class="tag tag-blue">前缀共享</span><span class="tag tag-green">O(m)操作</span><span class="tag tag-orange">自动补全</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">时间复杂度</div>
+      <table class="complexity-table">
+        <tr><th>操作</th><th>时间</th><th>空间</th></tr>
+        <tr><td class="op">插入 Insert</td><td class="o1">O(m)</td><td class="o1">O(m)</td></tr>
+        <tr><td class="op">查找 Search</td><td class="o1">O(m)</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">前缀匹配</td><td class="o1">O(m)</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">删除 Delete</td><td class="o1">O(m)</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">总空间</td><td colspan="2" class="on">O(m × n)</td></tr>
+      </table>
+      <p style="font-size:11px;color:var(--text3);margin-top:8px">m = 键长度，n = 键数量</p>
+    </div>
+    <div class="card">
+      <div class="card-title">结构示意</div>
+      <div class="diagram">插入: apple, app, apply, apt
+
+root
+ └── a
+      └── p
+           ├── p* (app)
+           │    ├── l
+           │    │    ├── e* (apple)
+           │    │    └── y* (apply)
+           └── t* (apt)
+
+* = is_end = True
+前缀 "ap" → 计数 4（共享节点）</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">trie.py</div></div>
+    <pre class="code-block"><code class="language-python">class TrieNode:
+    def __init__(self):
+        self.children = {}     # char → TrieNode
+        self.is_end = False    # 是否是某个单词的结尾
+        self.count = 0         # 以此节点结尾的前缀数量
+
+class Trie:
+    def __init__(self): self.root = TrieNode()
+
+    def insert(self, word):
+        node = self.root
+        for ch in word:
+            if ch not in node.children:
+                node.children[ch] = TrieNode()
+            node = node.children[ch]
+            node.count += 1
+        node.is_end = True
+
+    def search(self, word):
+        """精确匹配"""
+        node = self._find(word)
+        return node is not None and node.is_end
+
+    def starts_with(self, prefix):
+        """前缀存在则返回 True"""
+        return self._find(prefix) is not None
+
+    def count_prefix(self, prefix):
+        """以 prefix 开头的单词数"""
+        node = self._find(prefix)
+        return node.count if node else 0
+
+    def _find(self, prefix):
+        node = self.root
+        for ch in prefix:
+            if ch not in node.children: return None
+            node = node.children[ch]
+        return node
+
+    def delete(self, word):
+        """递归删除，若某节点不再需要则移除"""
+        def _del(node, word, depth):
+            if not node: return False
+            if depth == len(word):
+                if not node.is_end: return False
+                node.is_end = False
+                return len(node.children) == 0   # 无子节点可删除
+            ch = word[depth]
+            if ch not in node.children: return False
+            if _del(node.children[ch], word, depth + 1):
+                del node.children[ch]
+                return not node.is_end and len(node.children) == 0
+            return False
+        _del(self.root, word, 0)
+
+    def autocomplete(self, prefix):
+        """自动补全：返回所有以 prefix 为前缀的单词"""
+        node = self._find(prefix)
+        if not node: return []
+        result = []
+        def dfs(n, path):
+            if n.is_end: result.append(prefix + ''.join(path))
+            for ch, child in sorted(n.children.items()):
+                dfs(child, path + [ch])
+        dfs(node, [])
+        return result
+
+# ─── 数组优化版（字符集固定为小写字母）───
+class TrieArray:
+    def __init__(self):
+        self.children = [None] * 26
+        self.is_end = False
+
+    def insert(self, word):
+        node = self
+        for ch in word:
+            idx = ord(ch) - ord('a')
+            if not node.children[idx]:
+                node.children[idx] = TrieArray()
+            node = node.children[idx]
+        node.is_end = True
+
+# ─── 经典应用：单词搜索 II（LeetCode 212）───
+def find_words(board, words):
+    """在网格中搜索所有单词，Trie + DFS 回溯"""
+    trie = Trie()
+    for w in words: trie.insert(w)
+
+    rows, cols = len(board), len(board[0])
+    found = set()
+
+    def dfs(node, r, c, path):
+        ch = board[r][c]
+        if ch not in node.children: return
+        next_node = node.children[ch]
+        path += ch
+        if next_node.is_end: found.add(path)
+        board[r][c] = '#'                       # 标记已访问
+        for dr, dc in [(0,1),(0,-1),(1,0),(-1,0)]:
+            nr, nc = r+dr, c+dc
+            if 0<=nr<rows and 0<=nc<cols and board[nr][nc] != '#':
+                dfs(next_node, nr, nc, path)
+        board[r][c] = ch                        # 回溯
+
+    for r in range(rows):
+        for c in range(cols):
+            dfs(trie.root, r, c, '')
+    return list(found)</code></pre>
+  </div>
+  <div class="page-nav"><button class="btn" onclick="showPage(9)">← 上一节</button><button class="btn btn-primary" onclick="showPage(11)">下一节：图 →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 12: GRAPH ═══════════════════════ -->
+<div class="page" id="page-11">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 12 / 18</span></div>
+    <div class="page-title"><span class="zh">图</span><span class="en">Graph</span></div>
+    <div class="page-desc">图 G = (V, E) 由<strong>顶点集 V</strong> 和<strong>边集 E</strong> 组成。存储方式有<strong>邻接矩阵</strong>（空间 O(V²)，稠密图）和<strong>邻接表</strong>（空间 O(V+E)，稀疏图）。核心算法：BFS / DFS / Dijkstra / 拓扑排序。</div>
+    <div class="tags"><span class="tag tag-blue">有向/无向</span><span class="tag tag-green">BFS/DFS</span><span class="tag tag-orange">Dijkstra</span><span class="tag tag-purple">拓扑排序</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">复杂度对比</div>
+      <table class="complexity-table">
+        <tr><th>算法</th><th>时间</th><th>空间</th></tr>
+        <tr><td class="op">BFS / DFS</td><td class="on">O(V+E)</td><td class="on">O(V)</td></tr>
+        <tr><td class="op">Dijkstra（堆）</td><td class="ologn">O((V+E)logV)</td><td class="on">O(V)</td></tr>
+        <tr><td class="op">Bellman-Ford</td><td class="on2">O(VE)</td><td class="on">O(V)</td></tr>
+        <tr><td class="op">Floyd-Warshall</td><td class="on2">O(V³)</td><td class="on2">O(V²)</td></tr>
+        <tr><td class="op">拓扑排序(Kahn)</td><td class="on">O(V+E)</td><td class="on">O(V)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">存储方式对比</div>
+      <div class="diagram">邻接矩阵 (V=4):
+   0  1  2  3
+0 [0, 1, 0, 1]   空间 O(V²)
+1 [1, 0, 1, 0]   判断边 O(1)
+2 [0, 1, 0, 1]   稠密图首选
+3 [1, 0, 1, 0]
+
+邻接表:
+0: [(1,w),(3,w)]  空间 O(V+E)
+1: [(0,w),(2,w)]  遍历邻居快
+2: [(1,w),(3,w)]  稀疏图首选</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">graph.py</div></div>
+    <pre class="code-block"><code class="language-python">from collections import defaultdict, deque
+import heapq
+
+class Graph:
+    def __init__(self, directed=False):
+        self.adj = defaultdict(list)   # {u: [(v, weight), ...]}
+        self.directed = directed
+
+    def add_edge(self, u, v, w=1):
+        self.adj[u].append((v, w))
+        if not self.directed: self.adj[v].append((u, w))
+
+    # ── BFS：最短路径（无权图）──
+    def bfs(self, start):
+        visited = {start}
+        queue, order = deque([start]), []
+        while queue:
+            node = queue.popleft()
+            order.append(node)
+            for nei, _ in self.adj[node]:
+                if nei not in visited:
+                    visited.add(nei); queue.append(nei)
+        return order
+
+    # ── DFS：连通分量、路径检测 ──
+    def dfs(self, start):
+        visited, order = set(), []
+        def _dfs(u):
+            visited.add(u); order.append(u)
+            for v, _ in self.adj[u]:
+                if v not in visited: _dfs(v)
+        _dfs(start)
+        return order
+
+    # ── Dijkstra：单源最短路径（非负权图）──
+    def dijkstra(self, src):
+        dist = defaultdict(lambda: float('inf'))
+        dist[src] = 0
+        pq = [(0, src)]                     # (距离, 节点)
+        while pq:
+            d, u = heapq.heappop(pq)
+            if d > dist[u]: continue        # 已处理过更短路径
+            for v, w in self.adj[u]:
+                if dist[u] + w < dist[v]:
+                    dist[v] = dist[u] + w
+                    heapq.heappush(pq, (dist[v], v))
+        return dict(dist)
+
+    # ── Bellman-Ford：含负权边（可检测负环）──
+    def bellman_ford(self, src, vertices):
+        dist = {v: float('inf') for v in vertices}
+        dist[src] = 0
+        for _ in range(len(vertices) - 1):  # V-1 轮松弛
+            for u in self.adj:
+                for v, w in self.adj[u]:
+                    if dist[u] + w < dist[v]:
+                        dist[v] = dist[u] + w
+        # 检测负环
+        for u in self.adj:
+            for v, w in self.adj[u]:
+                if dist[u] + w < dist[v]:
+                    return None            # 存在负环
+        return dist
+
+    # ── 拓扑排序（Kahn，BFS 入度法）──
+    def topological_sort(self):
+        in_deg = defaultdict(int)
+        nodes = set(self.adj.keys())
+        for u in self.adj:
+            for v, _ in self.adj[u]:
+                in_deg[v] += 1
+                nodes.add(v)
+        queue = deque(n for n in nodes if in_deg[n] == 0)
+        order = []
+        while queue:
+            u = queue.popleft(); order.append(u)
+            for v, _ in self.adj[u]:
+                in_deg[v] -= 1
+                if in_deg[v] == 0: queue.append(v)
+        return order if len(order) == len(nodes) else []  # [] 表示有环
+
+    # ── 检测有向图是否有环（DFS 三色标记）──
+    def has_cycle_directed(self):
+        WHITE, GRAY, BLACK = 0, 1, 2
+        color = defaultdict(int)
+        def dfs(u):
+            color[u] = GRAY
+            for v, _ in self.adj[u]:
+                if color[v] == GRAY: return True   # 发现后向边
+                if color[v] == WHITE and dfs(v): return True
+            color[u] = BLACK
+            return False
+        return any(dfs(u) for u in self.adj if color[u] == WHITE)
+
+    # ── 最小生成树 Prim 算法 ──
+    def prim(self, start):
+        visited = {start}
+        edges = [(w, start, v) for v, w in self.adj[start]]
+        heapq.heapify(edges)
+        mst_cost, mst_edges = 0, []
+        while edges:
+            w, u, v = heapq.heappop(edges)
+            if v in visited: continue
+            visited.add(v)
+            mst_cost += w; mst_edges.append((u, v, w))
+            for nei, nw in self.adj[v]:
+                if nei not in visited:
+                    heapq.heappush(edges, (nw, v, nei))
+        return mst_cost, mst_edges</code></pre>
+  </div>
+  <div class="page-nav"><button class="btn" onclick="showPage(10)">← 上一节</button><button class="btn btn-primary" onclick="showPage(12)">下一节：跳表 →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 13: SKIP LIST ═══════════════════════ -->
+<div class="page" id="page-12">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 13 / 18</span></div>
+    <div class="page-title"><span class="zh">跳表</span><span class="en">Skip List</span></div>
+    <div class="page-desc">跳表通过<strong>多层有序链表</strong>实现 O(log n) 的期望查询，是<strong>有序集合</strong>的替代实现（Redis ZSet 的底层结构）。通过<strong>随机化层数</strong>（概率 p）避免最坏情况，实现简单、支持范围查询。</div>
+    <div class="tags"><span class="tag tag-blue">多层链表</span><span class="tag tag-green">O(logn)期望</span><span class="tag tag-orange">随机层数</span><span class="tag tag-purple">Redis ZSet</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">时间复杂度</div>
+      <table class="complexity-table">
+        <tr><th>操作</th><th>期望</th><th>最坏</th></tr>
+        <tr><td class="op">查找 Search</td><td class="ologn">O(log n)</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">插入 Insert</td><td class="ologn">O(log n)</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">删除 Delete</td><td class="ologn">O(log n)</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">空间</td><td colspan="2" class="on">O(n log n) 期望</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">多层结构示意</div>
+      <div class="diagram">Level 3: -∞ ────────────── 50 ─ +∞
+Level 2: -∞ ──── 20 ──── 50 ─ +∞
+Level 1: -∞ ─ 10 ─ 20 ─ 30 ─ 50 ─ +∞
+Level 0: -∞ ─ 10 ─ 20 ─ 30 ─ 40 ─ 50 ─ +∞
+
+搜索 40：
+L3: -∞→50? 40<50，下降
+L2: -∞→20→50? 40<50，停在20，下降
+L1: 20→30→50? 40<50，停在30，下降
+L0: 30→40 ✓</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">skip_list.py</div></div>
+    <pre class="code-block"><code class="language-python">import random
+
+class SkipNode:
+    def __init__(self, val, level):
+        self.val = val
+        # forward[i] = 第 i 层的下一个节点
+        self.forward = [None] * (level + 1)
+
+class SkipList:
+    MAX_LEVEL = 16     # 最大层数，log₂(n) 量级
+    P = 0.5            # 每层提升概率
+
+    def __init__(self):
+        # 头哨兵：值 -∞，最大层数
+        self.head = SkipNode(float('-inf'), self.MAX_LEVEL)
+        self.level = 0    # 当前最高层（动态）
+        self.size  = 0
+
+    def _random_level(self):
+        """随机生成层数，期望值 = 1/(1-P) = 2"""
+        lvl = 0
+        while random.random() < self.P and lvl < self.MAX_LEVEL:
+            lvl += 1
+        return lvl
+
+    def search(self, target) -> bool:
+        cur = self.head
+        # 从最高层向下逐层逼近
+        for i in range(self.level, -1, -1):
+            while cur.forward[i] and cur.forward[i].val < target:
+                cur = cur.forward[i]
+        cur = cur.forward[0]
+        return cur is not None and cur.val == target
+
+    def insert(self, val):
+        # update[i] = 第 i 层中，新节点的前驱节点
+        update = [self.head] * (self.MAX_LEVEL + 1)
+        cur = self.head
+
+        for i in range(self.level, -1, -1):
+            while cur.forward[i] and cur.forward[i].val < val:
+                cur = cur.forward[i]
+            update[i] = cur
+
+        new_level = self._random_level()
+        # 若新层数超出当前最大层，补充 update
+        if new_level > self.level:
+            for i in range(self.level + 1, new_level + 1):
+                update[i] = self.head
+            self.level = new_level
+
+        new_node = SkipNode(val, new_level)
+        for i in range(new_level + 1):
+            new_node.forward[i] = update[i].forward[i]
+            update[i].forward[i] = new_node
+        self.size += 1
+
+    def delete(self, val) -> bool:
+        update = [None] * (self.MAX_LEVEL + 1)
+        cur = self.head
+
+        for i in range(self.level, -1, -1):
+            while cur.forward[i] and cur.forward[i].val < val:
+                cur = cur.forward[i]
+            update[i] = cur
+
+        target = cur.forward[0]
+        if not target or target.val != val:
+            return False   # 不存在
+
+        for i in range(self.level + 1):
+            if update[i].forward[i] is not target: break
+            update[i].forward[i] = target.forward[i]
+
+        # 缩减 level
+        while self.level > 0 and not self.head.forward[self.level]:
+            self.level -= 1
+        self.size -= 1
+        return True
+
+    def range_query(self, lo, hi):
+        """范围查询 [lo, hi]，O(log n + k)"""
+        cur = self.head
+        for i in range(self.level, -1, -1):
+            while cur.forward[i] and cur.forward[i].val < lo:
+                cur = cur.forward[i]
+        cur = cur.forward[0]
+        result = []
+        while cur and cur.val <= hi:
+            result.append(cur.val)
+            cur = cur.forward[0]
+        return result
+
+    def __repr__(self):
+        vals = []
+        cur = self.head.forward[0]
+        while cur: vals.append(str(cur.val)); cur = cur.forward[0]
+        return ' → '.join(vals)</code></pre>
+  </div>
+  <div class="info-box"><strong>跳表 vs 平衡树：</strong>跳表期望复杂度与红黑树相同，但实现更简单，支持无锁并发修改（只需更新指针），且支持高效的范围查询（直接在底层链表遍历）。Redis 选择跳表而非 B 树正是基于这些优势。</div>
+  <div class="page-nav"><button class="btn" onclick="showPage(11)">← 上一节</button><button class="btn btn-primary" onclick="showPage(13)">下一节：B+树 →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 14: B+ TREE ═══════════════════════ -->
+<div class="page" id="page-13">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 14 / 18</span></div>
+    <div class="page-title"><span class="zh">B+ 树</span><span class="en">B+ Tree</span></div>
+    <div class="page-desc">B+ 树是<strong>多路平衡搜索树</strong>，专为<strong>磁盘存储优化</strong>。内部节点只存键（导航），<strong>所有数据存在叶子节点</strong>，叶子节点通过链表相连，支持高效范围查询。是<strong>MySQL InnoDB</strong> 的核心索引结构。</div>
+    <div class="tags"><span class="tag tag-blue">多路搜索</span><span class="tag tag-green">叶节点链表</span><span class="tag tag-orange">磁盘友好</span><span class="tag tag-purple">MySQL索引</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">时间复杂度</div>
+      <table class="complexity-table">
+        <tr><th>操作</th><th>时间</th></tr>
+        <tr><td class="op">查找 Search</td><td class="ologn">O(log_t n)</td></tr>
+        <tr><td class="op">插入 Insert</td><td class="ologn">O(log_t n)</td></tr>
+        <tr><td class="op">删除 Delete</td><td class="ologn">O(log_t n)</td></tr>
+        <tr><td class="op">范围查询</td><td colspan="1" class="ologn">O(log_t n + k)</td></tr>
+        <tr><td class="op">空间</td><td class="on">O(n)</td></tr>
+        <tr><td colspan="2" style="color:var(--text3);font-size:11px;padding-top:8px">t = 最小度数，树高 h ≈ log_t(n)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">结构特性（order=4）</div>
+      <div class="diagram">内部节点（导航）：
+[10 | 20 | 30]   ← 只存键，最多3个键
+ ↓    ↓    ↓   ↓  ← 4个子节点指针
+
+叶子节点（数据）：
+[1,5,9] → [10,15] → [20,25] → [30,35]
+            ↑ 叶子节点通过链表串联
+
+B+树 vs B树：
+• B树：数据存在所有节点，叶子无链表
+• B+树：数据只在叶子，内节点更"矮胖"
+• I/O 次数更少，范围查询更高效</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">bplus_tree.py</div></div>
+    <pre class="code-block"><code class="language-python">class BPNode:
+    def __init__(self, is_leaf=False):
+        self.keys = []
+        self.children = []          # 内部节点：子节点列表
+        self.values = []            # 叶子节点：对应 key 的值
+        self.is_leaf = is_leaf
+        self.next = None            # 叶子节点链表
+
+class BPlusTree:
+    def __init__(self, order=4):
+        self.root = BPNode(is_leaf=True)
+        self.order = order          # 每个节点最多 order-1 个键
+
+    # ── 查找 ──
+    def search(self, key):
+        leaf = self._find_leaf(self.root, key)
+        for i, k in enumerate(leaf.keys):
+            if k == key: return leaf.values[i]
+        return None
+
+    def _find_leaf(self, node, key):
+        if node.is_leaf: return node
+        for i, k in enumerate(node.keys):
+            if key < k: return self._find_leaf(node.children[i], key)
+        return self._find_leaf(node.children[-1], key)
+
+    # ── 插入 ──
+    def insert(self, key, val=None):
+        result = self._insert(self.root, key, val)
+        if result:                  # 根节点发生了分裂
+            mid_key, new_child = result
+            new_root = BPNode(is_leaf=False)
+            new_root.keys = [mid_key]
+            new_root.children = [self.root, new_child]
+            self.root = new_root
+
+    def _insert(self, node, key, val):
+        if node.is_leaf:
+            # 有序插入
+            idx = 0
+            while idx < len(node.keys) and node.keys[idx] < key: idx += 1
+            node.keys.insert(idx, key)
+            node.values.insert(idx, val if val is not None else key)
+            if len(node.keys) >= self.order:
+                return self._split_leaf(node)
+            return None
+        else:
+            idx = 0
+            while idx < len(node.keys) and node.keys[idx] <= key: idx += 1
+            result = self._insert(node.children[idx], key, val)
+            if result:
+                mid_key, new_child = result
+                node.keys.insert(idx, mid_key)
+                node.children.insert(idx + 1, new_child)
+                if len(node.keys) >= self.order:
+                    return self._split_internal(node)
+            return None
+
+    def _split_leaf(self, node):
+        """叶节点分裂：中间键上推（并保留在右叶子中）"""
+        mid = len(node.keys) // 2
+        new_node = BPNode(is_leaf=True)
+        new_node.keys   = node.keys[mid:]
+        new_node.values = node.values[mid:]
+        new_node.next   = node.next       # 维护叶子链表
+        node.next       = new_node
+        node.keys   = node.keys[:mid]
+        node.values = node.values[:mid]
+        return new_node.keys[0], new_node  # 中间键上推
+
+    def _split_internal(self, node):
+        """内部节点分裂：中间键上推（不保留在子节点）"""
+        mid = len(node.keys) // 2
+        mid_key = node.keys[mid]
+        new_node = BPNode(is_leaf=False)
+        new_node.keys     = node.keys[mid+1:]
+        new_node.children = node.children[mid+1:]
+        node.keys     = node.keys[:mid]
+        node.children = node.children[:mid+1]
+        return mid_key, new_node
+
+    # ── 范围查询（B+树最大优势）──
+    def range_query(self, lo, hi):
+        """O(log n + k)：定位首叶，沿链表扫描"""
+        leaf = self._find_leaf(self.root, lo)
+        result = []
+        while leaf:
+            for i, k in enumerate(leaf.keys):
+                if lo <= k <= hi: result.append((k, leaf.values[i]))
+                elif k > hi:      return result
+            leaf = leaf.next
+        return result
+
+    # ── 遍历所有叶子（顺序）──
+    def scan_all(self):
+        node = self.root
+        while not node.is_leaf: node = node.children[0]
+        result = []
+        while node:
+            result.extend(zip(node.keys, node.values))
+            node = node.next
+        return result</code></pre>
+  </div>
+  <div class="warn-box"><strong>叶节点 vs 内部节点分裂的区别：</strong>叶节点分裂后，中间键会<strong>复制</strong>到内部节点（叶子中保留，用于查找）；内部节点分裂后，中间键<strong>上移</strong>（不保留在子节点中）。这是 B+ 树与 B 树最核心的区别之一。</div>
+  <div class="page-nav"><button class="btn" onclick="showPage(12)">← 上一节</button><button class="btn btn-primary" onclick="showPage(14)">下一节：LRU →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 15: LRU ═══════════════════════ -->
+<div class="page" id="page-14">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 15 / 18</span></div>
+    <div class="page-title"><span class="zh">LRU 缓存</span><span class="en">LRU Cache</span></div>
+    <div class="page-desc"><strong>最近最少使用（Least Recently Used）</strong>缓存淘汰策略。用<strong>双向链表 + 哈希表</strong>实现所有操作 O(1)。链表维护使用顺序，哈希表实现 O(1) 定位。是高频面试题（LeetCode 146）。</div>
+    <div class="tags"><span class="tag tag-blue">双链表+哈希</span><span class="tag tag-green">O(1)全操作</span><span class="tag tag-orange">缓存淘汰</span><span class="tag tag-purple">LeetCode 146</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">时间复杂度</div>
+      <table class="complexity-table">
+        <tr><th>操作</th><th>时间</th></tr>
+        <tr><td class="op">get(key)</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">put(key, val)</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">淘汰 (evict)</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">空间</td><td class="on">O(capacity)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">数据结构示意</div>
+      <div class="diagram">哈希表: {key → node指针}
+双向链表: head ↔ [最久] ↔ ... ↔ [最近] ↔ tail
+
+get(A)操作：
+① hash找到节点A
+② 从链表当前位置移除
+③ 插入到链表尾部（最近使用）
+
+put(X, v) 超容量：
+① 插入X到链表尾部
+② 移除链表头部节点（最久未用）
+③ 删除哈希表中对应键</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现（两种方法）</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">lru_cache.py</div></div>
+    <pre class="code-block"><code class="language-python">from collections import OrderedDict
+
+# ─── 方法一：OrderedDict（简洁，面试可用）───
+class LRUCache:
+    def __init__(self, capacity: int):
+        self.cap = capacity
+        self.cache = OrderedDict()     # 有序字典，维护插入/访问顺序
+
+    def get(self, key: int) -> int:
+        if key not in self.cache: return -1
+        self.cache.move_to_end(key)    # 移到尾部（标记最近使用）
+        return self.cache[key]
+
+    def put(self, key: int, value: int) -> None:
+        if key in self.cache:
+            self.cache.move_to_end(key)
+        self.cache[key] = value
+        if len(self.cache) > self.cap:
+            self.cache.popitem(last=False)  # 移除头部（最久未使用）
+
+
+# ─── 方法二：手写双向链表 + 哈希表（面试标准写法）───
+class Node:
+    def __init__(self, key=0, val=0):
+        self.key, self.val = key, val
+        self.prev = self.next = None
+
+class LRUCacheManual:
+    def __init__(self, capacity: int):
+        self.cap = capacity
+        self.cache = {}              # key → Node
+        # 哨兵节点：head.next = 最久未用，tail.prev = 最近使用
+        self.head = Node()
+        self.tail = Node()
+        self.head.next = self.tail
+        self.tail.prev = self.head
+
+    def get(self, key: int) -> int:
+        if key not in self.cache: return -1
+        node = self.cache[key]
+        self._move_to_tail(node)
+        return node.val
+
+    def put(self, key: int, value: int) -> None:
+        if key in self.cache:
+            node = self.cache[key]
+            node.val = value
+            self._move_to_tail(node)
+        else:
+            node = Node(key, value)
+            self.cache[key] = node
+            self._add_to_tail(node)
+            if len(self.cache) > self.cap:
+                lru = self.head.next     # 最久未用的节点
+                self._remove(lru)
+                del self.cache[lru.key]
+
+    def _remove(self, node):
+        node.prev.next = node.next
+        node.next.prev = node.prev
+
+    def _add_to_tail(self, node):
+        node.prev = self.tail.prev
+        node.next = self.tail
+        self.tail.prev.next = node
+        self.tail.prev = node
+
+    def _move_to_tail(self, node):
+        self._remove(node)
+        self._add_to_tail(node)
+
+
+# ─── LFU 缓存（Least Frequently Used，进阶）───
+from collections import defaultdict
+
+class LFUCache:
+    def __init__(self, capacity):
+        self.cap = capacity
+        self.min_freq = 0
+        self.key_val  = {}           # key → val
+        self.key_freq = {}           # key → 频次
+        self.freq_keys = defaultdict(OrderedDict)   # 频次 → OrderedDict(key)
+
+    def get(self, key):
+        if key not in self.key_val: return -1
+        self._increment(key)
+        return self.key_val[key]
+
+    def put(self, key, val):
+        if self.cap <= 0: return
+        if key in self.key_val:
+            self.key_val[key] = val
+            self._increment(key)
+        else:
+            if len(self.key_val) >= self.cap:
+                # 淘汰最低频且最久未用的
+                evict_key, _ = self.freq_keys[self.min_freq].popitem(last=False)
+                del self.key_val[evict_key]; del self.key_freq[evict_key]
+            self.key_val[key] = val
+            self.key_freq[key] = 1
+            self.freq_keys[1][key] = None
+            self.min_freq = 1
+
+    def _increment(self, key):
+        f = self.key_freq[key]
+        self.key_freq[key] = f + 1
+        self.freq_keys[f].pop(key)
+        if not self.freq_keys[f] and f == self.min_freq:
+            self.min_freq += 1
+        self.freq_keys[f + 1][key] = None</code></pre>
+  </div>
+  <div class="info-box"><strong>为什么需要双向链表？</strong>删除链表中任意节点需要知道前驱节点。单向链表找前驱需 O(n)，双向链表直接通过 node.prev 访问，O(1) 完成删除。哈希表提供 O(1) 定位，二者组合实现全 O(1)。</div>
+  <div class="page-nav"><button class="btn" onclick="showPage(13)">← 上一节</button><button class="btn btn-primary" onclick="showPage(15)">下一节：线段树 →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 16: SEGMENT TREE ═══════════════════════ -->
+<div class="page" id="page-15">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 16 / 18</span></div>
+    <div class="page-title"><span class="zh">线段树</span><span class="en">Segment Tree</span></div>
+    <div class="page-desc">线段树将区间递归二分，每个节点存储一个区间的聚合值（和/最值等），支持 O(log n) 的<strong>单点更新</strong>和<strong>区间查询</strong>。加入<strong>懒标记（Lazy Propagation）</strong>后可支持 O(log n) 的区间更新。</div>
+    <div class="tags"><span class="tag tag-blue">区间查询</span><span class="tag tag-green">O(logn)更新</span><span class="tag tag-orange">懒标记</span><span class="tag tag-purple">区间修改</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">时间复杂度</div>
+      <table class="complexity-table">
+        <tr><th>操作</th><th>时间</th><th>空间</th></tr>
+        <tr><td class="op">建树 Build</td><td class="on">O(n)</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">单点更新</td><td class="ologn">O(log n)</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">区间查询</td><td class="ologn">O(log n)</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">区间更新（懒）</td><td class="ologn">O(log n)</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">总空间</td><td colspan="2" class="on">O(4n)（数组存储）</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">树结构示意</div>
+      <div class="diagram">nums = [1, 3, 5, 7, 9, 11]  （n=6）
+
+节点[0,5]=36
+  节点[0,2]=9       节点[3,5]=27
+  [0,1]=4  [2,2]=5  [3,4]=16  [5,5]=11
+ [0]=1 [1]=3       [3]=7 [4]=9
+
+树高 = ⌈log₂ n⌉，数组大小 = 4n
+节点 i 的左孩子=2i+1, 右孩子=2i+2</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">segment_tree.py</div></div>
+    <pre class="code-block"><code class="language-python"># ─── 基础线段树（区间求和 + 单点更新）───
+class SegTree:
+    def __init__(self, nums):
+        self.n = len(nums)
+        self.tree = [0] * (4 * self.n)
+        if nums: self._build(nums, 0, 0, self.n - 1)
+
+    def _build(self, nums, node, s, e):
+        if s == e:
+            self.tree[node] = nums[s]; return
+        mid = (s + e) >> 1
+        self._build(nums, 2*node+1, s,   mid)
+        self._build(nums, 2*node+2, mid+1, e)
+        self.tree[node] = self.tree[2*node+1] + self.tree[2*node+2]
+
+    def update(self, idx, val, node=0, s=0, e=None):
+        """单点更新：将 nums[idx] 设为 val"""
+        if e is None: e = self.n - 1
+        if s == e:
+            self.tree[node] = val; return
+        mid = (s + e) >> 1
+        if idx <= mid: self.update(idx, val, 2*node+1, s, mid)
+        else:          self.update(idx, val, 2*node+2, mid+1, e)
+        self.tree[node] = self.tree[2*node+1] + self.tree[2*node+2]
+
+    def query(self, l, r, node=0, s=0, e=None):
+        """区间查询 [l, r] 的和"""
+        if e is None: e = self.n - 1
+        if r < s or e < l: return 0           # 完全不相交
+        if l <= s and e <= r: return self.tree[node]  # 完全覆盖
+        mid = (s + e) >> 1
+        return (self.query(l, r, 2*node+1, s, mid) +
+                self.query(l, r, 2*node+2, mid+1, e))
+
+
+# ─── 懒标记线段树（区间加法更新 + 区间求和）───
+class LazySegTree:
+    def __init__(self, n):
+        self.n = n
+        self.tree = [0] * (4 * n)   # 区间和
+        self.lazy = [0] * (4 * n)   # 懒标记（待下推的增量）
+
+    def _push_down(self, node, s, e):
+        """将懒标记下推给子节点"""
+        if self.lazy[node] == 0: return
+        mid = (s + e) >> 1
+        lc, rc = 2*node+1, 2*node+2
+        self.tree[lc] += self.lazy[node] * (mid - s + 1)
+        self.tree[rc] += self.lazy[node] * (e - mid)
+        self.lazy[lc] += self.lazy[node]
+        self.lazy[rc] += self.lazy[node]
+        self.lazy[node] = 0
+
+    def range_add(self, l, r, val, node=0, s=0, e=None):
+        """区间 [l,r] 每个元素 +val"""
+        if e is None: e = self.n - 1
+        if r < s or e < l: return
+        if l <= s and e <= r:
+            self.tree[node] += val * (e - s + 1)
+            self.lazy[node] += val
+            return
+        self._push_down(node, s, e)
+        mid = (s + e) >> 1
+        self.range_add(l, r, val, 2*node+1, s, mid)
+        self.range_add(l, r, val, 2*node+2, mid+1, e)
+        self.tree[node] = self.tree[2*node+1] + self.tree[2*node+2]
+
+    def query(self, l, r, node=0, s=0, e=None):
+        if e is None: e = self.n - 1
+        if r < s or e < l: return 0
+        if l <= s and e <= r: return self.tree[node]
+        self._push_down(node, s, e)
+        mid = (s + e) >> 1
+        return (self.query(l, r, 2*node+1, s, mid) +
+                self.query(l, r, 2*node+2, mid+1, e))
+
+
+# ─── 动态开点线段树（处理超大值域，如 [0, 10^9]）───
+class DynamicSegNode:
+    __slots__ = ['val', 'lazy', 'left', 'right']
+    def __init__(self):
+        self.val = self.lazy = 0
+        self.left = self.right = None
+
+class DynamicSegTree:
+    def __init__(self, lo, hi):
+        self.root = DynamicSegNode()
+        self.lo, self.hi = lo, hi
+
+    def update(self, l, r, val, node=None, s=None, e=None):
+        if node is None: node, s, e = self.root, self.lo, self.hi
+        if r < s or e < l: return
+        if l <= s and e <= r:
+            node.val += val * (e - s + 1); node.lazy += val; return
+        if not node.left:  node.left  = DynamicSegNode()
+        if not node.right: node.right = DynamicSegNode()
+        if node.lazy:      # 推下懒标记
+            mid = (s + e) >> 1
+            for c, sz in [(node.left, mid-s+1), (node.right, e-mid)]:
+                c.val += node.lazy * sz; c.lazy += node.lazy
+            node.lazy = 0
+        mid = (s + e) >> 1
+        self.update(l, r, val, node.left,  s, mid)
+        self.update(l, r, val, node.right, mid+1, e)
+        node.val = ((node.left.val  if node.left  else 0) +
+                    (node.right.val if node.right else 0))</code></pre>
+  </div>
+  <div class="info-box"><strong>懒标记核心思想：</strong>区间更新时不立即更新所有子节点，而是将增量记录在当前节点的 lazy 中。只有在查询时需要深入子节点时，才将 lazy 向下传递（push_down）。这样每次操作仍是 O(log n)。</div>
+  <div class="page-nav"><button class="btn" onclick="showPage(14)">← 上一节</button><button class="btn btn-primary" onclick="showPage(16)">下一节：树状数组 →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 17: FENWICK TREE ═══════════════════════ -->
+<div class="page" id="page-16">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 17 / 18</span></div>
+    <div class="page-title"><span class="zh">树状数组</span><span class="en">Fenwick Tree / BIT</span></div>
+    <div class="page-desc">树状数组（Binary Indexed Tree）是比线段树更简洁的数据结构，利用<strong>二进制 lowbit 技巧</strong>，以 O(n) 空间支持 O(log n) 的单点更新和前缀和查询。常数更小，实现极简。</div>
+    <div class="tags"><span class="tag tag-blue">lowbit 技巧</span><span class="tag tag-green">O(logn)操作</span><span class="tag tag-orange">前缀和</span><span class="tag tag-purple">逆序对</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">时间复杂度</div>
+      <table class="complexity-table">
+        <tr><th>操作</th><th>时间</th><th>空间</th></tr>
+        <tr><td class="op">建树 Build</td><td class="on">O(n)</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">单点更新</td><td class="ologn">O(log n)</td><td>-</td></tr>
+        <tr><td class="op">前缀和查询</td><td class="ologn">O(log n)</td><td>-</td></tr>
+        <tr><td class="op">区间求和</td><td class="ologn">O(log n)</td><td>-</td></tr>
+        <tr><td class="op">区间更新（差分）</td><td class="ologn">O(log n)</td><td>-</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">lowbit 核心</div>
+      <div class="diagram">lowbit(i) = i & (-i)  ← 取最低位的1
+
+i=6 = 110₂ → -6=...11111010₂
+6 & (-6) = 000...010 = 2
+
+BIT[i] 维护 i 之前 lowbit(i) 个元素的和：
+BIT[1(001)]=a[1]          管1个
+BIT[2(010)]=a[1]+a[2]     管2个
+BIT[4(100)]=a[1..4]       管4个
+BIT[6(110)]=a[5]+a[6]     管2个
+
+更新: i → i+lowbit(i) 向上传递
+查询: i → i-lowbit(i) 向前累加</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">fenwick_tree.py</div></div>
+    <pre class="code-block"><code class="language-python"># ─── 基础树状数组（单点更新 + 前缀和）1-indexed ───
+class BIT:
+    def __init__(self, n):
+        self.n = n
+        self.tree = [0] * (n + 1)   # 1-indexed
+
+    def update(self, i, delta):
+        """将第 i 个位置加上 delta"""
+        while i <= self.n:
+            self.tree[i] += delta
+            i += i & (-i)           # 向上传递
+
+    def prefix(self, i):
+        """前 i 个元素之和"""
+        s = 0
+        while i > 0:
+            s += self.tree[i]
+            i -= i & (-i)           # 去掉最低位 1
+        return s
+
+    def query(self, l, r):          # 区间 [l,r] 之和
+        return self.prefix(r) - self.prefix(l - 1)
+
+    def build(self, arr):           # O(n) 建树
+        for i, v in enumerate(arr, 1):
+            self.update(i, v)
+
+    def find_kth(self, k):
+        """二分查找第 k 小，O(log n)"""
+        pos = 0
+        bit_mask = 1 << (self.n.bit_length() - 1)
+        while bit_mask:
+            nxt = pos + bit_mask
+            if nxt <= self.n and self.tree[nxt] < k:
+                k -= self.tree[nxt]
+                pos = nxt
+            bit_mask >>= 1
+        return pos + 1
+
+
+# ─── 差分树状数组（区间加法更新 + 单点查询）───
+class BITDiff:
+    """原数组 A 的差分 D，对差分数组做单点更新 = 原数组区间更新"""
+    def __init__(self, n):
+        self.bit = BIT(n)
+
+    def range_add(self, l, r, val):
+        self.bit.update(l,     val)
+        self.bit.update(r + 1, -val)
+
+    def point_query(self, i):
+        return self.bit.prefix(i)   # A[i] = D 的前缀和
+
+
+# ─── 二维树状数组 ───
+class BIT2D:
+    def __init__(self, m, n):
+        self.m, self.n = m, n
+        self.tree = [[0] * (n + 1) for _ in range(m + 1)]
+
+    def update(self, x, y, delta):
+        i = x
+        while i <= self.m:
+            j = y
+            while j <= self.n:
+                self.tree[i][j] += delta
+                j += j & (-j)
+            i += i & (-i)
+
+    def prefix(self, x, y):
+        s, i = 0, x
+        while i > 0:
+            j = y
+            while j > 0:
+                s += self.tree[i][j]
+                j -= j & (-j)
+            i -= i & (-i)
+        return s
+
+    def query(self, x1, y1, x2, y2):
+        return (self.prefix(x2, y2)
+              - self.prefix(x1-1, y2)
+              - self.prefix(x2, y1-1)
+              + self.prefix(x1-1, y1-1))
+
+
+# ─── 经典应用：统计逆序对（归并排序也可）───
+def count_inversions(arr):
+    """逆序对：i<j 且 arr[i]>arr[j]"""
+    # 离散化
+    sorted_arr = sorted(set(arr))
+    rank = {v: i+1 for i, v in enumerate(sorted_arr)}
+    bit = BIT(len(sorted_arr))
+    count = 0
+    for v in reversed(arr):        # 从右往左扫描
+        r = rank[v]
+        count += bit.prefix(r - 1) # 右侧比 v 小的元素数
+        bit.update(r, 1)
+    return count</code></pre>
+  </div>
+  <div class="info-box"><strong>树状数组 vs 线段树：</strong>树状数组代码量约为线段树的 1/3，常数更小，更节省内存。但功能相对受限：只能处理"前缀可逆"的聚合操作（加法、异或等），不能处理区间最值（非可逆）。线段树更通用。</div>
+  <div class="page-nav"><button class="btn" onclick="showPage(15)">← 上一节</button><button class="btn btn-primary" onclick="showPage(17)">下一节：并查集 →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 18: UNION-FIND ═══════════════════════ -->
+<div class="page" id="page-17">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 18 / 18</span></div>
+    <div class="page-title"><span class="zh">并查集</span><span class="en">Union-Find (Disjoint Set)</span></div>
+    <div class="page-desc">并查集维护<strong>不相交集合（连通分量）</strong>，支持合并和查找操作。通过<strong>路径压缩 + 按秩合并</strong>，操作时间复杂度趋近 O(1)（严格为反阿克曼函数 O(α(n))）。是 Kruskal MST、检测环的核心工具。</div>
+    <div class="tags"><span class="tag tag-blue">路径压缩</span><span class="tag tag-green">O(α)≈O(1)</span><span class="tag tag-orange">连通分量</span><span class="tag tag-purple">Kruskal MST</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">时间复杂度</div>
+      <table class="complexity-table">
+        <tr><th>优化方式</th><th>Find</th><th>Union</th></tr>
+        <tr><td class="op">无优化</td><td class="on">O(n)</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">按秩合并</td><td class="ologn">O(log n)</td><td class="ologn">O(log n)</td></tr>
+        <tr><td class="op">路径压缩</td><td class="ologn">O(log n)*</td><td class="ologn">O(log n)*</td></tr>
+        <tr><td class="op">两者结合</td><td class="o1">O(α(n))</td><td class="o1">O(α(n))</td></tr>
+        <tr><td colspan="3" style="color:var(--text3);font-size:11px;padding-top:8px">α(n) ≤ 4 对所有实际数据，近似 O(1)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">路径压缩示意</div>
+      <div class="diagram">压缩前 find(6)：
+1 ← 2 ← 3 ← 4 ← 5 ← 6
+需要向上走 5 步
+
+压缩后 find(6)（所有节点直接指向根）：
+     1
+  ↗ ↑ ↑ ↑ ↑
+ 2  3  4  5  6
+下次 find 任意节点：O(1)！
+
+按秩合并（rank 表示树高上界）：
+rank[A]=2, rank[B]=1
+union(A,B) → B 指向 A（矮树挂高树）
+→ 保持树高为 O(log n)</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">union_find.py</div></div>
+    <pre class="code-block"><code class="language-python">class UnionFind:
+    def __init__(self, n):
+        self.parent = list(range(n))   # parent[i] = i（初始：每个节点是自己的根）
+        self.rank   = [0] * n          # 树高上界（用于按秩合并）
+        self.size   = [1] * n          # 集合大小
+        self.count  = n                # 连通分量数
+
+    def find(self, x) -> int:
+        """路径压缩：递归版（find 后节点直接指向根）"""
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+
+    def find_iterative(self, x) -> int:
+        """路径压缩：迭代版（两趟：先找根，再压缩）"""
+        root = x
+        while self.parent[root] != root:
+            root = self.parent[root]
+        while self.parent[x] != root:
+            self.parent[x], x = root, self.parent[x]
+        return root
+
+    def union(self, x, y) -> bool:
+        """按秩合并：矮树指向高树（保持低树高）"""
+        px, py = self.find(x), self.find(y)
+        if px == py: return False       # 已在同一集合
+        if self.rank[px] < self.rank[py]:
+            px, py = py, px             # 确保 px 是更高的根
+        self.parent[py] = px            # py 指向 px
+        self.size[px] += self.size[py]
+        if self.rank[px] == self.rank[py]:
+            self.rank[px] += 1          # 等高时合并，高度+1
+        self.count -= 1
+        return True
+
+    def connected(self, x, y) -> bool:
+        return self.find(x) == self.find(y)
+
+    def get_size(self, x) -> int:
+        return self.size[self.find(x)]
+
+
+# ─── 应用 1：Kruskal 最小生成树 ───
+def kruskal(n, edges):
+    """edges = [(weight, u, v)]"""
+    uf = UnionFind(n)
+    edges.sort()                       # 按权重升序
+    mst_weight = 0
+    mst_edges  = []
+    for w, u, v in edges:
+        if uf.union(u, v):             # 不形成环才加入
+            mst_weight += w
+            mst_edges.append((u, v, w))
+            if len(mst_edges) == n - 1: break   # n-1 条边即完成
+    return mst_weight, mst_edges
+
+# ─── 应用 2：岛屿数量（LeetCode 200）───
+def num_islands(grid):
+    if not grid: return 0
+    rows, cols = len(grid), len(grid[0])
+    uf = UnionFind(rows * cols)
+    water = 0
+
+    for r in range(rows):
+        for c in range(cols):
+            if grid[r][c] == '0':
+                water += 1
+            else:
+                for dr, dc in [(0,1),(1,0)]:
+                    nr, nc = r+dr, c+dc
+                    if 0<=nr<rows and 0<=nc<cols and grid[nr][nc]=='1':
+                        uf.union(r*cols+c, nr*cols+nc)
+    return uf.count - water
+
+# ─── 应用 3：带权并查集（判断食物链）───
+class WeightedUF:
+    """relation[i] = i 到其根的相对关系（模 3 的距离）"""
+    def __init__(self, n):
+        self.parent   = list(range(n))
+        self.relation = [0] * n     # 0=同类, 1=吃parent, 2=被parent吃
+
+    def find(self, x):
+        if self.parent[x] == x: return x
+        root = self.find(self.parent[x])
+        self.relation[x] = (self.relation[x] + self.relation[self.parent[x]]) % 3
+        self.parent[x] = root
+        return root
+
+    def union(self, x, y, rel):     # rel: x 和 y 的关系
+        rx, ry = self.find(x), self.find(y)
+        if rx == ry:
+            return (self.relation[x] - self.relation[y] - rel) % 3 == 0
+        self.parent[rx] = ry
+        self.relation[rx] = (rel + self.relation[y] - self.relation[x]) % 3
+        return True</code></pre>
+  </div>
+  <div class="info-box"><strong>α(n) 是什么？</strong>α 是阿克曼函数的反函数。阿克曼函数增长极其迅速，其反函数 α(n) 增长极其缓慢：对所有实际可能的 n（≤ 宇宙中粒子数量），α(n) ≤ 4。故并查集的操作可认为是<strong>常数时间</strong>。</div>
+  <div class="grid-2" style="margin-top:20px">
+    <div class="card">
+      <div class="card-title">18 种数据结构总结</div>
+      <table class="complexity-table">
+        <tr><th>结构</th><th>查找</th><th>插入</th><th>删除</th></tr>
+        <tr><td class="op">数组</td><td class="o1">O(1)</td><td class="on">O(n)</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">链表</td><td class="on">O(n)</td><td class="o1">O(1)*</td><td class="o1">O(1)*</td></tr>
+        <tr><td class="op">栈/队列</td><td class="on">O(n)</td><td class="o1">O(1)</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">哈希表</td><td class="o1">O(1)</td><td class="o1">O(1)</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">BST（均摊）</td><td class="ologn">O(h)</td><td class="ologn">O(h)</td><td class="ologn">O(h)</td></tr>
+        <tr><td class="op">AVL/红黑树</td><td class="ologn">O(log n)</td><td class="ologn">O(log n)</td><td class="ologn">O(log n)</td></tr>
+        <tr><td class="op">堆</td><td class="o1">O(1)*</td><td class="ologn">O(log n)</td><td class="ologn">O(log n)</td></tr>
+        <tr><td class="op">Trie</td><td class="o1">O(m)</td><td class="o1">O(m)</td><td class="o1">O(m)</td></tr>
+        <tr><td class="op">跳表/B+树</td><td class="ologn">O(log n)</td><td class="ologn">O(log n)</td><td class="ologn">O(log n)</td></tr>
+        <tr><td class="op">LRU</td><td class="o1">O(1)</td><td class="o1">O(1)</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">线段树/BIT</td><td class="ologn">O(log n)</td><td class="ologn">O(log n)</td><td>-</td></tr>
+        <tr><td class="op">并查集</td><td class="o1">O(α)</td><td class="o1">O(α)</td><td>-</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">选型指南</div>
+      <ul class="kp-list">
+        <li><strong>O(1)随机访问</strong>：数组</li>
+        <li><strong>频繁头尾插删</strong>：双向链表</li>
+        <li><strong>有序集合 + 范围查询</strong>：跳表 / B+树</li>
+        <li><strong>前缀匹配 / 自动补全</strong>：Trie</li>
+        <li><strong>区间聚合查询</strong>：线段树</li>
+        <li><strong>前缀和 + 单点更新</strong>：树状数组（更轻量）</li>
+        <li><strong>最值快速获取</strong>：堆（优先队列）</li>
+        <li><strong>连通性判断</strong>：并查集</li>
+        <li><strong>缓存淘汰策略</strong>：LRU（双链表+哈希）</li>
+        <li><strong>数据库索引</strong>：B+树（磁盘 IO 友好）</li>
+        <li><strong>内存字典</strong>：哈希表 / 红黑树</li>
+      </ul>
+    </div>
+  </div>
+  <div class="page-nav"><button class="btn" onclick="showPage(16)">← 上一节</button><button class="btn btn-primary" onclick="showPage(0)">↑ 回到第一节</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 19: SPARSE TABLE ═══════════════════════ -->
+<div class="page" id="page-18">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 19 / 24</span></div>
+    <div class="page-title"><span class="zh">稀疏表</span><span class="en">Sparse Table (RMQ)</span></div>
+    <div class="page-desc">稀疏表利用<strong>倍增思想（Binary Lifting）</strong>，预处理 O(n log n)，之后对任意区间的<strong>幂等操作（最值、GCD）</strong>实现 <strong>O(1) 查询</strong>。缺点：不支持更新（静态数据结构）。是离线 RMQ 问题的最优解。</div>
+    <div class="tags"><span class="tag tag-blue">倍增预处理</span><span class="tag tag-green">O(1)查询</span><span class="tag tag-orange">幂等操作</span><span class="tag tag-purple">静态数组</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">时间复杂度</div>
+      <table class="complexity-table">
+        <tr><th>操作</th><th>时间</th><th>空间</th></tr>
+        <tr><td class="op">预处理 Build</td><td class="ologn">O(n log n)</td><td class="ologn">O(n log n)</td></tr>
+        <tr><td class="op">区间最值查询</td><td class="o1">O(1)</td><td>-</td></tr>
+        <tr><td class="op">区间 GCD 查询</td><td class="o1">O(1)</td><td>-</td></tr>
+        <tr><td class="op">单点更新</td><td colspan="2" style="color:var(--red)">❌ 不支持</td></tr>
+        <tr><td colspan="3" style="color:var(--text3);font-size:11px;padding-top:8px">幂等性：op(op(a,b), b) = op(a,b)，如 min/max/gcd</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">倍增思想</div>
+      <div class="diagram">st[i][j] = 从 i 开始，长度 2^j 的区间的最小值
+
+st[i][0] = nums[i]  （长度 1）
+st[i][1] = min(nums[i], nums[i+1])
+st[i][2] = min(st[i][1], st[i+2][1])
+          = min(nums[i..i+1], nums[i+2..i+3])
+
+查询 [l, r] 最小值：
+k = floor(log2(r-l+1))
+答案 = min(st[l][k], st[r-2^k+1][k])
+        ↑左半段          ↑右半段
+两段重叠没关系（min 是幂等的！）</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">sparse_table.py</div></div>
+    <pre class="code-block"><code class="language-python">import math
+
+class SparseTable:
+    """静态区间最小值（RMQ），O(n log n) 预处理，O(1) 查询"""
+
+    def __init__(self, nums, func=min):
+        """
+        func: 幂等操作，可为 min / max / gcd（不能是 sum！）
+        """
+        self.func = func
+        n = len(nums)
+        self.LOG = max(1, int(math.log2(n)) + 1)
+        # st[j][i] = 从 i 开始长度 2^j 的区间的 func 值
+        self.st = [[0] * n for _ in range(self.LOG)]
+        self.st[0] = nums[:]
+
+        # 倍增填表
+        for j in range(1, self.LOG):
+            for i in range(n - (1 << j) + 1):
+                self.st[j][i] = func(
+                    self.st[j-1][i],
+                    self.st[j-1][i + (1 << (j-1))]
+                )
+
+        # 预计算 log2（避免查询时重复计算）
+        self.log2 = [0] * (n + 1)
+        for i in range(2, n + 1):
+            self.log2[i] = self.log2[i >> 1] + 1
+
+    def query(self, l, r) -> int:
+        """O(1) 区间查询 [l, r]"""
+        k = self.log2[r - l + 1]
+        return self.func(self.st[k][l], self.st[k][r - (1 << k) + 1])
+
+
+# ─── GCD 版本（最大公因数）───
+from math import gcd
+
+class GCDSparseTable(SparseTable):
+    def __init__(self, nums):
+        super().__init__(nums, func=gcd)
+
+
+# ─── 应用：LCA（最近公共祖先）via 欧拉序 + RMQ ───
+class LCAByRMQ:
+    """
+    1. DFS 生成欧拉序（每次访问一个节点都记录）
+    2. 两节点 LCA = 欧拉序两次出现之间深度最小的节点
+    3. 用 Sparse Table O(1) 查询区间最小深度
+    """
+    def __init__(self, root):
+        self.euler = []      # 欧拉序
+        self.depth = []      # 对应深度
+        self.first = {}      # 节点首次出现位置
+
+        def dfs(node, d):
+            if not node: return
+            self.first[node.val] = len(self.euler)
+            self.euler.append(node.val)
+            self.depth.append(d)
+            if node.left:
+                dfs(node.left, d + 1)
+                self.euler.append(node.val)
+                self.depth.append(d)
+            if node.right:
+                dfs(node.right, d + 1)
+                self.euler.append(node.val)
+                self.depth.append(d)
+
+        dfs(root, 0)
+        # Sparse Table 基于深度数组
+        self.st = SparseTable(self.depth)
+
+    def lca(self, u, v):
+        l, r = self.first[u], self.first[v]
+        if l > r: l, r = r, l
+        min_depth = self.st.query(l, r)
+        # 找欧拉序中对应最小深度的节点
+        for i in range(l, r + 1):
+            if self.depth[i] == min_depth:
+                return self.euler[i]
+
+
+# ─── 应用：滑动窗口最大值（静态数据）───
+def range_max_queries(nums, queries):
+    """
+    queries = [(l, r), ...]
+    比 heapq 解法更快（O(1) 每次查询）
+    """
+    st = SparseTable(nums, func=max)
+    return [st.query(l, r) for l, r in queries]
+
+
+# ─── 对比：线段树 vs 稀疏表 ───
+# 稀疏表：O(n log n) 建，O(1) 查，不支持更新
+# 线段树：O(n) 建，O(log n) 查，O(log n) 更新
+# 结论：静态数据 → 稀疏表；动态数据 → 线段树</code></pre>
+  </div>
+  <div class="info-box"><strong>为什么查询 O(1)？</strong>查询 [l, r] 时，取 k = ⌊log₂(r-l+1)⌋，让两个长度为 2^k 的区间覆盖 [l, r]（允许重叠）。由于 min/max/gcd 的<strong>幂等性</strong>（重叠部分计算多次结果相同），答案仍然正确，且只需 2 次预处理值即可，实现真正的 O(1) 查询。</div>
+  <div class="page-nav"><button class="btn" onclick="showPage(17)">← 上一节</button><button class="btn btn-primary" onclick="showPage(19)">下一节：字符串哈希 →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 20: ROLLING HASH ═══════════════════════ -->
+<div class="page" id="page-19">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 20 / 24</span></div>
+    <div class="page-title"><span class="zh">字符串哈希</span><span class="en">Rolling Hash / Rabin-Karp</span></div>
+    <div class="page-desc">将字符串映射为多项式哈希值，O(n) 预处理后 <strong>O(1) 获取任意子串哈希</strong>。核心是<strong>滚动哈希（Rabin-Karp）</strong>，用于字符串匹配、最长公共子串、回文检测等。双哈希可将碰撞概率降至可忽略。</div>
+    <div class="tags"><span class="tag tag-blue">多项式哈希</span><span class="tag tag-green">O(1)子串比较</span><span class="tag tag-orange">Rabin-Karp</span><span class="tag tag-purple">双哈希防碰撞</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">时间复杂度</div>
+      <table class="complexity-table">
+        <tr><th>操作</th><th>时间</th></tr>
+        <tr><td class="op">预处理 Preprocess</td><td class="on">O(n)</td></tr>
+        <tr><td class="op">子串哈希获取</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">两子串比较</td><td class="o1">O(1)</td></tr>
+        <tr><td class="op">字符串匹配（Rabin-Karp）</td><td class="on">O(n+m)</td></tr>
+        <tr><td class="op">最长公共子串</td><td class="ologn">O(n log n)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">多项式哈希原理</div>
+      <div class="diagram">字符串 s = "abcde"，BASE=131，MOD=大质数
+
+hash(s) = s[0]*B^4 + s[1]*B^3 + ... + s[4]*B^0
+        = Σ s[i] * B^(n-1-i)  mod MOD
+
+前缀哈希 h[i] = hash(s[0..i])
+h[0] = s[0]
+h[i] = h[i-1] * B + s[i]
+
+子串 s[l..r] 的哈希：
+= h[r] - h[l-1] * B^(r-l+1)
+只需 O(1)！预存 B 的幂次即可。</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">rolling_hash.py</div></div>
+    <pre class="code-block"><code class="language-python"># ─── 字符串哈希（单哈希）───
+class StringHash:
+    BASE = 131
+    MOD  = (1 << 61) - 1    # 梅森质数，碰撞率极低
+
+    def __init__(self, s: str):
+        n = len(s)
+        self.n = n
+        self.h = [0] * (n + 1)    # 前缀哈希
+        self.pw = [1] * (n + 1)   # BASE 的幂次
+
+        for i, ch in enumerate(s):
+            self.h[i+1]  = (self.h[i] * self.BASE + ord(ch)) % self.MOD
+            self.pw[i+1] = (self.pw[i] * self.BASE) % self.MOD
+
+    def get(self, l: int, r: int) -> int:
+        """子串 s[l..r]（闭区间）的哈希值，O(1)"""
+        return (self.h[r+1] - self.h[l] * self.pw[r-l+1]) % self.MOD
+
+    def equal(self, l1, r1, l2, r2) -> bool:
+        """比较两个子串是否相等，O(1)"""
+        return self.get(l1, r1) == self.get(l2, r2)
+
+
+# ─── 双哈希（两个不同 BASE/MOD，碰撞率 ≈ 1/10^18）───
+class DoubleHash:
+    B1, M1 = 131, (1 << 61) - 1
+    B2, M2 = 137, (1 << 31) - 1
+
+    def __init__(self, s: str):
+        n = len(s)
+        self.h1 = [0] * (n+1); self.p1 = [1] * (n+1)
+        self.h2 = [0] * (n+1); self.p2 = [1] * (n+1)
+        for i, ch in enumerate(s):
+            v = ord(ch)
+            self.h1[i+1] = (self.h1[i] * self.B1 + v) % self.M1
+            self.h2[i+1] = (self.h2[i] * self.B2 + v) % self.M2
+            self.p1[i+1] = self.p1[i] * self.B1 % self.M1
+            self.p2[i+1] = self.p2[i] * self.B2 % self.M2
+
+    def get(self, l, r):
+        h1 = (self.h1[r+1] - self.h1[l] * self.p1[r-l+1]) % self.M1
+        h2 = (self.h2[r+1] - self.h2[l] * self.p2[r-l+1]) % self.M2
+        return (h1, h2)
+
+    def equal(self, l1, r1, l2, r2):
+        return self.get(l1, r1) == self.get(l2, r2)
+
+
+# ─── Rabin-Karp 字符串匹配 O(n+m) 期望 ───
+def rabin_karp(text: str, pattern: str):
+    """返回 pattern 在 text 中所有出现位置"""
+    n, m = len(text), len(pattern)
+    if m > n: return []
+
+    BASE, MOD = 131, (1 << 61) - 1
+    # 计算 pattern 的哈希
+    ph = 0
+    for ch in pattern:
+        ph = (ph * BASE + ord(ch)) % MOD
+
+    # 滚动哈希遍历 text
+    th = 0
+    high = pow(BASE, m, MOD)    # BASE^m
+    result = []
+
+    for i, ch in enumerate(text):
+        th = (th * BASE + ord(ch)) % MOD
+        if i >= m:                               # 滑出窗口
+            th = (th - ord(text[i-m]) * high) % MOD
+        if i >= m - 1 and th == ph:              # 哈希匹配
+            if text[i-m+1:i+1] == pattern:      # 验证（防碰撞）
+                result.append(i - m + 1)
+    return result
+
+
+# ─── 应用：最长公共子串（二分 + 哈希，O(n log n)）───
+def longest_common_substring(s: str, t: str) -> str:
+    def has_common(length):
+        seen = set()
+        sh = StringHash(s)
+        for i in range(len(s) - length + 1):
+            seen.add(sh.get(i, i + length - 1))
+        th = StringHash(t)
+        for i in range(len(t) - length + 1):
+            if th.get(i, i + length - 1) in seen:
+                return i
+        return -1
+
+    lo, hi, best_start, best_len = 0, min(len(s), len(t)), 0, 0
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        pos = has_common(mid)
+        if pos != -1:
+            best_len, best_start = mid, pos
+            lo = mid + 1
+        else:
+            hi = mid - 1
+    return t[best_start:best_start + best_len]
+
+
+# ─── 应用：最长回文子串（Manacher 算法，O(n)）───
+def manacher(s: str) -> str:
+    """Manacher 算法：O(n) 最长回文子串"""
+    # 插入分隔符处理奇偶统一
+    t = '#' + '#'.join(s) + '#'
+    n = len(t)
+    p = [0] * n       # p[i] = 以 t[i] 为中心的回文半径
+    c = r = 0          # 当前最右回文的中心和右边界
+
+    for i in range(n):
+        if i < r:
+            p[i] = min(r - i, p[2*c - i])   # 利用已知信息
+        while (i - p[i] - 1 >= 0 and i + p[i] + 1 < n
+               and t[i - p[i] - 1] == t[i + p[i] + 1]):
+            p[i] += 1
+        if i + p[i] > r:
+            c, r = i, i + p[i]
+
+    max_len = max(p)
+    center  = p.index(max_len)
+    start   = (center - max_len) // 2
+    return s[start:start + max_len]</code></pre>
+  </div>
+  <div class="warn-box"><strong>哈希碰撞风险：</strong>单哈希在竞赛中可能被特意构造的数据卡掉。使用<strong>双哈希</strong>（两个独立的 BASE/MOD 对）可将碰撞概率降至约 10⁻¹⁸，工程实践中可忽略。Python 整数无溢出，可直接使用大质数取模。</div>
+  <div class="page-nav"><button class="btn" onclick="showPage(18)">← 上一节</button><button class="btn btn-primary" onclick="showPage(20)">下一节：KMP / Z 算法 →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 21: KMP / Z ═══════════════════════ -->
+<div class="page" id="page-20">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 21 / 24</span></div>
+    <div class="page-title"><span class="zh">KMP / Z 算法</span><span class="en">KMP / Z-Function</span></div>
+    <div class="page-desc"><strong>KMP</strong> 通过<strong>失配函数（π/next 数组）</strong>在 O(n+m) 时间完成字符串匹配，避免暴力的回退。<strong>Z 函数</strong>描述每个位置开始的最长公共前缀，同样 O(n)，二者等价但应用场景各有侧重。</div>
+    <div class="tags"><span class="tag tag-blue">失配函数 π</span><span class="tag tag-green">O(n+m)</span><span class="tag tag-orange">Z-Function</span><span class="tag tag-purple">前缀/后缀</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">KMP π 数组含义</div>
+      <div class="diagram">pattern = "ababc"
+index:     0 1 2 3 4
+π:         0 0 1 2 0
+
+π[i] = pattern[0..i] 的最长真前后缀长度
+pattern[0..3]="abab": 前缀"ab"=后缀"ab" → π[3]=2
+匹配失败时，回退到 π[i-1] 位置继续
+而非从头开始 → 避免重复扫描
+
+暴力: O(n*m)
+KMP:  O(n+m)，每个字符最多入出"虚拟栈"各1次</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Z 函数含义</div>
+      <div class="diagram">s = "aabxaa"
+Z:  0 1 0 0 2 1
+
+Z[i] = s[i..] 与 s[0..] 的最长公共前缀长度
+Z[4]=2: s[4..5]="aa" = s[0..1]="aa"
+
+维护 Z-box [l, r]: 当前最右 Z-box
+如果 i < r，利用已知 Z[i-l] 初始化
+
+应用：匹配 p 在 t 中的出现
+→ 构造 s = p + "$" + t，计算 Z
+→ Z[i] == len(p) 的位置即为匹配点</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">kmp_z.py</div></div>
+    <pre class="code-block"><code class="language-python"># ══════════════════ KMP 算法 ══════════════════
+
+def build_pi(pattern: str) -> list:
+    """
+    构建失配函数（π 数组 / next 数组）O(m)
+    π[i] = pattern[0..i] 的最长真前缀 = 真后缀的长度
+    """
+    m = len(pattern)
+    pi = [0] * m
+    k = 0               # 当前匹配的前缀长度
+    for i in range(1, m):
+        while k > 0 and pattern[k] != pattern[i]:
+            k = pi[k-1]    # 失配：退到上一个可能的前缀
+        if pattern[k] == pattern[i]:
+            k += 1
+        pi[i] = k
+    return pi
+
+
+def kmp_search(text: str, pattern: str) -> list:
+    """KMP 字符串匹配，O(n+m)，返回所有匹配起始下标"""
+    if not pattern: return []
+    pi = build_pi(pattern)
+    n, m = len(text), len(pattern)
+    result = []
+    k = 0               # 已匹配 pattern 的前 k 个字符
+
+    for i, ch in enumerate(text):
+        while k > 0 and pattern[k] != ch:
+            k = pi[k-1]    # 利用 π 避免回退到 0
+        if pattern[k] == ch:
+            k += 1
+        if k == m:         # 完整匹配
+            result.append(i - m + 1)
+            k = pi[k-1]    # 继续搜索下一个可能的匹配
+    return result
+
+
+def kmp_count_occurrences(text: str, pattern: str) -> int:
+    """统计 pattern 在 text 中出现次数（含重叠）"""
+    return len(kmp_search(text, pattern))
+
+
+def min_repeat_unit(s: str) -> str:
+    """
+    最小循环节：KMP 经典应用
+    若 len(s) % (len(s) - π[-1]) == 0，则循环节为 s[: len(s)-π[-1]]
+    """
+    pi = build_pi(s)
+    unit_len = len(s) - pi[-1]
+    if len(s) % unit_len == 0:
+        return s[:unit_len]
+    return s   # 不能被整除则自身就是最小循环节
+
+
+# ══════════════════ Z 函数 ══════════════════
+
+def build_z(s: str) -> list:
+    """
+    构建 Z 数组，O(n)
+    Z[i] = s[i:] 与 s 的最长公共前缀长度（Z[0]=0 或 n，约定为 0）
+    """
+    n = len(s)
+    z = [0] * n
+    l = r = 0           # 当前最右 Z-box [l, r]
+    for i in range(1, n):
+        if i < r:
+            z[i] = min(r - i, z[i - l])   # 利用已知的 Z-box
+        while i + z[i] < n and s[z[i]] == s[i + z[i]]:
+            z[i] += 1
+        if i + z[i] > r:
+            l, r = i, i + z[i]
+    return z
+
+
+def z_search(text: str, pattern: str) -> list:
+    """用 Z 函数做字符串匹配，O(n+m)"""
+    m = len(pattern)
+    s = pattern + '$' + text    # '$' 是不出现在文本中的分隔符
+    z = build_z(s)
+    result = []
+    for i in range(m + 1, len(s)):
+        if z[i] == m:
+            result.append(i - m - 1)   # 还原到 text 中的位置
+    return result
+
+
+# ══════════════════ 综合应用 ══════════════════
+
+def is_rotation(s: str, t: str) -> bool:
+    """判断 t 是否为 s 的循环移位（KMP O(n)）"""
+    if len(s) != len(t): return False
+    return bool(kmp_search(s + s, t))
+
+
+def longest_border(s: str) -> str:
+    """最长 border（既是前缀又是后缀的非 s 本身的子串）"""
+    pi = build_pi(s)
+    border_len = pi[-1]
+    return s[:border_len] if border_len else ""
+
+
+def count_prefix_occurrences(s: str) -> list:
+    """
+    Z 经典应用：Z[i] 即为以位置 i 开始的前缀在 s 中出现次数的贡献
+    返回每个前缀长度在 s 中出现的总次数
+    """
+    z = build_z(s)
+    n = len(s)
+    cnt = [0] * (n + 1)
+    cnt[n] += 1            # 前缀 s 本身
+    for i in range(1, n):
+        cnt[z[i]] += 1
+    # 后缀和：长度 k 的前缀出现次数 = sum(cnt[k..n])
+    for i in range(n - 1, 0, -1):
+        cnt[i] += cnt[i+1]
+    return cnt[1:]         # 下标 0 表示长度 1 的前缀</code></pre>
+  </div>
+  <div class="info-box"><strong>KMP 核心洞察：</strong>当在位置 k 发生失配时，无需回退到 0，因为 pattern[0..π[k-1]-1] 已经与文本中对应位置匹配（π[k-1] 保证了这一点）。每个字符最多被"前移"一次，因此总时间为 O(n)。</div>
+  <div class="page-nav"><button class="btn" onclick="showPage(19)">← 上一节</button><button class="btn btn-primary" onclick="showPage(21)">下一节：布隆过滤器 →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 22: BLOOM FILTER ═══════════════════════ -->
+<div class="page" id="page-21">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 22 / 24</span></div>
+    <div class="page-title"><span class="zh">布隆过滤器</span><span class="en">Bloom Filter</span></div>
+    <div class="page-desc">布隆过滤器用<strong>位数组 + 多个哈希函数</strong>判断元素是否存在：<strong>返回"不存在"则一定不存在（无假阴性）；返回"存在"则可能误判（假阳性）</strong>。空间极省，常用于网络爬虫 URL 去重、缓存击穿防护、数据库查询优化。</div>
+    <div class="tags"><span class="tag tag-blue">位数组</span><span class="tag tag-green">O(k)操作</span><span class="tag tag-orange">假阳性</span><span class="tag tag-purple">无假阴性</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">时间 & 空间复杂度</div>
+      <table class="complexity-table">
+        <tr><th>操作</th><th>时间</th><th>空间</th></tr>
+        <tr><td class="op">插入 Add</td><td class="o1">O(k)</td><td>-</td></tr>
+        <tr><td class="op">查询 Contains</td><td class="o1">O(k)</td><td>-</td></tr>
+        <tr><td class="op">删除 Delete</td><td colspan="2" style="color:var(--red)">❌ 基础版不支持</td></tr>
+        <tr><td class="op">总空间</td><td colspan="2" class="on">O(m) bits</td></tr>
+        <tr><td colspan="3" style="color:var(--text3);font-size:11px;padding-top:8px">k = 哈希函数数量；m = 位数组大小</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">参数设计</div>
+      <div class="diagram">给定 n（元素数）和 p（误判率）：
+最优位数组大小：
+  m = -n·ln(p) / (ln2)²
+
+最优哈希函数数量：
+  k = (m/n) · ln2
+
+示例：n=100万，p=1%
+  m ≈ 958万 bits ≈ 1.1 MB（vs 100MB存原数据）
+  k ≈ 7 个哈希函数
+  假阳率精确 = (1-e^(-kn/m))^k ≈ 1%</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">bloom_filter.py</div></div>
+    <pre class="code-block"><code class="language-python">import math
+import mmh3          # pip install mmh3（MurmurHash3，工业级非加密哈希）
+# 若没有 mmh3，使用下方纯 Python 实现
+
+class BloomFilter:
+    def __init__(self, n: int, fp_rate: float = 0.01):
+        """
+        n:       预期元素数量
+        fp_rate: 可接受的假阳性率（默认 1%）
+        """
+        self.n       = n
+        self.fp_rate = fp_rate
+        # 最优参数计算
+        self.m = self._optimal_m(n, fp_rate)   # 位数组大小
+        self.k = self._optimal_k(self.m, n)    # 哈希函数数
+        self.bit_array = bytearray(math.ceil(self.m / 8))
+        self.count = 0
+
+    @staticmethod
+    def _optimal_m(n, p):
+        return int(-n * math.log(p) / (math.log(2) ** 2))
+
+    @staticmethod
+    def _optimal_k(m, n):
+        return max(1, round(m / n * math.log(2)))
+
+    def _hashes(self, item):
+        """用 mmh3 的不同种子模拟 k 个独立哈希函数"""
+        item_bytes = str(item).encode()
+        for seed in range(self.k):
+            yield mmh3.hash(item_bytes, seed) % self.m
+
+    def _get_bit(self, idx):
+        return bool(self.bit_array[idx // 8] & (1 << (idx % 8)))
+
+    def _set_bit(self, idx):
+        self.bit_array[idx // 8] |= (1 << (idx % 8))
+
+    def add(self, item):
+        for h in self._hashes(item):
+            self._set_bit(h)
+        self.count += 1
+
+    def contains(self, item) -> bool:
+        """
+        False → 元素一定不存在（无假阴性）
+        True  → 元素可能存在（有假阳性）
+        """
+        return all(self._get_bit(h) for h in self._hashes(item))
+
+    @property
+    def current_fp_rate(self) -> float:
+        """当前实际假阳性率"""
+        return (1 - math.exp(-self.k * self.count / self.m)) ** self.k
+
+
+# ─── 纯 Python 实现（不依赖 mmh3）───
+class BloomFilterPure:
+    def __init__(self, n, fp_rate=0.01):
+        self.m = int(-n * math.log(fp_rate) / (math.log(2)**2))
+        self.k = max(1, round(self.m / n * math.log(2)))
+        self.bits = bytearray(math.ceil(self.m / 8))
+
+    def _hashes(self, item):
+        s = str(item).encode()
+        h1 = int.from_bytes(__import__('hashlib').md5(s).digest()[:8],  'big')
+        h2 = int.from_bytes(__import__('hashlib').sha1(s).digest()[:8], 'big')
+        for i in range(self.k):
+            yield (h1 + i * h2) % self.m    # 双哈希法模拟多哈希
+
+    def add(self, item):
+        for h in self._hashes(item):
+            self.bits[h // 8] |= 1 << (h % 8)
+
+    def contains(self, item):
+        return all((self.bits[h // 8] >> (h % 8)) & 1 for h in self._hashes(item))
+
+
+# ─── 计数布隆过滤器（支持删除）───
+class CountingBloomFilter:
+    """每个 bit 替换为计数器，支持删除（但空间多 4x）"""
+    def __init__(self, n, fp_rate=0.01):
+        self.m = int(-n * math.log(fp_rate) / (math.log(2)**2))
+        self.k = max(1, round(self.m / n * math.log(2)))
+        self.counters = [0] * self.m
+
+    def _hashes(self, item):
+        s = str(item).encode()
+        h1 = hash(s) & 0xffffffff
+        h2 = hash(s[::-1]) & 0xffffffff
+        for i in range(self.k):
+            yield (h1 + i * h2) % self.m
+
+    def add(self, item):
+        for h in self._hashes(item): self.counters[h] += 1
+
+    def remove(self, item):
+        if not self.contains(item): raise KeyError("元素不存在")
+        for h in self._hashes(item): self.counters[h] -= 1
+
+    def contains(self, item):
+        return all(self.counters[h] > 0 for h in self._hashes(item))
+
+
+# ─── 实际应用场景 ───
+# 1. 爬虫 URL 去重：避免重复爬取（允许极少数误判）
+# 2. 缓存穿透防护：查询前先过滤不存在的 key
+# 3. 垃圾邮件过滤：快速判断邮件地址是否在黑名单
+# 4. 比特币 SPV 节点：过滤无关交易（BIP 37）
+# 5. HBase/Cassandra 的 SSTable 查找加速</code></pre>
+  </div>
+  <div class="warn-box"><strong>布隆过滤器的局限：</strong>① 基础版无法删除（需用计数布隆过滤器）；② 随元素增多假阳性率上升；③ 无法枚举已添加的元素。工程中通常搭配精确存储使用：布隆过滤器作为<strong>前置快速筛选</strong>，命中后再查数据库。</div>
+  <div class="page-nav"><button class="btn" onclick="showPage(20)">← 上一节</button><button class="btn btn-primary" onclick="showPage(22)">下一节：位运算技巧 →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 23: BIT TRICKS ═══════════════════════ -->
+<div class="page" id="page-22">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 23 / 24</span></div>
+    <div class="page-title"><span class="zh">位运算技巧</span><span class="en">Bit Manipulation Tricks</span></div>
+    <div class="page-desc">位运算直接操作<strong>二进制位</strong>，速度极快（单指令），常数极小。掌握核心技巧可以将很多 O(n) 问题降为 O(1)，或优化常数。是竞赛和底层优化的必备工具。</div>
+    <div class="tags"><span class="tag tag-blue">O(1)技巧</span><span class="tag tag-green">状态压缩</span><span class="tag tag-orange">lowbit</span><span class="tag tag-purple">枚举子集</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">基础位运算</div>
+      <div class="diagram">操作符:  &(与)  |(或)  ^(异或)  ~(取反)  &lt;&lt;&gt;&gt;(移位)
+
+常用恒等式：
+n & (n-1)   → 消除最低位的 1
+n & (-n)    → 保留最低位的 1（即 lowbit）
+n | (n-1)   → 将最低位 0 置 1
+n ^ n = 0   → 与自身异或得 0
+n ^ 0 = n   → 与 0 异或得自身
+a ^ b ^ b = a → 异或可"撤销"
+
+判断 2 的幂：n > 0 and (n & (n-1)) == 0
+整除 2：n >> 1  ≡  n // 2
+乘以 2：n << 1  ≡  n * 2</div>
+    </div>
+    <div class="card">
+      <div class="card-title">位集合操作</div>
+      <div class="diagram">用 int 表示集合（第 i 位 = 元素 i）
+
+添加元素 i：   s |=  (1 << i)
+删除元素 i：   s &= ~(1 << i)
+判断 i 存在：  s &   (1 << i)
+取反元素 i：   s ^=  (1 << i)
+取最小元素：   s &  (-s)      ← lowbit
+删除最小元素： s &= (s-1)
+子集枚举（s 的所有非空子集）：
+  sub = s
+  while sub:
+      处理(sub)
+      sub = (sub-1) & s</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现 · 核心技巧合集</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">bit_tricks.py</div></div>
+    <pre class="code-block"><code class="language-python"># ══════════════ 基础技巧 ══════════════
+
+def count_ones(n: int) -> int:
+    """统计二进制中 1 的个数（Brian Kernighan 算法）O(k)"""
+    count = 0
+    while n:
+        n &= n - 1    # 消去最低位的 1
+        count += 1
+    return count
+# Python 内置：bin(n).count('1')  或  n.bit_count()（3.10+）
+
+def is_power_of_2(n: int) -> bool:
+    return n > 0 and (n & (n - 1)) == 0
+
+def lowest_bit(n: int) -> int:
+    return n & (-n)         # 最低位的 1（如 n=6=110 → 2=010）
+
+def highest_bit(n: int) -> int:
+    return 1 << (n.bit_length() - 1)   # 最高位的 1
+
+def swap(a, b):
+    a ^= b; b ^= a; a ^= b    # 不借助临时变量交换（了解即可，不推荐实用）
+    return a, b
+
+def abs_val(n: int) -> int:
+    mask = n >> 31             # 算术右移：正数全0，负数全1
+    return (n ^ mask) - mask   # 不用分支的绝对值
+
+def sign(n: int) -> int:
+    return 1 if n > 0 else (-1 if n < 0 else 0)
+
+def average(a: int, b: int) -> int:
+    return (a & b) + ((a ^ b) >> 1)    # 防止溢出的均值
+
+# ══════════════ 经典问题 ══════════════
+
+def single_number(nums) -> int:
+    """只出现一次的数（其余出现两次），XOR O(n)"""
+    return __import__('functools').reduce(lambda a,b: a^b, nums)
+
+def single_number_iii(nums):
+    """两个只出现一次的数，其余出现两次"""
+    xor = 0
+    for n in nums: xor ^= n
+    # xor = a ^ b，找一个不同的位（如最低位）
+    diff_bit = xor & (-xor)
+    a = 0
+    for n in nums:
+        if n & diff_bit:    # 按此位分成两组，各组再 XOR
+            a ^= n
+    return a, xor ^ a
+
+def missing_number(nums) -> int:
+    """0..n 中缺失的数"""
+    xor = len(nums)
+    for i, n in enumerate(nums):
+        xor ^= i ^ n
+    return xor
+
+def reverse_bits(n: int, bits=32) -> int:
+    """翻转 bits 位整数的二进制"""
+    result = 0
+    for _ in range(bits):
+        result = (result << 1) | (n & 1)
+        n >>= 1
+    return result
+
+# ══════════════ 状态压缩 DP ══════════════
+
+def traveling_salesman(dist):
+    """
+    旅行商问题（状态压缩 DP），O(2^n · n²)
+    dist[i][j] = 从 i 到 j 的距离
+    state 的第 i 位 = 是否访问过城市 i
+    """
+    n = len(dist)
+    INF = float('inf')
+    # dp[state][i] = 已访问 state 中的城市，当前在城市 i，的最短路径
+    dp = [[INF] * n for _ in range(1 << n)]
+    dp[1][0] = 0    # 初始：只访问了城市 0，在城市 0
+
+    for state in range(1, 1 << n):
+        for u in range(n):
+            if not (state >> u & 1): continue       # u 不在已访问集合中
+            if dp[state][u] == INF: continue
+            for v in range(n):
+                if state >> v & 1: continue         # v 已访问
+                if dist[u][v] == INF: continue
+                new_state = state | (1 << v)
+                dp[new_state][v] = min(dp[new_state][v], dp[state][u] + dist[u][v])
+
+    full = (1 << n) - 1
+    return min(dp[full][i] + dist[i][0] for i in range(1, n))
+
+
+# ══════════════ 枚举子集 ══════════════
+
+def enumerate_subsets(s: int):
+    """枚举 s 的所有非空子集，O(2^k) k=popcount(s)"""
+    sub = s
+    while sub:
+        yield sub
+        sub = (sub - 1) & s
+
+def enumerate_all_subsets(n: int):
+    """枚举 [0, n) 的所有大小为 k 的子集（Gosper's Hack）"""
+    def next_same_popcount(x):
+        c = x & -x
+        r = x + c
+        return (((r ^ x) >> 2) // c) | r
+    # 示例：n=4, k=2 → 所有含2个元素的子集
+    def gen(n, k):
+        x = (1 << k) - 1
+        while x < (1 << n):
+            yield x
+            x = next_same_popcount(x)
+    return gen
+
+# ══════════════ 位图 Bitmap ══════════════
+class Bitmap:
+    """用 int 数组实现紧凑位图，每个 int 64 位"""
+    def __init__(self, size):
+        self.bits = [0] * ((size + 63) // 64)
+
+    def set(self, i):    self.bits[i//64] |=  (1 << (i%64))
+    def clear(self, i):  self.bits[i//64] &= ~(1 << (i%64))
+    def get(self, i):    return bool(self.bits[i//64] &  (1 << (i%64)))
+    def flip(self, i):   self.bits[i//64] ^=  (1 << (i%64))</code></pre>
+  </div>
+  <div class="info-box"><strong>状态压缩 DP 的本质：</strong>将集合（子集关系）压缩为整数的二进制表示，从而用数组下标表示状态，避免了对集合的显式枚举。适用于 n ≤ 20 左右的问题。旅行商 O(2ⁿ·n²) 远优于暴力 O(n!)。</div>
+  <div class="page-nav"><button class="btn" onclick="showPage(21)">← 上一节</button><button class="btn btn-primary" onclick="showPage(23)">下一节：单调栈队列进阶 →</button></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 24: ADVANCED MONOTONIC ═══════════════════════ -->
+<div class="page" id="page-23">
+  <div class="page-header">
+    <div class="breadcrumb">DATA STRUCTURES <span>▸ 24 / 24</span></div>
+    <div class="page-title"><span class="zh">单调栈 / 单调队列进阶</span><span class="en">Advanced Monotonic Stack / Queue</span></div>
+    <div class="page-desc">单调结构是解决<strong>"前/后第一个更大/更小元素"</strong>、<strong>滑动窗口最值</strong>、<strong>柱形图面积</strong>等问题的利器。全部 O(n)，每个元素入栈/队一次、出栈/队一次，摊还 O(1)/元素。</div>
+    <div class="tags"><span class="tag tag-blue">O(n)摊还</span><span class="tag tag-green">滑动窗口</span><span class="tag tag-orange">贡献法</span><span class="tag tag-purple">矩形面积</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">四种基本问题</div>
+      <ul class="kp-list">
+        <li><strong>下一个更大元素（NGE）：</strong>单调递减栈，遇到更大值时弹出</li>
+        <li><strong>上一个更大元素（PGE）：</strong>维护单调递减栈，入栈前栈顶即为答案</li>
+        <li><strong>下一个更小元素（NSE）：</strong>单调递增栈</li>
+        <li><strong>滑动窗口最大值：</strong>单调递减队列，维护窗口内下标</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">贡献法思路</div>
+      <div class="diagram">子数组最小值之和（贡献法）：
+对每个 arr[i]，计算其作为最小值的子数组个数
+
+left[i] = 左边第一个 ≤ arr[i] 的位置（下一个更小，左侧）
+right[i]= 右边第一个 < arr[i] 的位置（右侧严格更小）
+
+arr[i] 作为最小值的子数组数量：
+  (i - left[i]) × (right[i] - i)
+
+左侧 ≤（非严格），右侧 <（严格）
+→ 处理重复元素，避免重复计数</div>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title">Python 实现 · 完整题解集</div></div>
+  <div class="code-wrap">
+    <div class="code-header"><div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><div class="lang">🐍 Python</div><div class="fname">monotonic_advanced.py</div></div>
+    <pre class="code-block"><code class="language-python">from collections import deque
+
+# ══════════ 单调栈：核心模板 ══════════
+
+def nge(nums):
+    """Next Greater Element：下一个更大元素，O(n)"""
+    n = len(nums)
+    result = [-1] * n
+    stack = []                      # 存下标，维护单调递减
+    for i, v in enumerate(nums):
+        while stack and nums[stack[-1]] < v:
+            result[stack.pop()] = v
+        stack.append(i)
+    return result
+
+
+def prev_greater(nums):
+    """Previous Greater Element：上一个更大元素，O(n)"""
+    n = len(nums)
+    result = [-1] * n
+    stack = []
+    for i, v in enumerate(nums):
+        while stack and nums[stack[-1]] <= v:
+            stack.pop()
+        if stack: result[i] = nums[stack[-1]]
+        stack.append(i)
+    return result
+
+
+def daily_temperatures(temperatures):
+    """LC 739：每天需等几天才能等到更暖的天 O(n)"""
+    n = len(temperatures)
+    answer = [0] * n
+    stack = []
+    for i, t in enumerate(temperatures):
+        while stack and temperatures[stack[-1]] < t:
+            j = stack.pop()
+            answer[j] = i - j
+        stack.append(i)
+    return answer
+
+
+# ══════════ 单调栈：矩形面积 ══════════
+
+def largest_rectangle_in_histogram(heights):
+    """LC 84：柱状图中最大的矩形，O(n)"""
+    heights = [0] + heights + [0]   # 两端加哨兵（高度0）
+    stack = [0]                      # 单调递增栈（存下标）
+    max_area = 0
+
+    for i in range(1, len(heights)):
+        while heights[stack[-1]] > heights[i]:
+            h = heights[stack.pop()]
+            w = i - stack[-1] - 1   # 宽度 = 右边界 - 左边界 - 1
+            max_area = max(max_area, h * w)
+        stack.append(i)
+    return max_area
+
+
+def maximal_rectangle(matrix):
+    """LC 85：最大矩形（二维扩展），O(m·n)"""
+    if not matrix: return 0
+    n = len(matrix[0])
+    heights = [0] * n
+    max_area = 0
+    for row in matrix:
+        for j in range(n):
+            # 更新高度：连续的'1'才算
+            heights[j] = heights[j] + 1 if row[j] == '1' else 0
+        max_area = max(max_area, largest_rectangle_in_histogram(heights))
+    return max_area
+
+
+# ══════════ 单调队列：滑动窗口 ══════════
+
+def sliding_window_max(nums, k):
+    """LC 239：滑动窗口最大值，O(n)"""
+    dq = deque()     # 单调递减，存下标
+    result = []
+    for i, v in enumerate(nums):
+        # 移除超出窗口的元素
+        if dq and dq[0] <= i - k:
+            dq.popleft()
+        # 维护单调性
+        while dq and nums[dq[-1]] <= v:
+            dq.pop()
+        dq.append(i)
+        if i >= k - 1:
+            result.append(nums[dq[0]])
+    return result
+
+
+def min_window_sum_ge_target(nums, target):
+    """LC 209：和 ≥ target 的最短子数组（双指针，O(n)）"""
+    lo, cur, best = 0, 0, float('inf')
+    for hi, v in enumerate(nums):
+        cur += v
+        while cur >= target:
+            best = min(best, hi - lo + 1)
+            cur -= nums[lo]; lo += 1
+    return 0 if best == float('inf') else best
+
+
+# ══════════ 贡献法：子数组最小/最大值之和 ══════════
+
+def sum_subarray_mins(arr):
+    """LC 907：子数组最小值之和，贡献法 O(n)"""
+    MOD = 10**9 + 7
+    n = len(arr)
+    left  = [0] * n    # left[i]  = i 到左边第一个 ≤ arr[i] 的距离
+    right = [0] * n    # right[i] = i 到右边第一个 <  arr[i] 的距离
+
+    # 计算 left（单调递增栈）
+    stack = []
+    for i in range(n):
+        while stack and arr[stack[-1]] >= arr[i]:
+            stack.pop()
+        left[i] = i - stack[-1] if stack else i + 1
+        stack.append(i)
+
+    # 计算 right
+    stack = []
+    for i in range(n - 1, -1, -1):
+        while stack and arr[stack[-1]] > arr[i]:
+            stack.pop()
+        right[i] = stack[-1] - i if stack else n - i
+        stack.append(i)
+
+    return sum(arr[i] * left[i] * right[i] for i in range(n)) % MOD
+
+
+# ══════════ 进阶：最大宽度坡 ══════════
+
+def max_width_ramp(nums):
+    """LC 962：最大宽度坡 i<j 且 nums[i]<=nums[j]，O(n)"""
+    n = len(nums)
+    stack = []
+    # 构建递减栈（存所有候选的 i）
+    for i in range(n):
+        if not stack or nums[stack[-1]] > nums[i]:
+            stack.append(i)
+
+    res = 0
+    # 从右向左扫描 j
+    for j in range(n - 1, -1, -1):
+        while stack and nums[stack[-1]] <= nums[j]:
+            res = max(res, j - stack.pop())
+    return res
+
+
+# ══════════ 进阶：去除重复字母（最小字典序）══════════
+
+def remove_duplicate_letters(s):
+    """LC 316 / 1081：去除重复字母，结果字典序最小，O(n)"""
+    count = {}
+    for c in s: count[c] = count.get(c, 0) + 1
+
+    stack = []
+    in_stack = set()
+
+    for c in s:
+        count[c] -= 1
+        if c in in_stack: continue
+        # 栈顶字母 > 当前字母 且 后面还有栈顶字母 → 弹出（单调递增栈）
+        while stack and stack[-1] > c and count[stack[-1]] > 0:
+            in_stack.remove(stack.pop())
+        stack.append(c)
+        in_stack.add(c)
+
+    return ''.join(stack)</code></pre>
+  </div>
+  <div class="grid-2" style="margin-top:20px">
+    <div class="card">
+      <div class="card-title">24 节完整知识图谱</div>
+      <ul class="kp-list">
+        <li><strong>线性结构：</strong>数组 → 链表 → 栈 → 队列 → 哈希表</li>
+        <li><strong>树形结构：</strong>二叉树 → BST → AVL → 红黑树 → 堆 → Trie</li>
+        <li><strong>图结构：</strong>图 + BFS/DFS/Dijkstra/拓扑排序/MST</li>
+        <li><strong>高级结构：</strong>跳表 / B+树 / LRU / 线段树 / BIT / 并查集</li>
+        <li><strong>稀疏表：</strong>静态 O(1) RMQ，LCA 的最优解</li>
+        <li><strong>字符串：</strong>滚动哈希 / KMP / Z函数</li>
+        <li><strong>概率结构：</strong>布隆过滤器（假阳性 + 空间极省）</li>
+        <li><strong>位运算：</strong>位集合 / 状态压缩 / lowbit</li>
+        <li><strong>单调结构：</strong>单调栈（NGE/矩形）/ 单调队列（滑动窗口）</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">键盘快捷键</div>
+      <div class="diagram">← / ↑   上一节
+→ / ↓   下一节
+
+点击左侧目录也可跳转到任意节
+底部进度条显示当前进度
+
+所有代码均为：
+  Python 3.8+，无第三方依赖
+  （布隆过滤器的 mmh3 可选）</div>
+    </div>
+  </div>
+  <div class="page-nav"><button class="btn" onclick="showPage(22)">← 上一节</button><button class="btn btn-primary" onclick="showPage(0)">↑ 回到第一节</button></div>
+</div>
+
+</div><!-- #main -->
+</div><!-- #app -->
+
+<div id="progress"><div id="progress-bar"></div></div>
+
+<script>
+let currentPage = 0;
+const totalPages = 18;
+
+function showPage(idx) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + idx).classList.add('active');
+  document.querySelectorAll('.nav-item')[idx].classList.add('active');
+
+  // Scroll nav item into view
+  const navItem = document.querySelectorAll('.nav-item')[idx];
+  navItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+  currentPage = idx;
+
+  // Update progress bar
+  const pct = ((idx + 1) / totalPages) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+
+  // Highlight code in the newly shown page
+  const page = document.getElementById('page-' + idx);
+  page.querySelectorAll('pre code:not(.hljs)').forEach(block => {
+    hljs.highlightElement(block);
+  });
+
+  // Scroll page to top
+  page.scrollTop = 0;
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    if (currentPage < totalPages - 1) showPage(currentPage + 1);
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    if (currentPage > 0) showPage(currentPage - 1);
+  }
+});
+
+// Init: highlight first page
+document.querySelectorAll('#page-0 pre code').forEach(b => hljs.highlightElement(b));
+document.getElementById('progress-bar').style.width = (1/totalPages*100) + '%';
+</script>
+</body>
+</html>

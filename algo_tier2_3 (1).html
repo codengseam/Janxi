@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>算法第二、三梯队速查手册</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #1a1a1a; font-size: 14px; line-height: 1.6; }
+  .page { max-width: 860px; margin: 0 auto; padding: 32px 24px 80px; }
+  h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+  .subtitle { color: #666; font-size: 14px; margin-bottom: 28px; }
+
+  /* Tier banner */
+  .tier-banner { display: flex; align-items: center; gap: 10px; margin: 28px 0 14px; }
+  .tier-badge { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; }
+  .tier2-badge { background: #e8f4fd; color: #1a6fa8; border: 1px solid #b8d8f5; }
+  .tier3-badge { background: #f0eefe; color: #6a3ec2; border: 1px solid #cebff5; }
+  .tier-line { flex: 1; height: 1px; background: #e0e0dc; }
+
+  /* Section card */
+  .section { background: #fff; border-radius: 12px; border: 1px solid #e8e8e5; margin-bottom: 22px; overflow: hidden; }
+  .section-header { padding: 18px 22px 14px; border-bottom: 1px solid #f0f0ee; display: flex; align-items: center; gap: 12px; }
+  .section-num { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; flex-shrink: 0; }
+  .section-title { font-size: 18px; font-weight: 700; }
+  .section-desc { font-size: 13px; color: #888; margin-top: 2px; }
+  .section-body { padding: 18px 22px 20px; }
+
+  /* Color themes */
+  .s1 .section-num { background: #fdf0e8; color: #c05a00; }
+  .s2 .section-num { background: #edf7ed; color: #1a7a2e; }
+  .s3 .section-num { background: #e8f4fd; color: #1a6fa8; }
+  .s4 .section-num { background: #f3eefe; color: #6a3ec2; }
+  .s5 .section-num { background: #fff0f0; color: #c42b2b; }
+  .s6 .section-num { background: #fafae8; color: #7a6a00; }
+  .s7 .section-num { background: #edf7f5; color: #0a7a6a; }
+
+  /* Info cards */
+  .cards { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+  .card { flex: 1; min-width: 140px; background: #f7f7f5; border-radius: 8px; padding: 10px 13px; border: 1px solid #eee; }
+  .card-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+  .card-val { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+
+  /* Code */
+  pre { background: #1e1e2e; color: #cdd6f4; border-radius: 8px; padding: 14px 16px; font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace; font-size: 12.5px; line-height: 1.7; overflow-x: auto; margin: 8px 0 18px; white-space: pre; }
+  .code-label { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; margin-top: 16px; }
+
+  /* Insight */
+  .insight { background: #f0f7ff; border-left: 3px solid #3b82f6; border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 8px 0 14px; font-size: 13px; color: #1a3a6a; line-height: 1.6; }
+
+  /* Problems grid */
+  .problems { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+  .problem { border: 1px solid #eee; border-radius: 8px; padding: 12px 14px; background: #fafafa; }
+  .problem-title { font-size: 13px; font-weight: 600; margin-bottom: 5px; display: flex; align-items: flex-start; gap: 6px; flex-wrap: wrap; }
+  .problem-body { font-size: 12px; color: #555; line-height: 1.65; }
+  .badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; flex-shrink: 0; margin-top: 1px; }
+  .b-easy   { background: #e8f5e9; color: #2e7d32; }
+  .b-medium { background: #fff8e1; color: #e65100; }
+  .b-hard   { background: #fce4e4; color: #c62828; }
+
+  hr.divider { border: none; border-top: 1px solid #f0f0ee; margin: 18px 0; }
+
+  /* Footer tip */
+  .footer { background: #fff; border-radius: 12px; border: 1px solid #e8e8e5; padding: 18px 22px; margin-top: 8px; }
+  .footer-title { font-size: 13px; font-weight: 700; color: #333; margin-bottom: 10px; }
+  .footer-body { font-size: 13px; color: #666; line-height: 1.9; }
+
+  @media (max-width: 600px) {
+    .problems { grid-template-columns: 1fr; }
+    .cards { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>算法第二、三梯队 · 速查手册</h1>
+  <p class="subtitle">非小白快速回忆版 — 模板 + 原理 + 经典题 · 全部展开可见</p>
+
+  <!-- ===== TIER 2 ===== -->
+  <div class="tier-banner">
+    <span class="tier-badge tier2-badge">第二梯队 · 高频考点</span>
+    <div class="tier-line"></div>
+  </div>
+
+  <!-- ① 栈 / 单调栈 / 单调队列 -->
+  <div class="section s1">
+    <div class="section-header">
+      <div class="section-num">①</div>
+      <div>
+        <div class="section-title">栈 / 单调栈 / 单调队列</div>
+        <div class="section-desc">括号匹配 · 下一个更大元素 · 滑动窗口最值</div>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="cards">
+        <div class="card"><div class="card-label">栈</div><div class="card-val">LIFO，括号匹配、表达式求值</div></div>
+        <div class="card"><div class="card-label">单调栈</div><div class="card-val">维护递增/递减，O(n) 找下一更大/小元素</div></div>
+        <div class="card"><div class="card-label">单调队列</div><div class="card-val">双端队列，O(n) 滑动窗口最大/最小值</div></div>
+      </div>
+
+      <div class="code-label">括号匹配（栈经典）</div>
+      <div class="insight">遇左括号入栈；遇右括号检查栈顶是否匹配，不匹配或栈空则非法。最终栈为空才合法。</div>
+<pre>def isValid(s):
+    stack = []
+    pair = {')': '(', ']': '[', '}': '{'}
+    for c in s:
+        if c in '([{':
+            stack.append(c)
+        else:
+            if not stack or stack[-1] != pair[c]:
+                return False
+            stack.pop()
+    return not stack</pre>
+
+      <div class="code-label">单调栈 — 下一个更大元素</div>
+      <div class="insight">栈内保持单调递减（存下标）。新元素入栈前，弹出所有比它小的元素——"被弹出时就找到了右边第一个更大值"。</div>
+<pre>def nextGreaterElement(nums):
+    n = len(nums)
+    ans = [-1] * n
+    stack = []          # 存下标，栈内对应值单调递减
+    for i in range(n):
+        while stack and nums[stack[-1]] < nums[i]:
+            idx = stack.pop()
+            ans[idx] = nums[i]   # i 就是 idx 右边第一个更大元素
+        stack.append(i)
+    return ans
+
+# 变体：循环数组 → 遍历 2n，下标用 i % n 取值</pre>
+
+      <div class="code-label">单调栈 — 柱状图最大矩形</div>
+      <div class="insight">维护单调递增栈。弹出时以弹出柱为高度，左右边界分别是栈顶和当前 i，计算面积。头尾各加 0 做哨兵，保证最终清空栈。</div>
+<pre>def largestRectangleArea(heights):
+    heights = [0] + heights + [0]   # 哨兵
+    stack = [0]
+    ans = 0
+    for i in range(1, len(heights)):
+        while heights[stack[-1]] > heights[i]:
+            h = heights[stack.pop()]
+            w = i - stack[-1] - 1
+            ans = max(ans, h * w)
+        stack.append(i)
+    return ans</pre>
+
+      <div class="code-label">单调队列 — 滑动窗口最大值</div>
+      <div class="insight">双端队列存下标，对应值保持单调递减。队首始终是窗口最大值；入队前弹出所有比新元素小的（它们永远不会是最大值）。</div>
+<pre>from collections import deque
+
+def maxSlidingWindow(nums, k):
+    dq = deque()    # 存下标，对应值单调递减
+    ans = []
+    for i, x in enumerate(nums):
+        # 弹出窗口外的过期元素
+        if dq and dq[0] < i - k + 1:
+            dq.popleft()
+        # 弹出所有比当前值小的（不可能再成为最大值）
+        while dq and nums[dq[-1]] < x:
+            dq.pop()
+        dq.append(i)
+        if i >= k - 1:
+            ans.append(nums[dq[0]])
+    return ans</pre>
+
+      <hr class="divider">
+      <div class="code-label">经典题</div>
+      <div class="problems">
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-easy">易</span>有效的括号（LC 20）</div>
+          <div class="problem-body">哈希存右→左映射，遇右括号查栈顶是否匹配，最后检查栈是否为空。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-medium">中</span>每日温度（LC 739）</div>
+          <div class="problem-body">单调递减栈存下标，当前温度更高时弹出并记录天数差。经典"下一个更大元素"变体。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-hard">难</span>柱状图最大矩形（LC 84）</div>
+          <div class="problem-body">单调递增栈，弹出时以弹出柱为高，左右边界分别是栈顶和当前 i。头尾加哨兵简化边界。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-hard">难</span>滑动窗口最大值（LC 239）</div>
+          <div class="problem-body">单调队列，每次 O(1) 获取窗口最大值。关键：入队前清除所有比新元素小的旧值。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 回溯 -->
+  <div class="section s2">
+    <div class="section-header">
+      <div class="section-num">②</div>
+      <div>
+        <div class="section-title">回溯（Backtracking）</div>
+        <div class="section-desc">子集 · 组合 · 排列 · 剪枝去重</div>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="cards">
+        <div class="card"><div class="card-label">本质</div><div class="card-val">DFS 暴力枚举 + 剪枝</div></div>
+        <div class="card"><div class="card-label">三类题型</div><div class="card-val">子集 / 组合（无序）/ 排列（有序）</div></div>
+        <div class="card"><div class="card-label">时间</div><div class="card-val">指数级，靠剪枝降常数</div></div>
+      </div>
+
+      <div class="insight">回溯 = 做选择 → 递归 → 撤销选择。搞清楚三件事：终止条件、选择列表（从 start 还是全量）、是否需要去重。</div>
+
+      <div class="code-label">通用框架</div>
+<pre>result = []
+
+def backtrack(path, start):
+    if 终止条件:
+        result.append(path[:])   # 必须复制一份
+        return
+    for i in range(start, len(choices)):
+        if 剪枝条件: continue
+        path.append(choices[i])        # 做选择
+        backtrack(path, i + 1)         # 组合用 i+1；排列用 used[] 数组
+        path.pop()                     # 撤销选择</pre>
+
+      <div class="code-label">子集（无重复元素）</div>
+<pre>def subsets(nums):
+    res = []
+    def bt(start, path):
+        res.append(path[:])            # 每个节点都是合法子集
+        for i in range(start, len(nums)):
+            path.append(nums[i])
+            bt(i + 1, path)
+            path.pop()
+    bt(0, [])
+    return res</pre>
+
+      <div class="code-label">组合总和（元素可重复使用）</div>
+<pre>def combinationSum(candidates, target):
+    candidates.sort()
+    res = []
+    def bt(start, path, remain):
+        if remain == 0:
+            res.append(path[:]); return
+        for i in range(start, len(candidates)):
+            if candidates[i] > remain: break    # 排序后可直接剪枝
+            path.append(candidates[i])
+            bt(i, path, remain - candidates[i]) # i 不加 1，允许重复用
+            path.pop()
+    bt(0, [], target)
+    return res</pre>
+
+      <div class="code-label">排列（含重复元素，去重）</div>
+      <div class="insight">去重关键：同一层不能选相同的值。条件：nums[i]==nums[i-1] 且 used[i-1]==False（前一个同值在本层未被用过）。</div>
+<pre>def permuteUnique(nums):
+    nums.sort()
+    res, used = [], [False] * len(nums)
+    def bt(path):
+        if len(path) == len(nums):
+            res.append(path[:]); return
+        for i in range(len(nums)):
+            if used[i]: continue
+            if i > 0 and nums[i] == nums[i-1] and not used[i-1]:
+                continue                        # 同层去重
+            used[i] = True
+            path.append(nums[i])
+            bt(path)
+            path.pop()
+            used[i] = False
+    bt([])
+    return res</pre>
+
+      <hr class="divider">
+      <div class="code-label">经典题</div>
+      <div class="problems">
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-medium">中</span>全排列 II（LC 47）</div>
+          <div class="problem-body">先排序，used 数组跟踪使用状态，同层相同值只用第一个，去重条件：nums[i]==nums[i-1] && !used[i-1]。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-medium">中</span>组合总和（LC 39）</div>
+          <div class="problem-body">candidates 排序，递归时传 i（非 i+1）允许重复用。remain<0 时 break 剪枝。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-medium">中</span>单词搜索（LC 79）</div>
+          <div class="problem-body">DFS+回溯，将已访问格改为 '#'，退出时复原。四方向递归，遇不匹配立刻返回。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-hard">难</span>N 皇后（LC 51）</div>
+          <div class="problem-body">逐行放置，用三个 set 记录已占用的列、主对角线（row-col）、副对角线（row+col），O(1) 判断合法。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 图论 -->
+  <div class="section s3">
+    <div class="section-header">
+      <div class="section-num">③</div>
+      <div>
+        <div class="section-title">图论</div>
+        <div class="section-desc">BFS/DFS · Dijkstra · 拓扑排序 · 并查集</div>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="cards">
+        <div class="card"><div class="card-label">图的表示</div><div class="card-val">邻接表（稀疏图）/ 邻接矩阵（稠密图）</div></div>
+        <div class="card"><div class="card-label">最短路</div><div class="card-val">无权用 BFS；带权非负用 Dijkstra</div></div>
+        <div class="card"><div class="card-label">连通性</div><div class="card-val">DFS/BFS 染色 或 并查集</div></div>
+      </div>
+
+      <div class="code-label">建图 + BFS 最短路（无权图）</div>
+      <div class="insight">BFS 天然求最短路（无权图），visited 集合防重复。关键：入队时就标记 visited，不要出队时才标记。</div>
+<pre>from collections import deque, defaultdict
+
+graph = defaultdict(list)
+for u, v in edges:
+    graph[u].append(v)
+    graph[v].append(u)   # 无向图双向建边
+
+def bfs(start, end):
+    q = deque([(start, 0)])
+    visited = {start}
+    while q:
+        node, dist = q.popleft()
+        if node == end: return dist
+        for nei in graph[node]:
+            if nei not in visited:
+                visited.add(nei)         # 入队即标记
+                q.append((nei, dist + 1))
+    return -1</pre>
+
+      <div class="code-label">Dijkstra（带权有向图，权重非负）</div>
+      <div class="insight">最小堆 + dist 数组。弹出时若距离已过期（d > dist[u]）直接跳过，保证每个节点只被松弛一次。</div>
+<pre>import heapq
+
+def dijkstra(n, graph, src):
+    # graph[u] = [(v, w), ...]
+    dist = [float('inf')] * n
+    dist[src] = 0
+    heap = [(0, src)]       # (当前距离, 节点)
+    while heap:
+        d, u = heapq.heappop(heap)
+        if d > dist[u]: continue    # 过期节点，跳过
+        for v, w in graph[u]:
+            if dist[u] + w < dist[v]:
+                dist[v] = dist[u] + w
+                heapq.heappush(heap, (dist[v], v))
+    return dist</pre>
+
+      <div class="code-label">拓扑排序（Kahn 算法，BFS）</div>
+      <div class="insight">入度为 0 的节点先入队，每次出队一个节点并将其邻居入度 -1，新产生的入度 0 节点继续入队。最终若处理节点数 < n，说明有环。</div>
+<pre>from collections import deque, defaultdict
+
+def topoSort(n, edges):
+    graph = defaultdict(list)
+    indegree = [0] * n
+    for u, v in edges:
+        graph[u].append(v)
+        indegree[v] += 1
+
+    q = deque(i for i in range(n) if indegree[i] == 0)
+    order = []
+    while q:
+        u = q.popleft()
+        order.append(u)
+        for v in graph[u]:
+            indegree[v] -= 1
+            if indegree[v] == 0:
+                q.append(v)
+    return order if len(order) == n else []   # 长度不等 → 有环</pre>
+
+      <div class="code-label">并查集（路径压缩 + 按秩合并）</div>
+      <div class="insight">均摊 O(α(n)) ≈ O(1)。适合动态合并连通分量、判断是否成环、统计连通块数量。</div>
+<pre>class UnionFind:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.rank = [0] * n
+        self.count = n              # 连通分量数
+
+    def find(self, x):
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])   # 路径压缩
+        return self.parent[x]
+
+    def union(self, x, y):
+        px, py = self.find(x), self.find(y)
+        if px == py: return False   # 已连通（加入此边会成环）
+        if self.rank[px] < self.rank[py]: px, py = py, px
+        self.parent[py] = px
+        if self.rank[px] == self.rank[py]: self.rank[px] += 1
+        self.count -= 1
+        return True
+
+    def connected(self, x, y):
+        return self.find(x) == self.find(y)</pre>
+
+      <hr class="divider">
+      <div class="code-label">经典题</div>
+      <div class="problems">
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-medium">中</span>岛屿数量（LC 200）</div>
+          <div class="problem-body">DFS 染色：遇到 '1' 就 DFS 将整块岛屿置 '0'，计数器 +1。也可用 BFS 或并查集。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-medium">中</span>课程表（LC 207）</div>
+          <div class="problem-body">拓扑排序判断有向图是否有环。Kahn 算法，最终检查处理节点数是否等于 n。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-medium">中</span>网络延迟时间（LC 743）</div>
+          <div class="problem-body">Dijkstra 单源最短路，返回 dist 中的最大值（最晚到达的节点时间）。若有 inf 说明不可达。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-medium">中</span>冗余连接（LC 684）</div>
+          <div class="problem-body">并查集：遍历每条边，若两端已连通则该边是冗余边（加入会成环），直接返回。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ④ 堆 / 优先队列 -->
+  <div class="section s4">
+    <div class="section-header">
+      <div class="section-num">④</div>
+      <div>
+        <div class="section-title">堆 / 优先队列</div>
+        <div class="section-desc">Top K · 实时中位数 · 合并有序流</div>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="cards">
+        <div class="card"><div class="card-label">Python</div><div class="card-val">heapq 默认最小堆，存 -x 模拟最大堆</div></div>
+        <div class="card"><div class="card-label">操作复杂度</div><div class="card-val">push/pop O(log n)，peek O(1)</div></div>
+        <div class="card"><div class="card-label">使用信号</div><div class="card-val">"第 K 大/小"、"实时最值"、"合并有序"</div></div>
+      </div>
+
+      <div class="code-label">heapq 常用操作</div>
+<pre>import heapq
+
+nums = [3, 1, 4, 1, 5]
+heapq.heapify(nums)              # 原地建最小堆 O(n)
+heapq.heappush(nums, 2)          # 插入
+val = heapq.heappop(nums)        # 弹出最小值
+top = nums[0]                    # 查看堆顶，不弹出
+
+# 最大堆：存负值
+max_heap = []
+heapq.heappush(max_heap, -x)
+max_val = -heapq.heappop(max_heap)
+
+# Top K 最大值：维护大小为 K 的最小堆
+def topK(nums, k):
+    heap = nums[:k]
+    heapq.heapify(heap)
+    for x in nums[k:]:
+        if x > heap[0]:
+            heapq.heapreplace(heap, x)   # 比堆顶大才替换
+    return heap                           # 堆中即 Top K</pre>
+
+      <div class="code-label">双堆求实时中位数</div>
+      <div class="insight">大根堆存左半（较小值），小根堆存右半（较大值），保持 |lo| - |hi| <= 1。中位数 = 堆顶或两堆顶均值。</div>
+<pre>class MedianFinder:
+    def __init__(self):
+        self.lo = []    # 最大堆（存负值）：左半
+        self.hi = []    # 最小堆：右半
+
+    def addNum(self, num):
+        heapq.heappush(self.lo, -num)                       # 先入左堆
+        heapq.heappush(self.hi, -heapq.heappop(self.lo))    # 左堆最大值 → 右堆
+        if len(self.lo) < len(self.hi):                     # 保持左堆 >= 右堆
+            heapq.heappush(self.lo, -heapq.heappop(self.hi))
+
+    def findMedian(self):
+        if len(self.lo) > len(self.hi):
+            return float(-self.lo[0])
+        return (-self.lo[0] + self.hi[0]) / 2.0</pre>
+
+      <hr class="divider">
+      <div class="code-label">经典题</div>
+      <div class="problems">
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-medium">中</span>数组中第 K 大元素（LC 215）</div>
+          <div class="problem-body">维护大小为 K 的最小堆，堆顶即答案，O(n log k)。也可用快速选择 O(n) 平均。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-hard">难</span>数据流的中位数（LC 295）</div>
+          <div class="problem-body">大根堆（左半）+ 小根堆（右半）。addNum O(log n)，findMedian O(1)。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-hard">难</span>合并 K 个有序链表（LC 23）</div>
+          <div class="problem-body">K 个链表头入最小堆，每次弹出最小节点并推入其 next。O(n log k)。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-medium">中</span>前 K 个高频元素（LC 347）</div>
+          <div class="problem-body">Counter 计数后维护大小为 K 的最小堆（按频次排序），堆内即 Top K。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TIER 3 ===== -->
+  <div class="tier-banner">
+    <span class="tier-badge tier3-badge">第三梯队 · 加分项</span>
+    <div class="tier-line"></div>
+  </div>
+
+  <!-- ⑤ Trie 树 -->
+  <div class="section s5">
+    <div class="section-header">
+      <div class="section-num">⑤</div>
+      <div>
+        <div class="section-title">Trie 树（前缀树）</div>
+        <div class="section-desc">字符串前缀查找 O(L) · 多词同时搜索</div>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="cards">
+        <div class="card"><div class="card-label">适用场景</div><div class="card-val">单词搜索 / 自动补全 / 前缀统计</div></div>
+        <div class="card"><div class="card-label">时间复杂度</div><div class="card-val">插入/查找 O(L)，L = 字符串长度</div></div>
+        <div class="card"><div class="card-label">核心字段</div><div class="card-val">children 字典 + is_end 标记</div></div>
+      </div>
+
+      <div class="insight">每个节点代表一个字符，从根到某节点的路径表示一个前缀。is_end=True 表示该路径是完整单词。</div>
+
+      <div class="code-label">Trie 完整实现</div>
+<pre>class TrieNode:
+    def __init__(self):
+        self.children = {}      # char → TrieNode
+        self.is_end = False
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word):
+        node = self.root
+        for c in word:
+            if c not in node.children:
+                node.children[c] = TrieNode()
+            node = node.children[c]
+        node.is_end = True
+
+    def search(self, word):
+        node = self.root
+        for c in word:
+            if c not in node.children: return False
+            node = node.children[c]
+        return node.is_end          # 必须是完整单词
+
+    def startsWith(self, prefix):
+        node = self.root
+        for c in prefix:
+            if c not in node.children: return False
+            node = node.children[c]
+        return True                 # 只要前缀存在即可</pre>
+
+      <div class="code-label">Trie + DFS — 单词搜索 II（board 中同时找多个词）</div>
+<pre>def findWords(board, words):
+    trie = Trie()
+    for w in words: trie.insert(w)
+
+    m, n = len(board), len(board[0])
+    res = set()
+
+    def dfs(node, i, j, path):
+        c = board[i][j]
+        if c not in node.children: return
+        nxt = node.children[c]
+        path += c
+        if nxt.is_end: res.add(path)
+        board[i][j] = '#'       # 标记已访问
+        for di, dj in [(-1,0),(1,0),(0,-1),(0,1)]:
+            ni, nj = i + di, j + dj
+            if 0 <= ni < m and 0 <= nj < n and board[ni][nj] != '#':
+                dfs(nxt, ni, nj, path)
+        board[i][j] = c         # 恢复
+
+    for i in range(m):
+        for j in range(n):
+            dfs(trie.root, i, j, '')
+    return list(res)</pre>
+
+      <hr class="divider">
+      <div class="code-label">经典题</div>
+      <div class="problems">
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-medium">中</span>实现 Trie（LC 208）</div>
+          <div class="problem-body">直接按上述模板实现 insert / search / startsWith，注意 search 需要检查 is_end。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-medium">中</span>添加与搜索单词（LC 211）</div>
+          <div class="problem-body">支持 '.' 通配符。search 时遇 '.' 对所有子节点递归，其余正常 Trie 查找。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-hard">难</span>单词搜索 II（LC 212）</div>
+          <div class="problem-body">建 Trie 后在 board 上 DFS，沿 Trie 路径走，找到 is_end 即记录。比逐词 DFS 快很多。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-medium">中</span>最大异或值（LC 421）</div>
+          <div class="problem-body">对每个数建二进制 Trie（高位到低位），查询时贪心走相反位，最大化异或结果。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑥ 线段树 / BIT -->
+  <div class="section s6">
+    <div class="section-header">
+      <div class="section-num">⑥</div>
+      <div>
+        <div class="section-title">线段树 / 树状数组（BIT）</div>
+        <div class="section-desc">区间查询 + 动态更新，O(log n)</div>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="cards">
+        <div class="card"><div class="card-label">适用场景</div><div class="card-val">区间和/最值 + 频繁单点/区间更新</div></div>
+        <div class="card"><div class="card-label">vs 前缀和</div><div class="card-val">前缀和不支持更新；线段树/BIT 支持</div></div>
+        <div class="card"><div class="card-label">选择原则</div><div class="card-val">只需前缀和+单点更新 → BIT（代码更短）</div></div>
+      </div>
+
+      <div class="insight">前缀和静态高效，但有更新就失效。有频繁单点更新用 BIT；需区间更新用线段树（加懒标记）。</div>
+
+      <div class="code-label">树状数组 BIT（单点更新 + 前缀和查询）</div>
+<pre>class BIT:
+    def __init__(self, n):
+        self.n = n
+        self.tree = [0] * (n + 1)   # 下标从 1 开始
+
+    def update(self, i, delta):     # 单点更新，i 从 1 开始
+        while i <= self.n:
+            self.tree[i] += delta
+            i += i & (-i)           # 跳到父节点（加上最低位）
+
+    def query(self, i):             # 前缀和 [1..i]
+        s = 0
+        while i > 0:
+            s += self.tree[i]
+            i -= i & (-i)           # 跳到前一区段（去掉最低位）
+        return s
+
+    def rangeQuery(self, l, r):     # 区间和 [l..r]
+        return self.query(r) - self.query(l - 1)</pre>
+
+      <div class="code-label">线段树（单点更新 + 区间和查询）</div>
+<pre>class SegTree:
+    def __init__(self, nums):
+        self.n = len(nums)
+        self.tree = [0] * (4 * self.n)
+        self._build(nums, 0, 0, self.n - 1)
+
+    def _build(self, nums, node, l, r):
+        if l == r:
+            self.tree[node] = nums[l]; return
+        mid = (l + r) // 2
+        self._build(nums, 2*node+1, l, mid)
+        self._build(nums, 2*node+2, mid+1, r)
+        self.tree[node] = self.tree[2*node+1] + self.tree[2*node+2]
+
+    def update(self, idx, val, node=0, l=0, r=None):
+        if r is None: r = self.n - 1
+        if l == r:
+            self.tree[node] = val; return
+        mid = (l + r) // 2
+        if idx <= mid: self.update(idx, val, 2*node+1, l, mid)
+        else:          self.update(idx, val, 2*node+2, mid+1, r)
+        self.tree[node] = self.tree[2*node+1] + self.tree[2*node+2]
+
+    def query(self, ql, qr, node=0, l=0, r=None):
+        if r is None: r = self.n - 1
+        if ql <= l and r <= qr: return self.tree[node]  # 完全覆盖
+        if qr < l or r < ql:   return 0                 # 不相交
+        mid = (l + r) // 2
+        return (self.query(ql, qr, 2*node+1, l, mid) +
+                self.query(ql, qr, 2*node+2, mid+1, r))</pre>
+
+      <hr class="divider">
+      <div class="code-label">经典题</div>
+      <div class="problems">
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-medium">中</span>区域和检索·可变（LC 307）</div>
+          <div class="problem-body">BIT 最合适：update 单点，sumRange 做两次前缀查询相减。代码比线段树短很多。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-hard">难</span>计算右侧小于当前元素个数（LC 315）</div>
+          <div class="problem-body">逆序遍历 + BIT。坐标压缩后，每个元素先 query(val-1) 查比它小的数量，再 update(val,1)。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-hard">难</span>翻转对（LC 493）</div>
+          <div class="problem-body">归并排序统计 或 BIT+坐标压缩。统计满足 nums[i] > 2*nums[j]（i &lt; j）的对数。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-medium">中</span>区间和的个数（LC 327）</div>
+          <div class="problem-body">前缀和 + 归并排序 或 BIT。转化为：统计满足 lower ≤ prefix[j]-prefix[i] ≤ upper 的对数。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑦ 位运算 -->
+  <div class="section s7">
+    <div class="section-header">
+      <div class="section-num">⑦</div>
+      <div>
+        <div class="section-title">位运算</div>
+        <div class="section-desc">XOR 消除 · 低位技巧 · 状态压缩 DP</div>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="cards">
+        <div class="card"><div class="card-label">常用符号</div><div class="card-val">AND &amp; · OR | · XOR ^ · 移位 &lt;&lt; &gt;&gt;</div></div>
+        <div class="card"><div class="card-label">XOR 特性</div><div class="card-val">a^a=0, a^0=a，满足交换律结合律</div></div>
+        <div class="card"><div class="card-label">状压 DP</div><div class="card-val">整数二进制位表示集合，降维枚举</div></div>
+      </div>
+
+      <div class="code-label">常用位运算技巧速查</div>
+<pre># 判断第 k 位是否为 1
+(x >> k) & 1
+
+# 将第 k 位置 1
+x | (1 << k)
+
+# 将第 k 位清 0
+x & ~(1 << k)
+
+# 提取最低位的 1（Lowest Set Bit）
+x & (-x)              # 6 = 110 → 010
+
+# 消除最低位的 1
+x & (x - 1)           # 6 = 110 → 100
+
+# 统计二进制中 1 的个数（Brian Kernighan）
+count = 0
+while x:
+    x &= x - 1
+    count += 1
+
+# 判断是否是 2 的幂
+x > 0 and (x & (x - 1)) == 0
+
+# 不用临时变量交换两数
+a ^= b; b ^= a; a ^= b</pre>
+
+      <div class="code-label">XOR 消除 — 找唯一出现的数</div>
+      <div class="insight">成对的数 XOR 后消为 0，只有落单的数留下。两个落单数：先 XOR 得到差异位，再分组分别 XOR。</div>
+<pre>from functools import reduce
+
+# 只有一个数出现奇数次（LC 136）
+def singleNumber(nums):
+    return reduce(lambda a, b: a ^ b, nums)
+
+# 两个数各出现一次，其余出现两次（LC 260）
+def singleNumberIII(nums):
+    xor = reduce(lambda a, b: a ^ b, nums)   # xor = a ^ b
+    diff = xor & (-xor)          # 找 a 与 b 不同的最低位
+    a = 0
+    for x in nums:
+        if x & diff: a ^= x      # 按该位分组，只对一组 XOR
+    return [a, xor ^ a]</pre>
+
+      <div class="code-label">状态压缩 DP — 访问所有节点最短路（TSP 骨架）</div>
+      <div class="insight">用整数二进制位表示"已访问集合"，将指数级枚举变为可记忆化状态。状压 DP 核心是：mask 代表集合，遍历时枚举下一步加入哪个节点。</div>
+<pre>n = 4   # 节点数
+INF = float('inf')
+dp = [[INF] * n for _ in range(1 << n)]
+dp[1][0] = 0    # 从节点 0 出发，初始只访问了 0（bit 0 = 1）
+
+for mask in range(1 << n):
+    for u in range(n):
+        if not (mask >> u & 1): continue    # u 不在当前集合中
+        if dp[mask][u] == INF: continue
+        for v in range(n):
+            if mask >> v & 1: continue      # v 已访问过
+            new_mask = mask | (1 << v)
+            dp[new_mask][v] = min(dp[new_mask][v],
+                                  dp[mask][u] + dist[u][v])
+
+# 答案：访问所有节点后回到起点
+ans = min(dp[(1 << n) - 1][i] + dist[i][0] for i in range(1, n))</pre>
+
+      <div class="code-label">枚举 mask 的所有子集</div>
+<pre>sub = mask
+while sub:
+    process(sub)
+    sub = (sub - 1) & mask    # 获取下一个严格子集</pre>
+
+      <hr class="divider">
+      <div class="code-label">经典题</div>
+      <div class="problems">
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-easy">易</span>只出现一次的数字（LC 136）</div>
+          <div class="problem-body">全员 XOR 即得答案。a^a=0，a^0=a，XOR 满足交换律结合律，成对消除。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-medium">中</span>数字范围按位与（LC 201）</div>
+          <div class="problem-body">找 m 和 n 的公共前缀：同时右移直到 m==n，记录位移次数，结果再左移复原。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-medium">中</span>汉明距离总和（LC 477）</div>
+          <div class="problem-body">按位统计：第 k 位有 ones 个 1，该位贡献 ones*(n-ones)。32 位逐位处理，O(32n)。</div>
+        </div>
+        <div class="problem">
+          <div class="problem-title"><span class="badge b-hard">难</span>最短超级串（LC 943）</div>
+          <div class="problem-body">状压 DP：dp[mask][i] = 访问 mask 中单词、最后一个是 i 时的最短拼接长度。预处理重叠长度。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-title">复习建议</div>
+    <div class="footer-body">
+      <b>第二梯队（①~④）高频必掌握：</b>单调栈的"弹出时机"、回溯的"去重条件"（used[i-1]==False）、Dijkstra 的"跳过过期节点"、双堆求中位数的"平衡逻辑"。<br>
+      <b>第三梯队（⑤~⑦）加分掌握：</b>Trie 和 XOR 技巧考频最高，优先拿下；BIT 代码短优先于线段树；状压 DP 理解 mask 含义和子集枚举即可。<br>
+      <b>刷题节奏：</b>每个专题先看模板 → 合上默写 → 做 2 道经典题验证 → 复盘"为什么第一时间没想到这个数据结构"。
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
