@@ -117,6 +117,18 @@
             border: 1px solid rgba(56, 161, 255, 0.3);
             color: #2563eb;
         }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -132,10 +144,10 @@
             <!-- 文件上传区域 -->
             <div class="mb-8">
                 <h2 class="text-2xl font-semibold mb-4">上传PDF文件</h2>
-                <div class="file-upload p-8 text-center" id="fileUploadArea">
-                    <input type="file" id="pdfFile" accept=".pdf" class="hidden">
+                <div class="file-upload p-8 text-center" id="fileUploadArea" tabindex="0" role="button" aria-label="上传PDF文件">
+                    <input type="file" id="pdfFile" accept=".pdf" class="sr-only">
                     <label for="pdfFile" class="cursor-pointer">
-                        <i class="fa fa-cloud-upload text-5xl text-indigo-500 mb-4"></i>
+                        <i class="fa fa-cloud-upload text-5xl text-indigo-500 mb-4" aria-hidden="true"></i>
                         <p class="text-lg font-medium mb-2">点击或拖拽文件到此处</p>
                         <p class="text-sm text-gray-500">支持PDF文件，最大50MB</p>
                     </label>
@@ -143,11 +155,11 @@
             </div>
             
             <!-- 状态消息 -->
-            <div id="statusMessage" class="hidden mb-6"></div>
+            <div id="statusMessage" class="hidden mb-6" role="alert"></div>
             
             <!-- 语言选择 -->
             <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">OCR语言选择</label>
+                <label for="languageSelect" class="block text-sm font-medium text-gray-700 mb-2">OCR语言选择</label>
                 <select id="languageSelect" class="language-selector w-full">
                     <option value="chi_sim">中文</option>
                     <option value="eng">英文</option>
@@ -158,16 +170,16 @@
             <!-- 操作按钮 -->
             <div class="flex flex-wrap gap-4 mb-8">
                 <button id="parsePdfBtn" class="btn-primary text-white px-6 py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                    <i class="fa fa-file-pdf-o mr-2"></i>解析PDF
+                    <i class="fa fa-file-pdf-o mr-2" aria-hidden="true"></i>解析PDF
                 </button>
                 <button id="ocrBtn" class="btn-secondary px-6 py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                    <i class="fa fa-eye mr-2"></i>OCR识别
+                    <i class="fa fa-eye mr-2" aria-hidden="true"></i>OCR识别
                 </button>
                 <button id="exportPptBtn" class="btn-secondary px-6 py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                    <i class="fa fa-file-powerpoint-o mr-2"></i>导出PPT
+                    <i class="fa fa-file-powerpoint-o mr-2" aria-hidden="true"></i>导出PPT
                 </button>
                 <button id="resetBtn" class="btn-secondary px-6 py-3 rounded-lg font-medium">
-                    <i class="fa fa-refresh mr-2"></i>重置
+                    <i class="fa fa-refresh mr-2" aria-hidden="true"></i>重置
                 </button>
             </div>
             
@@ -178,7 +190,7 @@
                     <span class="text-sm text-gray-500" id="progressPercentage">0%</span>
                 </div>
                 <div class="bg-gray-200 rounded-lg h-2">
-                    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                    <div class="progress-bar" id="progressBar" style="width: 0%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
             </div>
         </div>
@@ -225,6 +237,8 @@
         let pdfFile = null;
         let pdfPages = [];
         let ocrResults = [];
+        let isProcessing = false;
+        let shouldAbort = false;
         
         // DOM元素
         const pdfFileInput = document.getElementById('pdfFile');
@@ -243,6 +257,24 @@
         
         // 初始化
         function init() {
+            // 设置 pdfjs worker
+            if (typeof pdfjsLib !== 'undefined') {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/build/pdf.worker.min.js';
+            } else {
+                showMessage('error', 'PDF 引擎加载失败，PDF 解析不可用');
+                parsePdfBtn.disabled = true;
+            }
+
+            // 校验依赖库加载
+            if (typeof PptxGenJS === 'undefined') {
+                exportPptBtn.disabled = true;
+                showMessage('error', 'PPTX 导出库加载失败，导出功能不可用');
+            }
+            if (typeof Tesseract === 'undefined') {
+                ocrBtn.disabled = true;
+                showMessage('error', 'OCR 库加载失败，OCR 功能不可用');
+            }
+
             // 文件上传事件
             pdfFileInput.addEventListener('change', handleFileUpload);
             
@@ -261,16 +293,28 @@
                 fileUploadArea.classList.remove('bg-indigo-50');
                 if (e.dataTransfer.files.length > 0) {
                     const file = e.dataTransfer.files[0];
-                    if (file.type === 'application/pdf') {
+                    const check = validatePdfFile(file);
+                    if (check.ok) {
                         pdfFile = file;
                         updateUI();
                         showMessage('info', 'PDF文件已选择，点击"解析PDF"开始处理');
                     } else {
-                        showMessage('error', '请上传PDF格式的文件');
+                        showMessage('error', check.msg);
                     }
                 }
             });
-            
+
+            // 键盘可访问：Enter/Space 触发文件选择
+            fileUploadArea.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                    e.preventDefault();
+                    pdfFileInput.click();
+                }
+            });
+
+            // 点击上传区域（含 padding 区）触发文件选择
+            fileUploadArea.addEventListener('click', () => pdfFileInput.click());
+
             // 按钮点击事件
             parsePdfBtn.addEventListener('click', parsePDF);
             ocrBtn.addEventListener('click', performOCR);
@@ -278,16 +322,29 @@
             resetBtn.addEventListener('click', reset);
         }
         
+        // 校验 PDF 文件：扩展名/MIME 双校验 + 50MB 限制
+        function validatePdfFile(file) {
+            const MAX_SIZE = 50 * 1024 * 1024;
+            if (file.size > MAX_SIZE) {
+                return { ok: false, msg: '文件超过 50MB 限制' };
+            }
+            if (!(file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf')) {
+                return { ok: false, msg: '请上传PDF格式的文件' };
+            }
+            return { ok: true, msg: '' };
+        }
+
         // 处理文件上传
         function handleFileUpload(e) {
             if (e.target.files.length > 0) {
                 const file = e.target.files[0];
-                if (file.type === 'application/pdf') {
+                const check = validatePdfFile(file);
+                if (check.ok) {
                     pdfFile = file;
                     updateUI();
                     showMessage('info', 'PDF文件已选择，点击"解析PDF"开始处理');
                 } else {
-                    showMessage('error', '请上传PDF格式的文件');
+                    showMessage('error', check.msg);
                 }
             }
         }
@@ -315,11 +372,34 @@
                 exportPptBtn.disabled = true;
             }
         }
+
+        // 处理中 UI：禁用相关按钮，重置按钮变为「取消」
+        function setProcessingUI(processing) {
+            if (processing) {
+                parsePdfBtn.disabled = true;
+                ocrBtn.disabled = true;
+                exportPptBtn.disabled = true;
+                resetBtn.innerHTML = '<i class="fa fa-stop mr-2" aria-hidden="true"></i>取消';
+            } else {
+                resetBtn.innerHTML = '<i class="fa fa-refresh mr-2" aria-hidden="true"></i>重置';
+                updateUI();
+            }
+        }
         
+        // HTML 转义，防止 message 内容触发 XSS
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         // 显示消息
         function showMessage(type, message) {
             statusMessage.className = `status-message ${type}-message`;
-            statusMessage.innerHTML = `<i class="fa fa-${type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle'} mr-2"></i>${message}`;
+            statusMessage.innerHTML = `<i class="fa fa-${type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle'} mr-2"></i>${escapeHtml(message)}`;
             statusMessage.classList.remove('hidden');
             
             // 3秒后自动隐藏
@@ -334,15 +414,21 @@
             progressText.textContent = text;
             progressPercentage.textContent = `${percentage}%`;
             progressBar.style.width = `${percentage}%`;
+            progressBar.setAttribute('aria-valuenow', percentage);
         }
         
         // 解析PDF
         async function parsePDF() {
             if (!pdfFile) return;
-            
+            if (isProcessing) return;
+
+            let pdf = null;
             try {
+                isProcessing = true;
+                setProcessingUI(true);
+                shouldAbort = false;
                 updateProgress('解析PDF文件...', 0);
-                
+
                 // 读取PDF文件
                 const fileReader = new FileReader();
                 const pdfData = await new Promise((resolve, reject) => {
@@ -350,49 +436,95 @@
                     fileReader.onerror = reject;
                     fileReader.readAsArrayBuffer(pdfFile);
                 });
-                
+
                 // 解析PDF
-                const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+                pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
                 const numPages = pdf.numPages;
                 pdfPages = [];
-                
+
                 updateProgress('提取页面...', 0);
-                
+
                 // 提取每个页面
                 for (let i = 1; i <= numPages; i++) {
+                    if (shouldAbort) break;
                     const page = await pdf.getPage(i);
-                    const viewport = page.getViewport({ scale: 2.0 });
-                    
+
+                    // 动态计算 scale，确保 canvas 宽高不超过 4096px
+                    const baseViewport = page.getViewport({ scale: 1 });
+                    const MAX_DIM = 4096;
+                    let scale = 2.0;
+                    const maxScale = Math.min(MAX_DIM / baseViewport.width, MAX_DIM / baseViewport.height);
+                    if (scale > maxScale) scale = maxScale;
+                    const viewport = page.getViewport({ scale });
+
                     // 创建Canvas
                     const canvas = document.createElement('canvas');
                     const context = canvas.getContext('2d');
                     canvas.width = viewport.width;
                     canvas.height = viewport.height;
-                    
+
                     // 渲染页面到Canvas
                     await page.render({ canvasContext: context, viewport }).promise;
-                    
-                    // 转换为图片
-                    const imageData = canvas.toDataURL('image/png');
+
+                    // 转换为图片（单页失败用占位图替代，避免整体中止）
+                    let imageData;
+                    try {
+                        imageData = canvas.toDataURL('image/png');
+                    } catch (e) {
+                        console.warn(`页面 ${i} 转图片失败，使用占位图`, e);
+                        imageData = createPlaceholderImage(i);
+                    }
+                    // 释放 canvas 内存（不再保留引用，避免大 PDF 内存堆积）
+                    canvas.width = 0;
+                    canvas.height = 0;
                     pdfPages.push({
                         pageNum: i,
-                        imageData: imageData,
-                        canvas: canvas
+                        imageData: imageData
                     });
-                    
+
                     updateProgress(`提取页面 ${i}/${numPages}`, Math.round((i / numPages) * 100));
                 }
-                
+
                 // 更新预览
                 updatePreview();
                 updateUI();
-                showMessage('success', `PDF解析完成，共提取 ${numPages} 页`);
+                if (shouldAbort) {
+                    showMessage('info', '已取消解析PDF');
+                } else {
+                    showMessage('success', `PDF解析完成，共提取 ${numPages} 页`);
+                }
                 progressContainer.classList.add('hidden');
             } catch (error) {
                 console.error('解析PDF错误:', error);
-                showMessage('error', '解析PDF失败，请检查文件是否损坏');
+                showMessage('error', '解析PDF失败：' + (error && error.message ? error.message : '请检查文件是否损坏'));
                 progressContainer.classList.add('hidden');
+            } finally {
+                // 释放 PDFDocumentProxy，避免大文件内存残留；destroy 失败不影响主流程
+                if (pdf) {
+                    try {
+                        await pdf.destroy();
+                    } catch (e) {
+                        console.warn('pdf.destroy 失败:', e);
+                    }
+                }
+                isProcessing = false;
+                setProcessingUI(false);
             }
+        }
+
+        // 生成占位图（图片提取失败时使用）
+        function createPlaceholderImage(pageNum) {
+            const c = document.createElement('canvas');
+            c.width = 800;
+            c.height = 600;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 800, 600);
+            ctx.fillStyle = '#999999';
+            ctx.font = '24px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`第 ${pageNum} 页（图片提取失败）`, 400, 300);
+            return c.toDataURL('image/png');
         }
         
         // 更新预览
@@ -407,6 +539,7 @@
                         <h3 class="text-sm font-medium mb-2">页面 ${page.pageNum}</h3>
                         <img src="${page.imageData}" alt="页面 ${page.pageNum}">
                         <div class="mt-4">
+                            <label for="textEditor-${index}" class="sr-only">第 ${page.pageNum} 页文字</label>
                             <textarea class="text-editor w-full" id="textEditor-${index}" placeholder="OCR识别后可编辑文字..."></textarea>
                         </div>
                     </div>
@@ -418,118 +551,169 @@
         // 执行OCR
         async function performOCR() {
             if (pdfPages.length === 0) return;
-            
+            if (isProcessing) return;
+
             try {
+                isProcessing = true;
+                setProcessingUI(true);
+                shouldAbort = false;
                 const language = languageSelect.value;
                 ocrResults = [];
-                
-                updateProgress('OCR文字识别...', 0);
-                
-                for (let i = 0; i < pdfPages.length; i++) {
-                    const page = pdfPages[i];
-                    
-                    updateProgress(`识别页面 ${page.pageNum}/${pdfPages.length}`, Math.round((i / pdfPages.length) * 100));
-                    
-                    // 执行OCR
-                    const result = await Tesseract.recognize(
-                        page.imageData,
-                        language,
-                        {
-                            logger: (info) => {
-                                if (info.status === 'recognizing text') {
-                                    const progress = Math.round((i + info.progress) / pdfPages.length * 100);
-                                    updateProgress(`识别页面 ${page.pageNum}/${pdfPages.length}`, progress);
-                                }
+
+                updateProgress('初始化OCR引擎...', 0);
+
+                // 创建常驻 worker 复用，避免每页重新加载语言模型
+                let currentPageIdx = 0;
+                const worker = await Tesseract.createWorker(language, 1, {
+                    logger: (info) => {
+                        if (info.status === 'recognizing text') {
+                            const page = pdfPages[currentPageIdx];
+                            if (page) {
+                                const progress = Math.round((currentPageIdx + info.progress) / pdfPages.length * 100);
+                                updateProgress(`识别页面 ${page.pageNum}/${pdfPages.length}`, progress);
                             }
                         }
-                    );
-                    
-                    ocrResults.push({
-                        pageNum: page.pageNum,
-                        text: result.data.text,
-                        confidence: result.data.confidence
-                    });
-                    
-                    // 更新文本编辑器
-                    const textEditor = document.getElementById(`textEditor-${i}`);
-                    if (textEditor) {
-                        textEditor.value = result.data.text;
                     }
+                });
+
+                try {
+                    for (let i = 0; i < pdfPages.length; i++) {
+                        if (shouldAbort) break;
+                        const page = pdfPages[i];
+                        currentPageIdx = i;
+
+                        updateProgress(`识别页面 ${page.pageNum}/${pdfPages.length}`, Math.round((i / pdfPages.length) * 100));
+
+                        const result = await worker.recognize(page.imageData);
+
+                        ocrResults.push({
+                            pageNum: page.pageNum,
+                            text: result.data.text,
+                            confidence: result.data.confidence
+                        });
+
+                        // 更新文本编辑器
+                        const textEditor = document.getElementById(`textEditor-${i}`);
+                        if (textEditor) {
+                            textEditor.value = result.data.text;
+                        }
+                    }
+                } finally {
+                    await worker.terminate();
                 }
-                
+
                 updateUI();
-                showMessage('success', 'OCR识别完成');
+                if (shouldAbort) {
+                    showMessage('info', '已取消OCR识别');
+                } else {
+                    showMessage('success', 'OCR识别完成');
+                }
                 progressContainer.classList.add('hidden');
             } catch (error) {
                 console.error('OCR错误:', error);
-                showMessage('error', 'OCR识别失败');
+                showMessage('error', 'OCR识别失败：' + (error && error.message ? error.message : '未知错误'));
                 progressContainer.classList.add('hidden');
+            } finally {
+                isProcessing = false;
+                setProcessingUI(false);
             }
         }
         
         // 导出PPT
         async function exportPPT() {
             if (ocrResults.length === 0) return;
-            
+            if (isProcessing) return;
+
+            // 校验 OCR 结果完整性
+            if (ocrResults.length !== pdfPages.length) {
+                showMessage('error', 'OCR 结果不完整，请重新识别');
+                return;
+            }
+
             try {
+                isProcessing = true;
+                setProcessingUI(true);
+                shouldAbort = false;
                 updateProgress('生成PPT文件...', 0);
-                
+
                 // 创建PPT
                 const pptx = new PptxGenJS();
-                
+                // PptxGenJS 不支持百分比，使用 16:9 英寸布局
+                pptx.defineLayout({ name: '16x9', width: 10, height: 5.625 });
+                pptx.layout = '16x9';
+
                 for (let i = 0; i < pdfPages.length; i++) {
+                    if (shouldAbort) break;
                     const page = pdfPages[i];
                     const ocrResult = ocrResults[i];
                     const textEditor = document.getElementById(`textEditor-${i}`);
-                    const text = textEditor ? textEditor.value : ocrResult.text;
-                    
+                    const text = textEditor ? textEditor.value : (ocrResult ? ocrResult.text : '');
+
                     // 创建幻灯片
                     const slide = pptx.addSlide();
-                    
-                    // 添加背景图片
+
+                    // 添加背景图片（英寸数值，全屏铺满）
                     slide.addImage({
                         data: page.imageData,
                         x: 0,
                         y: 0,
-                        w: '100%',
-                        h: '100%'
+                        w: 10,
+                        h: 5.625
                     });
-                    
+
                     // 添加文本
                     if (text) {
                         slide.addText(text, {
-                            x: 1, y: 1, w: '90%', h: '90%',
+                            x: 1, y: 1, w: 8, h: 3.6,
                             fontSize: 18,
                             color: '000000',
                             valign: 'top',
                             align: 'left'
                         });
                     }
-                    
+
                     updateProgress(`生成幻灯片 ${i + 1}/${pdfPages.length}`, Math.round((i + 1) / pdfPages.length * 100));
                 }
-                
+
+                // 中途取消则不写出不完整的 PPT
+                if (shouldAbort) {
+                    showMessage('info', '已取消导出');
+                    setProcessingUI(false);
+                    progressContainer.classList.add('hidden');
+                    return;
+                }
+
                 // 导出PPT
-                await pptx.writeFile({ fileName: 'converted-ppt.pptx' });
-                
+                await pptx.writeFile({ fileName: `converted-ppt-${Date.now()}.pptx` });
+
                 showMessage('success', 'PPT导出完成，文件已下载');
                 progressContainer.classList.add('hidden');
             } catch (error) {
                 console.error('导出PPT错误:', error);
-                showMessage('error', '导出PPT失败');
+                showMessage('error', '导出PPT失败：' + (error && error.message ? error.message : '未知错误'));
                 progressContainer.classList.add('hidden');
+            } finally {
+                isProcessing = false;
+                setProcessingUI(false);
             }
         }
         
         // 重置
         function reset() {
+            // 处理中点击「取消」：标记中断，由各流程在循环中检测
+            if (isProcessing) {
+                shouldAbort = true;
+                showMessage('info', '正在取消当前操作...');
+                return;
+            }
             pdfFile = null;
             pdfPages = [];
             ocrResults = [];
+            shouldAbort = false;
             pdfFileInput.value = '';
             previewContainer.innerHTML = `
                 <div class="text-center py-16 text-gray-500">
-                    <i class="fa fa-file-image-o text-4xl mb-4"></i>
+                    <i class="fa fa-file-image-o text-4xl mb-4" aria-hidden="true"></i>
                     <p>上传PDF文件后显示预览</p>
                 </div>
             `;

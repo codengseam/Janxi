@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>算法第一梯队速查手册</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #1a1a1a; font-size: 14px; line-height: 1.6; }
@@ -56,19 +60,70 @@
     .problems { grid-template-columns: 1fr; }
     .cards { flex-direction: column; }
   }
+
+  /* Smooth scrolling for TOC anchors (disabled under reduced-motion below) */
+  html { scroll-behavior: smooth; }
+
+  /* highlight.js: keep the existing dark <pre> background, only color tokens */
+  pre code.hljs { background: transparent; padding: 0; display: block; }
+
+  /* Copy button (injected per <pre>) */
+  pre { position: relative; }
+  .copy-btn { position: absolute; top: 6px; right: 8px; z-index: 2; font: 600 11px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 4px 9px; border-radius: 5px; border: 1px solid rgba(205,214,244,0.28); background: rgba(205,214,244,0.10); color: #cdd6f4; cursor: pointer; opacity: 0.7; transition: opacity .15s, background .15s; }
+  .copy-btn:hover, .copy-btn:focus-visible { opacity: 1; background: rgba(205,214,244,0.20); }
+  .copy-btn.copied { background: #2e7d32; border-color: #2e7d32; color: #fff; opacity: 1; }
+  .copy-btn:focus-visible { outline: 2px solid #89b4fa; outline-offset: 1px; }
+
+  /* Sticky TOC */
+  .toc { position: sticky; top: 0; z-index: 50; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid #e8e8e5; border-radius: 10px; padding: 8px 10px; margin-bottom: 20px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); }
+  .toc a { font-size: 12px; color: #1a6fa8; text-decoration: none; padding: 4px 9px; border-radius: 6px; white-space: nowrap; }
+  .toc a:hover { background: #eef4fb; }
+  .toc a:focus-visible { outline: 2px solid #1a6fa8; outline-offset: 1px; }
+
+  /* Back-to-top floating button */
+  .back-top { position: fixed; right: 22px; bottom: 22px; width: 38px; height: 38px; border-radius: 50%; border: 1px solid #d8d8d5; background: #fff; color: #1a6fa8; font-size: 16px; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.12); opacity: 0; visibility: hidden; transform: translateY(8px); transition: opacity .2s, transform .2s, visibility .2s; z-index: 60; }
+  .back-top.show { opacity: 1; visibility: visible; transform: translateY(0); }
+  .back-top:hover { background: #eef4fb; }
+  .back-top:focus-visible { outline: 2px solid #1a6fa8; outline-offset: 2px; }
+
+  /* Skip link */
+  .skip-link { position: absolute; left: -9999px; top: 0; z-index: 100; background: #1a6fa8; color: #fff; padding: 8px 14px; border-radius: 0 0 8px 0; text-decoration: none; font-size: 13px; }
+  .skip-link:focus { left: 0; }
+
+  /* Offset anchored sections so the sticky TOC doesn't cover the title */
+  section.section { scroll-margin-top: 72px; }
+
+  /* Keyboard focus visibility */
+  a:focus-visible, button:focus-visible { outline: 2px solid #1a6fa8; outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+    html { scroll-behavior: auto !important; }
+    .back-top { transform: none; }
+  }
 </style>
 </head>
 <body>
-<div class="page">
+<a class="skip-link" href="#main">跳到主内容</a>
+<div class="page" id="main">
   <h1>算法第一梯队 · 速查手册</h1>
   <p class="subtitle">非小白快速回忆版 — 模板 + 原理 + 经典题</p>
 
+  <nav class="toc" aria-label="目录导航">
+    <a href="#sec1">① 数组/字符串</a>
+    <a href="#sec2">② 哈希表</a>
+    <a href="#sec3">③ 链表</a>
+    <a href="#sec4">④ 二叉树</a>
+    <a href="#sec5">⑤ 动态规划</a>
+    <a href="#sec6">⑥ 二分查找</a>
+  </nav>
+
   <!-- ① 数组 / 字符串 -->
-  <div class="section s1">
+  <section class="section s1" id="sec1">
     <div class="section-header">
-      <div class="section-num">①</div>
+      <div class="section-num" aria-hidden="true">①</div>
       <div>
-        <div class="section-title">数组 / 字符串</div>
+        <h2 class="section-title">数组 / 字符串</h2>
         <div class="section-desc">双指针 · 滑动窗口 · 前缀和</div>
       </div>
     </div>
@@ -82,10 +137,10 @@
       <div class="code-label">对向双指针（有序数组、回文、接雨水）</div>
       <div class="insight">两端向中间逼近。适合：有序数组两数之和、回文判断、接雨水</div>
 <pre>left, right = 0, len(nums) - 1
-while left < right:
+while left &lt; right:
     s = nums[left] + nums[right]
     if s == target:  return [left, right]
-    elif s < target: left += 1
+    elif s &lt; target: left += 1
     else:            right -= 1</pre>
 
       <div class="code-label">同向双指针（原地去重、移除元素）</div>
@@ -105,7 +160,7 @@ for right in range(len(s)):
     # 1. 右边界入窗口
     window[s[right]] = window.get(s[right], 0) + 1
     # 2. 窗口不合法 → 收缩左边界
-    while len(window) > k:
+    while len(window) &gt; k:
         window[s[left]] -= 1
         if window[s[left]] == 0: del window[s[left]]
         left += 1
@@ -142,14 +197,14 @@ def rangeSum(l, r):
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- ② 哈希表 -->
-  <div class="section s2">
+  <section class="section s2" id="sec2">
     <div class="section-header">
-      <div class="section-num">②</div>
+      <div class="section-num" aria-hidden="true">②</div>
       <div>
-        <div class="section-title">哈希表</div>
+        <h2 class="section-title">哈希表</h2>
         <div class="section-desc">O(1) 查找 / 去重 / 计数 / 记录状态</div>
       </div>
     </div>
@@ -212,14 +267,14 @@ def groupAnagrams(strs):
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- ③ 链表 -->
-  <div class="section s3">
+  <section class="section s3" id="sec3">
     <div class="section-header">
-      <div class="section-num">③</div>
+      <div class="section-num" aria-hidden="true">③</div>
       <div>
-        <div class="section-title">链表</div>
+        <h2 class="section-title">链表</h2>
         <div class="section-desc">哑节点 · 快慢指针 · 反转 · 合并</div>
       </div>
     </div>
@@ -274,7 +329,7 @@ while slow != fast:
 <pre>def mergeTwoLists(l1, l2):
     dummy = cur = ListNode(0)
     while l1 and l2:
-        if l1.val <= l2.val: cur.next = l1; l1 = l1.next
+        if l1.val &lt;= l2.val: cur.next = l1; l1 = l1.next
         else:                cur.next = l2; l2 = l2.next
         cur = cur.next
     cur.next = l1 or l2
@@ -301,14 +356,14 @@ while slow != fast:
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- ④ 二叉树 -->
-  <div class="section s4">
+  <section class="section s4" id="sec4">
     <div class="section-header">
-      <div class="section-num">④</div>
+      <div class="section-num" aria-hidden="true">④</div>
       <div>
-        <div class="section-title">二叉树</div>
+        <h2 class="section-title">二叉树</h2>
         <div class="section-desc">DFS 前/中/后序 · BFS 层序 · 后序汇聚信息</div>
       </div>
     </div>
@@ -399,14 +454,14 @@ def levelOrder(root):
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- ⑤ 动态规划 -->
-  <div class="section s5">
+  <section class="section s5" id="sec5">
     <div class="section-header">
-      <div class="section-num">⑤</div>
+      <div class="section-num" aria-hidden="true">⑤</div>
       <div>
-        <div class="section-title">动态规划</div>
+        <h2 class="section-title">动态规划</h2>
         <div class="section-desc">定义 dp → 转移方程 → 初始值 + 遍历顺序</div>
       </div>
     </div>
@@ -487,14 +542,14 @@ return len(tails)</pre>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- ⑥ 二分查找 -->
-  <div class="section s6">
+  <section class="section s6" id="sec6">
     <div class="section-header">
-      <div class="section-num">⑥</div>
+      <div class="section-num" aria-hidden="true">⑥</div>
       <div>
-        <div class="section-title">二分查找</div>
+        <h2 class="section-title">二分查找</h2>
         <div class="section-desc">有序 / 单调 / 答案可二分 → O(log n)</div>
       </div>
     </div>
@@ -509,35 +564,35 @@ return len(tails)</pre>
       <div class="insight">统一用左闭右闭。while 用 ≤；mid 用 left+(right-left)//2 防溢出。</div>
 <pre>def binary_search(nums, target):
     left, right = 0, len(nums) - 1
-    while left <= right:
+    while left &lt;= right:
         mid = left + (right - left) // 2   # 防溢出
         if nums[mid] == target:   return mid
-        elif nums[mid] < target:  left = mid + 1
+        elif nums[mid] &lt; target:  left = mid + 1
         else:                     right = mid - 1
     return -1</pre>
 
       <div class="code-label">找左边界（第一个 ≥ target 的位置）</div>
 <pre>def lower_bound(nums, target):
     left, right = 0, len(nums) - 1
-    while left <= right:
+    while left &lt;= right:
         mid = left + (right - left) // 2
-        if nums[mid] < target: left = mid + 1
-        else:                  right = mid - 1    # >= target 都往左收
-    return left   # 插入点，即第一个 >= target 的下标</pre>
+        if nums[mid] &lt; target: left = mid + 1
+        else:                  right = mid - 1    # &gt;= target 都往左收
+    return left   # 插入点，即第一个 &gt;= target 的下标</pre>
 
       <div class="code-label">找右边界（最后一个 ≤ target 的位置）</div>
 <pre>def upper_bound(nums, target):
     left, right = 0, len(nums) - 1
-    while left <= right:
+    while left &lt;= right:
         mid = left + (right - left) // 2
-        if nums[mid] <= target: left = mid + 1    # <= target 都往右扩
+        if nums[mid] &lt;= target: left = mid + 1    # &lt;= target 都往右扩
         else:                   right = mid - 1
-    return right  # 最后一个 <= target 的下标</pre>
+    return right  # 最后一个 &lt;= target 的下标</pre>
 
       <div class="code-label">答案二分（二分答案本身）</div>
       <div class="insight">当答案满足单调性（越大越容易满足/越小越容易满足），对答案值域做二分</div>
 <pre>left, right = 下界, 上界
-while left < right:
+while left &lt; right:
     mid = (left + right) // 2
     if check(mid):    # mid 满足条件
         right = mid   # 尝试更小（求最小值时）
@@ -568,8 +623,80 @@ return left
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
 </div>
+<button class="back-top" type="button" aria-label="返回顶部">↑</button>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+(function () {
+  // 1) 把裸 <pre> 文本包进 <code class="language-python">（已是 <code> 的跳过）
+  document.querySelectorAll('pre').forEach(function (pre) {
+    if (pre.querySelector('code')) return;
+    var code = document.createElement('code');
+    code.className = 'language-python';
+    code.textContent = pre.textContent.replace(/\n+$/, '');
+    pre.textContent = '';
+    pre.appendChild(code);
+  });
+
+  // 2) 语法高亮
+  if (window.hljs) {
+    document.querySelectorAll('pre code').forEach(function (b) {
+      try { hljs.highlightElement(b); } catch (e) {}
+    });
+  }
+
+  // 3) 每个 <pre> 注入复制按钮
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    btn.setAttribute('aria-label', '复制代码到剪贴板');
+    btn.addEventListener('click', function () {
+      var codeEl = pre.querySelector('code');
+      var text = codeEl ? codeEl.textContent : pre.textContent;
+      var mark = function () {
+        btn.textContent = '已复制'; btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = '复制'; btn.classList.remove('copied'); }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(mark).catch(function () { fallbackCopy(text); mark(); });
+      } else { fallbackCopy(text); mark(); }
+    });
+    pre.appendChild(btn);
+  });
+
+  // 4) 难度 badge 加 aria-label
+  document.querySelectorAll('.badge').forEach(function (b) {
+    if (b.classList.contains('b-easy')) b.setAttribute('aria-label', '简单难度');
+    else if (b.classList.contains('b-medium')) b.setAttribute('aria-label', '中等难度');
+    else if (b.classList.contains('b-hard')) b.setAttribute('aria-label', '困难难度');
+  });
+
+  // 5) 返回顶部
+  var backTop = document.querySelector('.back-top');
+  if (backTop) {
+    var onScroll = function () {
+      if (window.scrollY > 400) backTop.classList.add('show');
+      else backTop.classList.remove('show');
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    backTop.addEventListener('click', function () {
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+    });
+  }
+})();
+</script>
 </body>
 </html>

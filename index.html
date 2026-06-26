@@ -37,7 +37,7 @@
       --surface-solid: #ffffff;
       --text: #1a1a1a;
       --text-secondary: #555;
-      --text-muted: #888;
+      --text-muted: #666;
       --accent: #1d8f5b;
       --accent-2: #5b4dff;
       --border: rgba(0, 0, 0, 0.08);
@@ -351,7 +351,7 @@
       --paper: #faf8f5;
       --ink: #1a1a1a;
       --ink-light: #555;
-      --ink-muted: #999;
+      --ink-muted: #6b6b6b;
       --accent: #c25e00;
       --rule: #e0ddd8;
       --serif: 'Noto Serif SC', 'Songti SC', 'STSong', Georgia, serif;
@@ -435,6 +435,23 @@
       font-size: 12px; color: var(--ink-muted); display: flex;
       justify-content: space-between; flex-wrap: wrap; gap: 12px;
     }
+    .skin-editorial .search-wrap { max-width: 460px; margin: 24px 0 28px; }
+    .skin-editorial #search-editorial {
+      width: 100%; padding: 12px 16px; font-size: 15px; font-family: var(--serif);
+      border: 1px solid var(--rule); border-radius: 4px; background: #fff; outline: none;
+      transition: border-color .2s;
+    }
+    .skin-editorial #search-editorial:focus { border-color: var(--accent); }
+    .skin-editorial .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+    .skin-editorial .tab {
+      padding: 6px 14px; font-size: 13px; font-weight: 600; letter-spacing: .04em;
+      color: var(--ink-light); background: transparent; border: 1px solid var(--rule);
+      border-radius: 999px; cursor: pointer; transition: all .2s;
+    }
+    .skin-editorial .tab:hover { color: var(--accent); border-color: var(--accent); }
+    .skin-editorial .tab.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .skin-editorial .empty { display: none; text-align: center; padding: 48px 24px; color: var(--ink-muted); font-family: var(--serif); }
+    .skin-editorial .empty.visible { display: block; }
 
     @media (max-width: 640px) {
       .skin-default .hero { padding: 56px 20px 40px; }
@@ -450,6 +467,11 @@
       .skin-editorial .toc-title { font-size: 18px; }
       .skin-switcher { gap: 2px; padding: 4px; }
       .skin-btn { padding: 6px 10px; font-size: 12px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      html { scroll-behavior: auto; }
     }
   </style>
 </head>
@@ -472,21 +494,21 @@
         <h1>简兮 · 轻量纯静态工具集</h1>
         <p>无后端依赖，打开即用。格式转换、效率专注与学习速查，随取随走。</p>
         <div class="search-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          <input id="search-default" type="text" placeholder="搜索工具…" autocomplete="off">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input id="search-default" type="text" placeholder="搜索工具…" aria-label="搜索工具" autocomplete="off">
         </div>
       </div>
     </header>
 
-    <div class="tabs" id="tabs-default">
-      <button class="tab active" data-filter="all">全部</button>
-      <button class="tab" data-filter="convert">格式转换</button>
-      <button class="tab" data-filter="focus">效率专注</button>
-      <button class="tab" data-filter="learn">学习速查</button>
+    <div class="tabs" id="tabs-default" role="group" aria-label="分类筛选">
+      <button class="tab active" data-filter="all" aria-pressed="true">全部</button>
+      <button class="tab" data-filter="convert" aria-pressed="false">格式转换</button>
+      <button class="tab" data-filter="focus" aria-pressed="false">效率专注</button>
+      <button class="tab" data-filter="learn" aria-pressed="false">学习速查</button>
     </div>
 
     <main id="main-default"></main>
-    <div class="empty" id="empty-default">没有找到匹配的工具</div>
+    <div class="empty" id="empty-default" role="status" aria-live="polite">没有找到匹配的工具</div>
 
     <footer>
       <p>简兮 · 纯静态工具集</p>
@@ -495,8 +517,8 @@
 
   <!-- ================= Xianxia Skin ================= -->
   <section id="skin-xianxia" class="skin skin-xianxia">
-    <canvas id="mist-canvas"></canvas>
-    <div class="texture"></div>
+    <canvas id="mist-canvas" aria-hidden="true"></canvas>
+    <div class="texture" aria-hidden="true"></div>
 
     <div class="topbar">
       <div class="logo">万法玉简</div>
@@ -513,18 +535,18 @@
       <p class="subtitle">纯静态法器，本地运转，灵气不外泄。格式转换、效率专注与学习速查，皆可在此参悟。</p>
 
       <div class="search-box">
-        <input id="search-xianxia" type="text" placeholder="寻一法门…" autocomplete="off">
+        <input id="search-xianxia" type="text" placeholder="寻一法门…" aria-label="搜索工具" autocomplete="off">
       </div>
 
-      <div class="tabs" id="tabs-xianxia">
-        <button class="tab active" data-filter="all">全部</button>
-        <button class="tab" data-filter="convert">格式转换</button>
-        <button class="tab" data-filter="focus">效率专注</button>
-        <button class="tab" data-filter="learn">学习速查</button>
+      <div class="tabs" id="tabs-xianxia" role="group" aria-label="分类筛选">
+        <button class="tab active" data-filter="all" aria-pressed="true">全部</button>
+        <button class="tab" data-filter="convert" aria-pressed="false">格式转换</button>
+        <button class="tab" data-filter="focus" aria-pressed="false">效率专注</button>
+        <button class="tab" data-filter="learn" aria-pressed="false">学习速查</button>
       </div>
 
       <main id="main-xianxia"></main>
-      <div class="empty" id="empty-xianxia">未寻得匹配法门</div>
+      <div class="empty" id="empty-xianxia" role="status" aria-live="polite">未寻得匹配法门</div>
     </div>
 
     <footer>
@@ -556,17 +578,27 @@
     </header>
 
     <main>
+      <div class="search-wrap">
+        <input id="search-editorial" type="text" placeholder="检索目录…" aria-label="搜索工具" autocomplete="off">
+      </div>
+      <div class="tabs" id="tabs-editorial" role="group" aria-label="分类筛选">
+        <button class="tab active" data-filter="all" aria-pressed="true">全部</button>
+        <button class="tab" data-filter="convert" aria-pressed="false">格式转换</button>
+        <button class="tab" data-filter="focus" aria-pressed="false">效率专注</button>
+        <button class="tab" data-filter="learn" aria-pressed="false">学习速查</button>
+      </div>
       <div class="toc-head">
         <h2>目录</h2>
         <span></span>
       </div>
       <ol class="toc" id="toc-editorial"></ol>
+      <div class="empty" id="empty-editorial" role="status" aria-live="polite">本期无匹配条目</div>
       <div class="sections" id="sections-editorial"></div>
     </main>
 
     <footer>
       <span>Janxi Tools</span>
-      <span>7 tools · 3 categories</span>
+      <span id="editorial-stats"></span>
     </footer>
   </section>
 
@@ -605,10 +637,7 @@
       });
       Object.keys(groups).forEach(cat => {
         const sec = document.createElement('section');
-        sec.innerHTML = `<h2 class="section-title">${categories[cat].label}</h2><div class="grid"></div>`;
-        const grid = sec.querySelector('.grid');
-        groups[cat].forEach(t => {
-          grid.innerHTML += `
+        const cards = groups[cat].map(t => `
             <article class="card">
               <div class="card-top">
                 <div class="card-icon ${categories[t.category].iconClass}">${t.icon}</div>
@@ -617,26 +646,26 @@
               <h3>${t.title}</h3>
               <p>${t.desc}</p>
               <div class="card-actions">
-                <a class="btn btn-primary" href="${t.file}">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                <a class="btn btn-primary" href="${encodeURI(t.file)}">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                   打开
                 </a>
-                <a class="btn btn-ghost" href="${t.file}" download="${t.file}">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <a class="btn btn-ghost" href="${encodeURI(t.file)}" download="${t.file}">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                   下载
                 </a>
               </div>
-            </article>
-          `;
-        });
+            </article>`).join('');
+        sec.innerHTML = `<h2 class="section-title">${categories[cat].label}</h2><div class="grid">${cards}</div>`;
         mainDefault.appendChild(sec);
       });
       emptyDefault.classList.toggle('visible', Object.keys(groups).length === 0);
     }
     tabsDefault.forEach(btn => {
       btn.addEventListener('click', () => {
-        tabsDefault.forEach(b => b.classList.remove('active'));
+        tabsDefault.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
         btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
         filterDefault = btn.dataset.filter;
         renderDefault();
       });
@@ -661,10 +690,7 @@
       });
       Object.keys(groups).forEach(cat => {
         const sec = document.createElement('section');
-        sec.innerHTML = `<h2 class="section-title">${categories[cat].xlabel}</h2><div class="grid"></div>`;
-        const grid = sec.querySelector('.grid');
-        groups[cat].forEach(t => {
-          grid.innerHTML += `
+        const cards = groups[cat].map(t => `
             <article class="card ${categories[t.category].iconClass}">
               <div class="card-top">
                 <div class="card-icon">${t.xicon}</div>
@@ -673,26 +699,26 @@
               <h3>${t.title}</h3>
               <p>${t.desc}</p>
               <div class="card-actions">
-                <a class="btn btn-primary" href="${t.file}">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                <a class="btn btn-primary" href="${encodeURI(t.file)}">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                   开启
                 </a>
-                <a class="btn btn-ghost" href="${t.file}" download="${t.file}">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <a class="btn btn-ghost" href="${encodeURI(t.file)}" download="${t.file}">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                   拓印
                 </a>
               </div>
-            </article>
-          `;
-        });
+            </article>`).join('');
+        sec.innerHTML = `<h2 class="section-title">${categories[cat].xlabel}</h2><div class="grid">${cards}</div>`;
         mainXianxia.appendChild(sec);
       });
       emptyXianxia.classList.toggle('visible', Object.keys(groups).length === 0);
     }
     tabsXianxia.forEach(btn => {
       btn.addEventListener('click', () => {
-        tabsXianxia.forEach(b => b.classList.remove('active'));
+        tabsXianxia.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
         btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
         filterXianxia = btn.dataset.filter;
         renderXianxia();
       });
@@ -702,66 +728,101 @@
     /* ================= Editorial render ================= */
     const tocEditorial = document.getElementById('toc-editorial');
     const sectionsEditorial = document.getElementById('sections-editorial');
+    const searchEditorial = document.getElementById('search-editorial');
+    const emptyEditorial = document.getElementById('empty-editorial');
+    const tabsEditorial = document.querySelectorAll('#tabs-editorial .tab');
+    let filterEditorial = 'all';
 
     function renderEditorial() {
+      const term = searchEditorial.value.trim().toLowerCase();
       tocEditorial.innerHTML = '';
       sectionsEditorial.innerHTML = '';
       const groups = {};
-      tools.forEach(t => (groups[t.category] ||= []).push(t));
+      const filtered = tools.filter(t => {
+        if (filterEditorial !== 'all' && t.category !== filterEditorial) return false;
+        if (term && !t.title.toLowerCase().includes(term) && !t.desc.toLowerCase().includes(term)) return false;
+        return true;
+      });
+      filtered.forEach(t => (groups[t.category] ||= []).push(t));
 
-      tools.forEach(t => {
-        tocEditorial.innerHTML += `
+      tocEditorial.innerHTML = filtered.map(t => `
           <li>
             <div>
               <div class="toc-title">${t.title}</div>
               <div class="toc-meta">${categories[t.category].label} · ${t.desc}</div>
             </div>
             <div class="toc-actions">
-              <a href="${t.file}">打开</a>
-              <a href="${t.file}" download="${t.file}">下载</a>
+              <a href="${encodeURI(t.file)}">打开</a>
+              <a href="${encodeURI(t.file)}" download="${t.file}">下载</a>
             </div>
-          </li>
-        `;
-      });
+          </li>`).join('');
 
-      Object.keys(groups).forEach(cat => {
-        const sec = document.createElement('section');
-        sec.className = 'section';
-        sec.innerHTML = `<h3>${categories[cat].label}</h3><ul></ul>`;
-        const ul = sec.querySelector('ul');
-        groups[cat].forEach(t => {
-          ul.innerHTML += `
-            <li>
-              <a href="${t.file}">${t.title}</a>
-              <small>${t.desc}</small>
-            </li>
-          `;
-        });
-        sectionsEditorial.appendChild(sec);
-      });
+      sectionsEditorial.innerHTML = Object.keys(groups).map(cat => `
+          <section class="section">
+            <h3>${categories[cat].label}</h3>
+            <ul>${groups[cat].map(t => `
+              <li>
+                <a href="${encodeURI(t.file)}">${t.title}</a>
+                <small>${t.desc}</small>
+              </li>`).join('')}
+            </ul>
+          </section>`).join('');
+
+      emptyEditorial.classList.toggle('visible', filtered.length === 0);
     }
+    tabsEditorial.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabsEditorial.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
+        btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
+        filterEditorial = btn.dataset.filter;
+        renderEditorial();
+      });
+    });
+    searchEditorial.addEventListener('input', renderEditorial);
 
     /* ================= Skin switching ================= */
     const skins = ['default', 'xianxia', 'editorial'];
-    function setSkin(name) {
+    const rendered = { default: false, xianxia: false, editorial: false };
+    function ensureRendered(name) {
+      if (rendered[name]) return;
+      rendered[name] = true;
+      if (name === 'default') renderDefault();
+      else if (name === 'xianxia') renderXianxia();
+      else if (name === 'editorial') renderEditorial();
+    }
+    function setSkin(name, userInitiated) {
       if (!skins.includes(name)) name = 'default';
       skins.forEach(s => document.getElementById('skin-' + s).classList.toggle('active', s === name));
       document.querySelectorAll('.skin-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.skin === name);
       });
-      localStorage.setItem('janxi-skin', name);
+      safeStorage.setItem('janxi-skin', name);
+      ensureRendered(name);
       xianxiaActive = name === 'xianxia';
-      if (xianxiaActive) { resizeXianxia(); }
-      window.scrollTo({ top: 0, behavior: 'instant' });
+      if (xianxiaActive) { startXianxia(); } else { stopXianxia(); }
+      window.scrollTo({ top: 0, behavior: 'auto' });
+      if (userInitiated) {
+        const target = document.getElementById('skin-' + name);
+        const search = target.querySelector('input[type="text"]');
+        if (search) search.focus();
+      }
     }
     document.querySelectorAll('.skin-btn').forEach(btn => {
-      btn.addEventListener('click', () => setSkin(btn.dataset.skin));
+      btn.addEventListener('click', () => setSkin(btn.dataset.skin, true));
     });
+
+    /* ================= Safe storage ================= */
+    const safeStorage = {
+      getItem(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+      setItem(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+    };
 
     /* ================= Xianxia canvas ================= */
     const canvas = document.getElementById('mist-canvas');
     const ctx = canvas.getContext('2d');
-    let things = [], xianxiaActive = false;
+    const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let things = [], xianxiaActive = false, rafId = null, resizeTimer = null;
     function resizeXianxia() {
       canvas.width = innerWidth; canvas.height = innerHeight;
     }
@@ -779,7 +840,6 @@
       }
     }
     function drawXianxia() {
-      if (!xianxiaActive) { requestAnimationFrame(drawXianxia); return; }
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       things.forEach(o => {
         o.x += o.vx; o.y += o.vy;
@@ -801,16 +861,30 @@
           ctx.restore();
         }
       });
-      requestAnimationFrame(drawXianxia);
+      rafId = requestAnimationFrame(drawXianxia);
     }
-    addEventListener('resize', () => { resizeXianxia(); initXianxia(); });
-    resizeXianxia(); initXianxia(); drawXianxia();
+    function startXianxia() {
+      if (prefersReducedMotion) return;
+      if (rafId !== null) return;
+      resizeXianxia();
+      initXianxia();
+      drawXianxia();
+    }
+    function stopXianxia() {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    }
+    addEventListener('resize', () => {
+      if (!xianxiaActive) return;
+      if (resizeTimer) clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => { resizeXianxia(); initXianxia(); }, 150);
+    });
 
     /* ================= Init ================= */
-    renderDefault();
-    renderXianxia();
-    renderEditorial();
-    const saved = localStorage.getItem('janxi-skin') || 'default';
+    document.getElementById('editorial-stats').textContent = `${tools.length} tools · ${Object.keys(categories).length} categories`;
+    const saved = safeStorage.getItem('janxi-skin') || 'default';
     setSkin(saved);
   </script>
 </body>

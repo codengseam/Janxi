@@ -180,102 +180,6 @@ body {
     text-align: center;
 }
 
-/* Timer View */
-#timer-view {
-    display: none;
-    height: 100%;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-#timer-view.active {
-    display: flex;
-}
-
-.timer-container {
-    text-align: center;
-    width: 100%;
-    max-width: 920px;
-    background: var(--bg-panel);
-    padding: 24px;
-    border-radius: 28px;
-    box-shadow: 0 16px 40px rgba(0,0,0,0.18);
-    border: 1px solid var(--border);
-}
-
-.timer-display {
-    font-size: 100px;
-    font-weight: 500;
-    color: var(--text-primary);
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -2px;
-}
-
-.timer-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    text-align: left;
-    margin-bottom: 18px;
-}
-
-.timer-head h3 {
-    margin: 0;
-    font-size: 18px;
-}
-
-.timer-head p {
-    margin: 6px 0 0;
-    font-size: 13px;
-    color: var(--text-secondary);
-    line-height: 1.5;
-}
-
-.timer-head-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.timer-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    border-radius: 999px;
-    border: 1px solid rgba(90, 209, 154, 0.22);
-    background: rgba(90, 209, 154, 0.12);
-    color: var(--accent);
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.timer-pill::before {
-    content: '';
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), #2bb3bb);
-    box-shadow: 0 0 0 3px rgba(90, 209, 154, 0.12);
-}
-
-.timer-hero {
-    border-radius: 24px;
-    background: rgba(0,0,0,0.16);
-    border: 1px solid rgba(255,255,255,0.06);
-    padding: 26px;
-    margin-bottom: 18px;
-}
-
-.timer-controls {
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-    margin: 18px 0 20px;
-}
-
 .btn {
     border: none;
     border-radius: 12px;
@@ -776,27 +680,6 @@ body {
     color: var(--text-secondary);
     font-weight: 500;
 }
-
-/* Heatmap */
-.heatmap-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, 14px);
-    grid-template-rows: repeat(7, 14px);
-    grid-auto-flow: column;
-    gap: 4px;
-    margin-bottom: 40px;
-}
-
-.heatmap-cell {
-    width: 14px;
-    height: 14px;
-    background-color: var(--bg-panel);
-    border-radius: 3px;
-}
-.heatmap-cell.level-1 { background-color: #C8E6C9; }
-.heatmap-cell.level-2 { background-color: #81C784; }
-.heatmap-cell.level-3 { background-color: #4CAF50; }
-.heatmap-cell.level-4 { background-color: #2E7D32; }
 
 /* Calendar Styles */
 .calendar-grid {
@@ -1435,126 +1318,6 @@ body {
 }
 
 
-/* Noise View */
-.noise-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 24px;
-}
-
-.noise-item {
-    position: relative;
-    height: 160px;
-    border-radius: 20px;
-    overflow: hidden;
-    cursor: pointer;
-    border: 2px solid transparent;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.noise-item.playing {
-    border-color: var(--accent);
-    box-shadow: 0 0 20px rgba(90, 209, 154, 0.2);
-    transform: translateY(-4px);
-}
-
-.noise-bg {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-size: cover;
-    background-position: center;
-    filter: brightness(0.7) saturate(1.2);
-    transition: filter 0.3s;
-}
-.noise-item:hover .noise-bg { filter: brightness(0.9) saturate(1.2); }
-
-/* Abstract gradients for noise backgrounds to save space */
-.rain-bg { background: linear-gradient(135deg, #1e3c72, #2a5298); }
-.sea-bg { background: linear-gradient(135deg, #2b5876, #4e4376); }
-.forest-bg { background: linear-gradient(135deg, #0ba360, #3cba92); }
-.cafe-bg { background: linear-gradient(135deg, #603813, #b29f94); }
-
-.noise-content {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
-}
-
-.noise-name {
-    color: #FFF;
-    font-size: 20px;
-    font-weight: 600;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    letter-spacing: 0.5px;
-}
-
-.noise-controls {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.noise-controls .btn {
-    background: rgba(255,255,255,0.2);
-    color: #FFF;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    font-size: 14px;
-    backdrop-filter: blur(4px);
-}
-.noise-controls .btn:hover {
-    background: rgba(255,255,255,0.4);
-}
-
-.noise-volume {
-    flex-grow: 1;
-    height: 6px;
-    appearance: none;
-    -webkit-appearance: none;
-    background: rgba(255,255,255,0.3);
-    border-radius: 3px;
-    outline: none;
-}
-.noise-volume::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #FFF;
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.noise-meta {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #fff;
-    font-size: 12px;
-    opacity: 0.92;
-}
-.noise-source-badge {
-    padding: 2px 8px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.18);
-    line-height: 18px;
-}
-.noise-status {
-    margin-left: auto;
-    color: rgba(255,255,255,0.88);
-}
 .music-paper-shell {
     display: flex;
     flex-direction: column;
@@ -2833,13 +2596,13 @@ body {
     <div id="app" class="app-container">
         <!-- Sidebar -->
         <nav class="sidebar">
-            <div class="nav-item active" data-target="timer-view" title="番茄钟">🍅</div>
-            <div class="nav-item" data-target="stats-view" title="统计">📊</div>
-            <div class="nav-item" data-target="noise-view" title="白噪音">🎵</div>
-            <div class="nav-item" data-target="settings-view" title="设置">⚙️</div>
-            <div class="nav-item" data-target="goals-view" title="目标">🎯</div>
-            <div class="nav-item" data-target="pet-view" title="养成">🌱</div>
-            <div class="nav-item theme-toggle" title="切换主题">🌙</div>
+            <div class="nav-item active" data-target="timer-view" title="番茄钟" role="button" tabindex="0" aria-label="番茄钟">🍅</div>
+            <div class="nav-item" data-target="stats-view" title="统计" role="button" tabindex="0" aria-label="统计">📊</div>
+            <div class="nav-item" data-target="noise-view" title="白噪音" role="button" tabindex="0" aria-label="白噪音">🎵</div>
+            <div class="nav-item" data-target="settings-view" title="设置" role="button" tabindex="0" aria-label="设置">⚙️</div>
+            <div class="nav-item" data-target="goals-view" title="目标" role="button" tabindex="0" aria-label="目标">🎯</div>
+            <div class="nav-item" data-target="pet-view" title="养成" role="button" tabindex="0" aria-label="养成">🌱</div>
+            <div class="nav-item theme-toggle" title="切换主题" role="button" tabindex="0" aria-label="切换主题">🌙</div>
         </nav>
 
         <!-- Content Area -->
@@ -2862,7 +2625,7 @@ body {
                         <div class="timer-hero">
                             <div class="timer-stage-label">当前计时</div>
                             <div class="timer-display">
-                                <span id="time-left">25:00</span>
+                                <span id="time-left"></span>
                             </div>
                             <div class="timer-controls">
                                 <button id="btn-toggle-timer" class="btn primary">▶</button>
@@ -3181,7 +2944,7 @@ body {
     <button id="btn-restore-capsule" class="btn-float hidden">💊</button>
 
     <!-- Modals -->
-    <div id="goal-modal" class="modal hidden">
+    <div id="goal-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="goal-modal-title">
         <div class="modal-content">
             <h3 id="goal-modal-title">添加长目标</h3>
             <input type="text" id="goal-name-input" placeholder="目标名称">
@@ -3198,7 +2961,7 @@ body {
         </div>
     </div>
 
-    <div id="task-modal" class="modal hidden">
+    <div id="task-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="task-modal-title">
         <div class="modal-content">
             <h3 id="task-modal-title">新增任务</h3>
             <select id="task-goal-select"></select>
@@ -3223,7 +2986,7 @@ body {
         </div>
     </div>
 
-    <div id="music-modal" class="modal hidden">
+    <div id="music-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="music-modal-title">
         <div class="modal-content">
             <h3 id="music-modal-title">编辑音乐卡片</h3>
             <input type="text" id="music-title-input" placeholder="卡片标题">
@@ -3297,7 +3060,8 @@ const DEFAULT_STATE = {
     },
     currentGoalId: 'default',
     currentTaskId: '',
-    currentTask: ''
+    currentTask: '',
+    pomodoroCount: 0
 };
 
 const GOAL_COLORS = ['#ff8a65', '#81c784', '#64b5f6', '#4dd0e1', '#ba68c8', '#f06292', '#e57373', '#a1887f'];
@@ -3725,13 +3489,47 @@ let taskModalState = { mode: 'create', taskId: null, setCurrentOnSave: false, go
 let goalTaskFilter = 'all';
 let capsulePipWindow = null;
 
+// Modal a11y：焦点管理（打开聚焦首个可聚焦元素，关闭焦点回触发按钮）
+let modalTriggerEl = null;
+function focusFirstInModal(modalEl) {
+    const focusable = modalEl.querySelector('input, textarea, select, button:not([disabled])');
+    if (focusable) focusable.focus();
+}
+function returnModalFocus() {
+    if (modalTriggerEl && typeof modalTriggerEl.focus === 'function') {
+        modalTriggerEl.focus();
+        modalTriggerEl = null;
+    }
+}
+
 if (!localStorage.getItem('fanqie_capsule_forced')) {
     state.settings.capsuleEnabled = true;
     localStorage.setItem('fanqie_capsule_forced', 'true');
 }
 
 function saveState() {
-    localStorage.setItem('fanqie_state', JSON.stringify(state));
+    try {
+        localStorage.setItem('fanqie_state', JSON.stringify(state));
+    } catch (error) {
+        console.warn('saveState 写入失败，尝试清理旧 daily 记录后重试：', error);
+        try {
+            // 降级：仅保留最近 30 天 daily 记录后重试
+            if (state && state.stats && state.stats.daily) {
+                const sortedKeys = Object.keys(state.stats.daily).sort();
+                while (sortedKeys.length > 30) {
+                    delete state.stats.daily[sortedKeys.shift()];
+                }
+                localStorage.setItem('fanqie_state', JSON.stringify(state));
+            }
+        } catch (innerError) {
+            console.warn('saveState 降级写入仍失败：', innerError);
+        }
+        // 一次性提示用户，不中断 UI
+        if (!window.__fanqieQuotaWarned) {
+            window.__fanqieQuotaWarned = true;
+            alert('本地存储空间不足，部分历史统计可能未被保存。建议导出或清理旧数据。');
+        }
+    }
     updateStatsUI();
 }
 
@@ -3970,8 +3768,12 @@ function syncAllCapsules() {
 let timerInterval = null;
 let timeLeft = state.settings.focusTime * 60;
 let timerMode = 'focus'; // focus, shortBreak, longBreak
-let pomodoroCount = 0;
 let isRunning = false;
+let isCompleting = false; // 完成过渡期标志，防止过渡期内重复启动导致双倍计数
+let completingTimer = null; // 完成过渡期 setTimeout 句柄，便于停止时清理
+let endTime = 0; // 墙钟到期时间戳，消除 setInterval 后台节流漂移
+let sessionElapsedMs = 0; // 当前逻辑会话累计实际运行毫秒（统计真实经过时长）
+let runStartMs = 0; // 当前连续运行段起始时间戳（0 表示已暂停）
 let currentMusicCardId = '';
 
 // DOM Elements
@@ -3988,13 +3790,31 @@ function init() {
     initGoals();
     initTasks();
     initAudio();
+    initModalA11y();
     updateUI();
+}
+
+// Modal a11y：ESC 关闭 + goal 遮罩点击关闭（task 遮罩已在 initTasks 中处理）
+function initModalA11y() {
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        const taskModal = el('task-modal');
+        if (taskModal && !taskModal.classList.contains('hidden')) { closeTaskModal(); return; }
+        const goalModal = el('goal-modal');
+        if (goalModal && !goalModal.classList.contains('hidden')) { closeGoalModal(); return; }
+    });
+    const goalModal = el('goal-modal');
+    if (goalModal) {
+        goalModal.addEventListener('click', (e) => { if (e.target === goalModal) closeGoalModal(); });
+    }
 }
 
 // Theme
 function applyTheme(theme) {
     document.body.setAttribute('data-theme', theme);
     state.theme = theme;
+    // 根据当前主题动态切换主题按钮图标
+    els('.theme-toggle').forEach(btn => { btn.textContent = theme === 'dark' ? '🌙' : '☀️'; });
     if (capsulePipWindow && !capsulePipWindow.closed) {
         capsulePipWindow.document.body?.setAttribute('data-theme', theme);
         syncCapsuleView(capsulePipWindow.document);
@@ -4033,6 +3853,17 @@ function initNav() {
             }
         });
     });
+
+    // 键盘可访问：Enter/Space 触发导航项点击（事件委托，覆盖含主题切换的全部 nav-item）
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+        sidebar.addEventListener('keydown', (e) => {
+            if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('nav-item')) {
+                e.preventDefault();
+                e.target.click();
+            }
+        });
+    }
 }
 
 // Timer Logic
@@ -4073,14 +3904,19 @@ function toggleTimer() {
 }
 
 function startTimer() {
-    if (isRunning) return;
+    if (isRunning || isCompleting) return; // 完成过渡期内禁止启动，防止双倍计数
     isRunning = true;
     el('btn-toggle-timer').textContent = '⏸';
     syncAllCapsules();
-    
+
+    // 用墙钟到期时间消除 setInterval 后台标签页节流漂移
+    endTime = Date.now() + timeLeft * 1000;
+    runStartMs = Date.now();
+
     timerInterval = setInterval(() => {
-        timeLeft--;
-        if (timeLeft <= 0) {
+        const remaining = Math.max(0, Math.round((endTime - Date.now()) / 1000));
+        timeLeft = remaining;
+        if (remaining <= 0) {
             timeLeft = 0;
             updateTimerDisplay(); // 确保显示到 00:00
             handleTimerComplete();
@@ -4091,6 +3927,10 @@ function startTimer() {
 }
 
 function pauseTimer() {
+    if (runStartMs) {
+        sessionElapsedMs += Date.now() - runStartMs;
+        runStartMs = 0;
+    }
     isRunning = false;
     clearInterval(timerInterval);
     el('btn-toggle-timer').textContent = '▶';
@@ -4098,11 +3938,21 @@ function pauseTimer() {
 }
 
 function stopTimer() {
+    // 完成过渡期内停止：清理挂起的 setTimeout，避免回调推翻停止操作（不记录统计）
+    if (isCompleting) {
+        isCompleting = false;
+        if (completingTimer) {
+            clearTimeout(completingTimer);
+            completingTimer = null;
+        }
+    }
     pauseTimer();
     resetTimer();
 }
 
 function resetTimer() {
+    sessionElapsedMs = 0;
+    runStartMs = 0;
     if (timerMode === 'focus') {
         timeLeft = state.settings.focusTime * 60;
     } else if (timerMode === 'shortBreak') {
@@ -4115,20 +3965,32 @@ function resetTimer() {
 
 function handleTimerComplete() {
     pauseTimer();
+    isCompleting = true; // 进入完成过渡期，禁止 startTimer 重复启动
     playEndSound();
-    
+
     // 给UI留一点时间展示00:00，然后再重置
-    setTimeout(() => {
+    completingTimer = setTimeout(() => {
+        // 过渡期结束，恢复可启动状态（须在 autoStart 前清除，避免拦截自动开始）
+        completingTimer = null;
+        isCompleting = false;
         if (timerMode === 'focus') {
-            // Record stats
-            pomodoroCount++;
-            recordStats(state.settings.focusTime, 1);
-            
-            // Gamification
-            state.pet.points += state.settings.focusTime;
+            // 用墙钟累计计算实际经过分钟数，避免写设置值
+            let elapsedMs = sessionElapsedMs;
+            if (runStartMs) {
+                elapsedMs += Date.now() - runStartMs;
+                runStartMs = 0;
+            }
+            // 按本会话配置时长封顶，避免后台节流导致 sessionElapsedMs 超时长虚增
+            const sessionCapMs = (timerMode === 'focus' ? state.settings.focusTime : (timerMode === 'shortBreak' ? state.settings.shortBreak : state.settings.longBreak)) * 60000;
+            const elapsedMinutes = Math.min(Math.round(sessionCapMs / 60000), Math.max(1, Math.round(elapsedMs / 60000)));
+
+            // Record stats & gamification（使用实际经过时长；pomodoroCount 纳入 state 持久化）
+            state.pomodoroCount = (state.pomodoroCount || 0) + 1;
+            recordStats(elapsedMinutes, 1);
+            state.pet.points += elapsedMinutes;
             checkPetLevel();
-            
-            if (pomodoroCount % state.settings.longBreakInterval === 0) {
+
+            if (state.pomodoroCount % state.settings.longBreakInterval === 0) {
                 timerMode = 'longBreak';
             } else {
                 timerMode = 'shortBreak';
@@ -4136,7 +3998,7 @@ function handleTimerComplete() {
             showNotification('专注结束', '休息一下吧！');
             resetTimer();
             if (state.settings.autoStartBreak) startTimer();
-            
+
         } else {
             timerMode = 'focus';
             showNotification('休息结束', '开始专注吧！');
@@ -4221,11 +4083,11 @@ function showNotification(title, body) {
         return;
     }
     if (Notification.permission === 'granted') {
-        new Notification(title, { body, icon: '🍅' });
+        new Notification(title, { body });
     } else if (Notification.permission !== 'denied') {
         Notification.requestPermission()
             .then(permission => {
-                if (permission === 'granted') new Notification(title, { body, icon: '🍅' });
+                if (permission === 'granted') new Notification(title, { body });
                 else alert(`${title}\n${body}`);
             })
             .catch(() => {
@@ -4316,6 +4178,11 @@ function initCapsule() {
     dragArea.addEventListener('mousedown', dragStart);
     document.addEventListener('mousemove', drag);
     document.addEventListener('mouseup', dragEnd);
+
+    // 移动端触屏拖拽：映射到同一拖拽逻辑
+    dragArea.addEventListener('touchstart', dragStart, { passive: false });
+    document.addEventListener('touchmove', drag, { passive: false });
+    document.addEventListener('touchend', dragEnd);
     
     cap.addEventListener('dblclick', () => {
         cap.classList.add('hidden');
@@ -4360,6 +4227,12 @@ function initCapsule() {
             document.exitFullscreen();
             el('menu-fullscreen').textContent = '进入全屏(沉浸模式)';
         }
+    });
+
+    // 监听全屏状态变化（含 ESC 退出等系统行为），同步菜单文字
+    document.addEventListener('fullscreenchange', () => {
+        const menu = el('menu-fullscreen');
+        if (menu) menu.textContent = document.fullscreenElement ? '退出全屏' : '进入全屏(沉浸模式)';
     });
 
     el('menu-pip-capsule').addEventListener('click', async () => {
@@ -4408,23 +4281,38 @@ function toggleCapsule() {
     }
 }
 
+function getDragPoint(e) {
+    if (e.touches && e.touches.length) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    if (e.changedTouches && e.changedTouches.length) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+    return { x: e.clientX, y: e.clientY };
+}
+
 function dragStart(e) {
     if(e.target.tagName === 'BUTTON') return;
     isDragging = true;
-    startX = e.clientX;
-    startY = e.clientY;
+    const p = getDragPoint(e);
+    startX = p.x;
+    startY = p.y;
     const rect = el('capsule').getBoundingClientRect();
     initialX = rect.left;
     initialY = rect.top;
+    // touchstart 不 preventDefault，避免抑制触屏长按 contextmenu；滚动由 drag(touchmove) 阻止
 }
 
 function drag(e) {
     if (!isDragging) return;
-    const dx = e.clientX - startX;
-    const dy = e.clientY - startY;
+    if (e.cancelable && e.touches) e.preventDefault(); // 触屏拖拽时阻止页面滚动
+    const p = getDragPoint(e);
+    const dx = p.x - startX;
+    const dy = p.y - startY;
     const cap = el('capsule');
-    cap.style.left = `${initialX + dx}px`;
-    cap.style.top = `${initialY + dy}px`;
+    // 视口边界检查，避免胶囊被拖出屏幕
+    const maxX = Math.max(0, window.innerWidth - cap.offsetWidth);
+    const maxY = Math.max(0, window.innerHeight - cap.offsetHeight);
+    const nx = Math.max(0, Math.min(initialX + dx, maxX));
+    const ny = Math.max(0, Math.min(initialY + dy, maxY));
+    cap.style.left = `${nx}px`;
+    cap.style.top = `${ny}px`;
     cap.style.right = 'auto';
 }
 
@@ -4616,6 +4504,8 @@ function openTaskModal({ taskId = null, goalId = state.currentGoalId, setCurrent
     el('task-parent-hint').style.display = parent ? 'block' : 'none';
     el('btn-delete-task').style.display = task ? 'inline-flex' : 'none';
     el('task-modal').classList.remove('hidden');
+    modalTriggerEl = document.activeElement;
+    focusFirstInModal(el('task-modal'));
 }
 
 function closeTaskModal() {
@@ -4631,6 +4521,7 @@ function closeTaskModal() {
     el('task-parent-hint').style.display = 'none';
     el('btn-delete-task').style.display = 'none';
     el('task-modal').classList.add('hidden');
+    returnModalFocus();
 }
 
 function saveTaskFromModal() {
@@ -4999,6 +4890,8 @@ function openGoalModal(goalId = null) {
     el('goal-note-input').value = goal?.note || '';
     renderColorPicker(goal?.color || GOAL_COLORS[0]);
     el('goal-modal').classList.remove('hidden');
+    modalTriggerEl = document.activeElement;
+    focusFirstInModal(el('goal-modal'));
 }
 
 function closeGoalModal() {
@@ -5009,6 +4902,7 @@ function closeGoalModal() {
     el('goal-deadline-input').value = '';
     el('goal-note-input').value = '';
     renderColorPicker();
+    returnModalFocus();
 }
 
 function renderColorPicker(selectedColor = GOAL_COLORS[0]) {
@@ -5874,6 +5768,7 @@ function initAudio() {
     const closeMusicModal = () => {
         musicModal.classList.add('hidden');
         musicModal.dataset.cardId = '';
+        returnModalFocus();
     };
     const openMusicModal = (controller, options = {}) => {
         const card = controller.card;
@@ -5885,6 +5780,8 @@ function initAudio() {
         musicNoteInput.value = card.note || '';
         deleteMusicBtn.style.display = options.isNew ? 'none' : '';
         musicModal.classList.remove('hidden');
+        modalTriggerEl = document.activeElement;
+        focusFirstInModal(musicModal);
     };
     const createCardMarkup = (card) => {
         const volumePercent = Math.round((Number(card.volume) || 0.62) * 100);
@@ -6011,6 +5908,11 @@ function initAudio() {
         });
     });
     cancelMusicBtn.addEventListener('click', closeMusicModal);
+    // 音乐弹窗：点击遮罩或按 ESC 关闭
+    musicModal.addEventListener('click', (e) => { if (e.target === musicModal) closeMusicModal(); });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !musicModal.classList.contains('hidden')) closeMusicModal();
+    });
     saveMusicBtn.addEventListener('click', () => {
         saveMusicModal().catch((error) => {
             alert('保存音乐卡片失败：' + (error && error.message ? error.message : String(error)));
