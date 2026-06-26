@@ -1,5 +1,49 @@
-
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>程序员转 AI 学习路径</title>
 <style>
+:root {
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --color-text-primary: #1f2328;
+  --color-text-secondary: #57606a;
+  --color-text-tertiary: #8c959f;
+  --color-text-danger: #cf222e;
+  --color-text-warning: #9a6700;
+  --color-text-success: #1a7f37;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f6f8fa;
+  --color-background-tertiary: #eaeef2;
+  --color-background-danger: #ffebe9;
+  --color-background-warning: #fff8c5;
+  --color-background-success: #dafbe1;
+  --color-border-primary: #d0d7de;
+  --color-border-secondary: #d8dee4;
+  --color-border-tertiary: #eaeef2;
+  --border-radius-lg: 12px;
+  --border-radius-md: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text-primary: #e6edf3;
+    --color-text-secondary: #9198a1;
+    --color-text-tertiary: #6e7681;
+    --color-text-danger: #ff7b72;
+    --color-text-warning: #d29922;
+    --color-text-success: #3fb950;
+    --color-background-primary: #0d1117;
+    --color-background-secondary: #161b22;
+    --color-background-tertiary: #21262d;
+    --color-background-danger: #490202;
+    --color-background-warning: #3a2a00;
+    --color-background-success: #0f2d1c;
+    --color-border-primary: #30363d;
+    --color-border-secondary: #30363d;
+    --color-border-tertiary: #21262d;
+  }
+}
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: var(--font-sans); }
 .container { padding: 16px 0; }
@@ -46,12 +90,23 @@ body { font-family: var(--font-sans); }
 .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
 .progress-track { height: 4px; background: var(--color-background-tertiary); border-radius: 2px; }
 .progress-fill { height: 4px; border-radius: 2px; transition: width 0.5s ease; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.skip-link { position: absolute; left: -9999px; top: 8px; z-index: 100; padding: 8px 12px; background: var(--color-background-primary); border: 1px solid var(--color-border-primary); border-radius: 6px; color: var(--color-text-primary); text-decoration: none; }
+.skip-link:focus { left: 8px; }
+.stage-footer { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 0.5px solid var(--color-border-tertiary); }
+.footer-btn { padding: 6px 14px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); color: var(--color-text-secondary); font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+.footer-btn:hover:not(:disabled) { background: var(--color-background-tertiary); }
+.footer-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.footer-btn.back-to-top { margin-left: auto; }
 </style>
+</head>
+<body>
+<a class="skip-link" href="#stageNav">跳到学习阶段导航</a>
 
 <div class="container">
   <h2 class="sr-only">普通程序员学习 AI 的路径导览</h2>
 
-  <div class="stage-nav" id="stageNav"></div>
+  <nav class="stage-nav" id="stageNav" aria-label="学习阶段导航"></nav>
 
   <div id="stagePanels"></div>
 </div>
@@ -254,31 +309,69 @@ const stages = [
   }
 ];
 
+function escapeHTML(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+const STORAGE_KEY_STAGE = 'ai_learning_path_active_stage';
+const STORAGE_KEY_TOPICS = 'ai_learning_path_open_topics';
+
+function getActiveStage() {
+  let n = parseInt(localStorage.getItem(STORAGE_KEY_STAGE), 10);
+  if (isNaN(n)) n = 0;
+  return Math.max(0, Math.min(stages.length - 1, n));
+}
+function setActiveStage(i) {
+  try { localStorage.setItem(STORAGE_KEY_STAGE, String(i)); } catch (e) {}
+}
+function getOpenTopics() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY_TOPICS)) || []; } catch (e) { return []; }
+}
+function setOpenTopics(arr) {
+  try { localStorage.setItem(STORAGE_KEY_TOPICS, JSON.stringify(arr)); } catch (e) {}
+}
+function topicKey(si, ti) { return si + '-' + ti; }
+function backToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 function renderStages() {
   const nav = document.getElementById('stageNav');
   const panels = document.getElementById('stagePanels');
-  
+  const activeStage = getActiveStage();
+
   stages.forEach((stage, si) => {
     const btn = document.createElement('button');
-    btn.className = 'stage-btn' + (si === 0 ? ' active' : '');
+    btn.className = 'stage-btn' + (si === activeStage ? ' active' : '');
     btn.textContent = stage.label;
+    btn.setAttribute('aria-pressed', String(si === activeStage));
     btn.onclick = () => switchStage(si);
     nav.appendChild(btn);
-    
+
     const panel = document.createElement('div');
-    panel.className = 'stage-panel' + (si === 0 ? ' active' : '');
+    panel.className = 'stage-panel' + (si === activeStage ? ' active' : '');
     panel.id = 'panel-' + si;
-    
+
+    const prevDisabled = si === 0 ? ' disabled' : '';
+    const nextDisabled = si === stages.length - 1 ? ' disabled' : '';
+
     panel.innerHTML = `
       <div class="stage-header">
-        <div class="stage-title">${stage.title}</div>
-        <div class="stage-desc">${stage.desc}</div>
+        <div class="stage-title">${escapeHTML(stage.title)}</div>
+        <div class="stage-desc">${escapeHTML(stage.desc)}</div>
         <div class="progress-bar-wrap">
-          <div class="progress-label"><span>学习进度参考</span><span>${stage.progress}% 完成后可进入下一阶段</span></div>
-          <div class="progress-track"><div class="progress-fill" style="width:${stage.progress}%; background:${stage.color}"></div></div>
+          <div class="progress-label"><span>建议完成度参考</span><span>参考值约 ${stage.progress}%</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:${stage.progress}%; background:${escapeHTML(stage.color)}"></div></div>
         </div>
       </div>
       <div class="topics-grid">${stage.topics.map((t, ti) => renderTopic(t, si, ti)).join('')}</div>
+      <div class="stage-footer">
+        <button class="footer-btn" onclick="switchStage(${si - 1})"${prevDisabled}>上一阶段</button>
+        <button class="footer-btn" onclick="switchStage(${si + 1})"${nextDisabled}>下一阶段</button>
+        <button class="footer-btn back-to-top" onclick="backToTop()">返回顶部</button>
+      </div>
     `;
     panels.appendChild(panel);
   });
@@ -286,25 +379,26 @@ function renderStages() {
 
 function renderTopic(t, si, ti) {
   const tagClass = { must: 'tag-must', important: 'tag-important', optional: 'tag-optional' }[t.tag];
+  const isOpen = getOpenTopics().indexOf(topicKey(si, ti)) !== -1;
   return `
-    <div class="topic-card" id="card-${si}-${ti}" onclick="toggleTopic(${si}, ${ti})">
+    <div class="topic-card${isOpen ? ' expanded' : ''}" id="card-${si}-${ti}" role="button" tabindex="0" aria-expanded="${isOpen}" aria-controls="detail-${si}-${ti}" onclick="toggleTopic(${si}, ${ti})">
       <div class="topic-header">
-        <div class="topic-name">${t.name}</div>
-        <span class="topic-tag ${tagClass}">${t.tagLabel}</span>
+        <div class="topic-name">${escapeHTML(t.name)}</div>
+        <span class="topic-tag ${tagClass}">${escapeHTML(t.tagLabel)}</span>
       </div>
-      <div class="topic-summary">${t.summary}</div>
-      <div class="topic-detail" id="detail-${si}-${ti}">
+      <div class="topic-summary">${escapeHTML(t.summary)}</div>
+      <div class="topic-detail${isOpen ? ' open' : ''}" id="detail-${si}-${ti}">
         <div class="detail-section">
           <div class="detail-label">底层原理</div>
-          <div class="detail-content">${t.principle}</div>
+          <div class="detail-content">${escapeHTML(t.principle)}</div>
         </div>
         <div class="detail-section">
           <div class="detail-label">必须掌握</div>
-          <div class="detail-content"><ul>${t.mustKnow.map(m => `<li>${m}</li>`).join('')}</ul></div>
+          <div class="detail-content"><ul>${t.mustKnow.map(m => `<li>${escapeHTML(m)}</li>`).join('')}</ul></div>
         </div>
         <div class="detail-section">
           <div class="detail-label">实践技巧</div>
-          <div class="tips-box detail-content"><ul>${t.tips.map(tip => `<li>${tip}</li>`).join('')}</ul></div>
+          <div class="tips-box detail-content"><ul>${t.tips.map(tip => `<li>${escapeHTML(tip)}</li>`).join('')}</ul></div>
         </div>
       </div>
     </div>
@@ -312,8 +406,14 @@ function renderTopic(t, si, ti) {
 }
 
 function switchStage(idx) {
-  document.querySelectorAll('.stage-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  idx = Math.max(0, Math.min(stages.length - 1, idx));
+  document.querySelectorAll('.stage-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+    b.setAttribute('aria-pressed', String(i === idx));
+  });
   document.querySelectorAll('.stage-panel').forEach((p, i) => p.classList.toggle('active', i === idx));
+  setActiveStage(idx);
+  document.getElementById('stageNav').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function toggleTopic(si, ti) {
@@ -322,7 +422,28 @@ function toggleTopic(si, ti) {
   const isOpen = detail.classList.contains('open');
   detail.classList.toggle('open', !isOpen);
   card.classList.toggle('expanded', !isOpen);
+  card.setAttribute('aria-expanded', String(!isOpen));
+  const key = topicKey(si, ti);
+  let open = getOpenTopics();
+  if (!isOpen) {
+    if (open.indexOf(key) === -1) open.push(key);
+  } else {
+    open = open.filter(k => k !== key);
+  }
+  setOpenTopics(open);
 }
 
 renderStages();
+
+document.getElementById('stagePanels').addEventListener('keydown', function (e) {
+  const card = e.target.closest && e.target.closest('.topic-card');
+  if (!card) return;
+  if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+    e.preventDefault();
+    const parts = card.id.split('-');
+    toggleTopic(parts[1], parts[2]);
+  }
+});
 </script>
+</body>
+</html>

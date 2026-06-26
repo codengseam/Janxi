@@ -77,16 +77,16 @@
 
         <main>
             <section class="mb-8">
-                <div id="drop-area" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer transition-all duration-300">
+                <div id="drop-area" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer transition-all duration-300" tabindex="0" role="button" aria-label="点击或拖拽上传文件">
                     <i class="fa fa-cloud-upload text-4xl text-secondary mb-4"></i>
                     <h2 class="text-xl font-semibold mb-2">拖拽文件到此处或点击上传</h2>
                     <p class="text-secondary mb-4">支持多文件上传</p>
-                    <input type="file" id="file-input" class="hidden" multiple>
+                    <input type="file" id="file-input" class="hidden" multiple accept=".docx,.md,.html,.epub,.pdf,.txt">
                     <button id="upload-btn" class="btn btn-primary">选择文件</button>
                 </div>
             </section>
 
-            <div id="error-container" class="mb-8 hidden"></div>
+            <div id="error-container" class="mb-8 hidden" role="alert" aria-live="assertive"></div>
             <div id="success-container" class="mb-8 hidden"></div>
 
             <section class="mb-8">
@@ -121,7 +121,7 @@
                         <li>为每个文件选择源格式和目标格式</li>
                         <li>点击"转换"按钮转换单个文件，或点击"批量转换"按钮转换所有文件</li>
                         <li>转换完成后，点击"下载"按钮下载转换后的文件</li>
-                        <li>支持的格式：Word (.docx)、Markdown (.md)、HTML (.html)、EPUB (.epub)、PDF (.pdf)、TXT (.txt)、MOBI (.mobi)</li>
+                        <li>支持的格式：Word (.docx)、Markdown (.md)、HTML (.html)、EPUB (.epub)、PDF (.pdf)、TXT (.txt)</li>
                     </ul>
                 </div>
             </section>
@@ -142,9 +142,16 @@
             { value: 'html', label: 'HTML (.html)' },
             { value: 'epub', label: 'EPUB (.epub)' },
             { value: 'pdf', label: 'PDF (.pdf)' },
-            { value: 'txt', label: 'TXT (.txt)' },
-            { value: 'mobi', label: 'MOBI (.mobi)' }
+            { value: 'txt', label: 'TXT (.txt)' }
         ];
+
+        // 兼容非安全上下文(file://)下 crypto.randomUUID 缺失的情况
+        function genId() {
+            try {
+                if (crypto && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+            } catch (e) { /* 非安全上下文会抛错，走 fallback */ }
+            return Date.now().toString(36) + Math.random().toString(36).slice(2);
+        }
 
         document.addEventListener('DOMContentLoaded', async function() {
             await initPdfJs();
@@ -158,9 +165,11 @@
         async function initPdfJs() {
             try {
                 pdfjsLib = pdfjsLib || window.pdfjsLib;
+                if (!pdfjsLib) throw new Error('PDF.js 未加载');
                 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
             } catch (error) {
                 pdfjsLib = null;
+                showErrorMessage('PDF 转换不可用：PDF 引擎加载失败，PDF 相关转换将不可用');
             }
         }
 
@@ -191,6 +200,13 @@
                 if (e.target.closest('#upload-btn') !== null) return;
                 fileInput.click();
             });
+            dropArea.addEventListener('keydown', function(e) {
+                if (e.target.closest('#upload-btn') !== null) return;
+                if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                    e.preventDefault();
+                    fileInput.click();
+                }
+            });
             fileInput.addEventListener('change', function() {
                 if (this.files.length > 0) handleFiles(this.files);
                 this.value = '';
@@ -217,9 +233,13 @@
         }
 
         function addFile(file) {
-            const fileId = crypto.randomUUID();
+            if (file.size === 0) {
+                showErrorMessage(`文件 "${escapeHtml(file.name)}" 为空，无法转换`);
+                return;
+            }
+            const fileId = genId();
             const fileSizeMB = file.size / (1024 * 1024);
-            if (fileSizeMB > 100) showErrorMessage(`文件 "${file.name}" 较大 (${formatFileSize(file.size)})，已启用流式读取`);
+            if (fileSizeMB > 100) showErrorMessage(`文件 "${escapeHtml(file.name)}" 较大 (${formatFileSize(file.size)})，已启用流式读取`);
             const sourceFormat = getFormatFromExtension(file.name);
             const fileItem = {
                 id: fileId,
@@ -235,7 +255,7 @@
             };
             files.push(fileItem);
             renderFileList();
-            showSuccessMessage(`文件 "${file.name}" 已添加 (${formatFileSize(file.size)})`);
+            showSuccessMessage(`文件 "${escapeHtml(file.name)}" 已添加 (${formatFileSize(file.size)})`);
         }
 
         function getFormatFromExtension(filename) {
@@ -259,18 +279,18 @@
                     : fileItem.status === 'done'
                         ? '转换完成'
                         : fileItem.status === 'error'
-                            ? `转换失败：${fileItem.message}`
+                            ? `转换失败：${escapeHtml(fileItem.message)}`
                             : '等待转换';
 
                 fileElement.innerHTML = `
                     <div class="flex items-center flex-1">
                         <i class="fa fa-file text-secondary mr-3"></i>
                         <div class="w-full">
-                            <p class="font-medium">${fileItem.name}${largeFileBadge}</p>
+                            <p class="font-medium">${escapeHtml(fileItem.name)}${largeFileBadge}</p>
                             <p class="text-sm text-secondary">${formatFileSize(fileItem.size)}</p>
-                            <p class="text-xs mt-1 ${fileItem.status === 'error' ? 'text-danger' : 'text-secondary'}">${statusLabel}</p>
-                            <div class="progress-bar mt-2">
-                                <div class="progress-fill" style="width:${fileItem.progress}%"></div>
+                            <p class="text-xs mt-1 ${fileItem.status === 'error' ? 'text-danger' : 'text-secondary'}" data-status-id="${fileItem.id}">${statusLabel}</p>
+                            <div class="progress-bar mt-2" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${fileItem.progress}" data-progress-bar-id="${fileItem.id}">
+                                <div class="progress-fill" data-progress-fill-id="${fileItem.id}" style="width:${fileItem.progress}%"></div>
                             </div>
                         </div>
                     </div>
@@ -476,7 +496,9 @@
                     opfPath = opfCandidate || '';
                 }
                 if (!opfPath) throw new Error('无法读取 EPUB 结构');
-                const opfXml = await zip.file(opfPath).async('string');
+                const opfFile = zip.file(opfPath);
+                if (!opfFile) throw new Error('OPF 文件缺失');
+                const opfXml = await opfFile.async('string');
                 const parser = new DOMParser();
                 const opfDoc = parser.parseFromString(opfXml, 'application/xml');
                 const baseDir = opfPath.includes('/') ? opfPath.slice(0, opfPath.lastIndexOf('/') + 1) : '';
@@ -687,13 +709,13 @@
             // 设置字体大小
             doc.setFontSize(11);
             
-            // 尝试加载中文字体
+            // 尝试加载中文字体（jsPDF 仅支持 TTF，使用稳定 CDN）
             let fontLoaded = false;
             const fontUrls = [
-                'https://cdn.jsdelivr.net/npm/@aspect-ratio/core@1.0.0/fonts/NotoSansSC-Regular.ttf',
-                'https://cdn.jsdelivr.net/gh/nicubarbaros/awesome-fonts@master/NotoSansSC-Regular.ttf'
+                'https://cdn.jsdelivr.net/npm/cn-fontsource-noto-sans-sc-regular/font.ttf',
+                'https://cdn.jsdelivr.net/gh/StellarCN/scp_zh@master/fonts/SimHei.ttf'
             ];
-            
+
             for (const fontUrl of fontUrls) {
                 try {
                     console.log('尝试加载字体:', fontUrl);
@@ -712,11 +734,10 @@
                     console.log('字体加载失败:', error.message);
                 }
             }
-            
-            // 如果字体加载失败，使用默认字体
+
+            // 字体加载失败时拒绝生成，避免静默产出中文乱码 PDF
             if (!fontLoaded) {
-                console.log('使用默认字体');
-                doc.setFont('helvetica');
+                throw new Error('中文字体加载失败，无法生成 PDF，请检查网络');
             }
             
             // 设置页边距
@@ -797,7 +818,7 @@
 </html>`);
             oebps.file('toc.ncx', `<?xml version="1.0" encoding="UTF-8"?>
 <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
-<head><meta name="dtb:uid" content="${crypto.randomUUID()}"/></head>
+<head><meta name="dtb:uid" content="${genId()}"/></head>
 <docTitle><text>${escapeHtml(title)}</text></docTitle>
 <navMap><navPoint id="navPoint-1" playOrder="1"><navLabel><text>开始</text></navLabel><content src="chapter1.xhtml"/></navPoint></navMap>
 </ncx>`);
@@ -806,7 +827,7 @@
 <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
 <dc:title>${escapeHtml(title)}</dc:title>
 <dc:language>zh-CN</dc:language>
-<dc:identifier id="BookId">${crypto.randomUUID()}</dc:identifier>
+<dc:identifier id="BookId">${genId()}</dc:identifier>
 </metadata>
 <manifest>
 <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
@@ -856,15 +877,15 @@
                 } else {
                     const markdown = await toIntermediateMarkdown(fileItem, progress => {
                         fileItem.progress = progress;
-                        renderFileList();
+                        updateFileProgress(fileItem.id, progress);
                     });
                     fileItem.progress = 75;
-                    renderFileList();
+                    updateFileProgress(fileItem.id, 75);
                     blob = await markdownToTargetBlob(markdown, fileItem.targetFormat, fileItem.name);
                     fileItem.progress = 100;
                 }
                 const resultItem = {
-                    id: crypto.randomUUID(),
+                    id: genId(),
                     sourceFileId: fileItem.id,
                     originalName: fileItem.name,
                     convertedName,
@@ -877,14 +898,24 @@
                 fileItem.status = 'done';
                 renderFileList();
                 renderResultList();
-                showSuccessMessage(`"${fileItem.name}" 已转换为 "${resultItem.convertedName}"`);
+                showSuccessMessage(`"${escapeHtml(fileItem.name)}" 已转换为 "${escapeHtml(resultItem.convertedName)}"`);
             } catch (error) {
                 fileItem.status = 'error';
                 fileItem.progress = 0;
                 fileItem.message = error && error.message ? error.message : '转换失败';
                 renderFileList();
-                showErrorMessage(`"${fileItem.name}" 转换失败：${fileItem.message}`);
+                showErrorMessage(`"${escapeHtml(fileItem.name)}" 转换失败：${escapeHtml(fileItem.message)}`);
             }
+        }
+
+        // 局部更新进度条宽度、状态文本与 aria-valuenow，避免全量重建 DOM
+        function updateFileProgress(fileId, progress) {
+            const fill = document.querySelector(`[data-progress-fill-id="${fileId}"]`);
+            const bar = document.querySelector(`[data-progress-bar-id="${fileId}"]`);
+            const status = document.querySelector(`[data-status-id="${fileId}"]`);
+            if (fill) fill.style.width = progress + '%';
+            if (bar) bar.setAttribute('aria-valuenow', progress);
+            if (status) status.textContent = `转换中 ${progress}%`;
         }
 
         async function convertAllFiles() {
@@ -914,8 +945,8 @@
                     <div class="flex items-center flex-1">
                         <i class="fa fa-file text-accent mr-3"></i>
                         <div>
-                            <p class="font-medium">${resultItem.convertedName}</p>
-                            <p class="text-sm text-secondary">源文件：${resultItem.originalName}</p>
+                            <p class="font-medium">${escapeHtml(resultItem.convertedName)}</p>
+                            <p class="text-sm text-secondary">源文件：${escapeHtml(resultItem.originalName)}</p>
                             <p class="text-sm text-secondary">${formatFileSize(resultItem.size)}</p>
                         </div>
                     </div>
@@ -945,6 +976,7 @@
                 await writable.close();
                 return true;
             } catch (error) {
+                if (error && error.name === 'AbortError') return 'cancelled';
                 return false;
             }
         }
@@ -957,7 +989,7 @@
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            setTimeout(() => URL.revokeObjectURL(url), 10000);
         }
 
         async function downloadResult(resultId) {
@@ -967,8 +999,12 @@
                 return;
             }
             const saved = await writeBlobWithPicker(resultItem.blob, resultItem.convertedName);
+            if (saved === 'cancelled') {
+                showErrorMessage('已取消下载');
+                return;
+            }
             if (!saved) downloadByLink(resultItem.blob, resultItem.convertedName);
-            showSuccessMessage(`文件 "${resultItem.convertedName}" 下载成功`);
+            showSuccessMessage(`文件 "${escapeHtml(resultItem.convertedName)}" 下载成功`);
         }
 
         async function downloadAllToDirectory() {
@@ -1027,7 +1063,7 @@
             errorContainer.classList.remove('hidden');
             setTimeout(() => {
                 errorContainer.classList.add('hidden');
-            }, 3000);
+            }, 8000);
         }
 
         function showSuccessMessage(message) {
